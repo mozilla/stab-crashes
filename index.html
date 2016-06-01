@@ -1,0 +1,30 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Stability Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+<script src="dash.js"></script>
+<input type="checkbox" name="oom" id="oom"><label for="oom">Show OOM crashes</label>
+<input type="checkbox" name="shutdownhang" id="shutdownhang"><label for="shutdownhang">Show shutdownhang crashes</label>
+<input type="checkbox" name="flash" id="flash"><label for="flash">Show Flash-related crashes</label>
+<input type="checkbox" name="hideResolved" id="hideResolved"><label for="hideResolved">Hide RESOLVED bugs</label>
+<br><br>
+<label for="graphType">Graph type:</label>
+<select name="graphType" id="graphType">
+  <option selected>Crashes per usage hours</option>
+  <option>Crashes per ADI</option>
+  <option>Raw number of crashes</option>
+</select>
+<table id="table">
+  <tr>
+    <th>Rank</th>
+    <th>Signature</th>
+    <th>Bug(s)</th>
+    <th>Evolution</th>
+  </tr>
+</table>
+</body>
+</html>
