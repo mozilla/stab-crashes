@@ -3,7 +3,6 @@ var tableOptions = {
   'oom': false,
   'shutdownhang': false,
   'flash': false,
-  'hideResolved': false,
   'graphType': null,
 };
 
@@ -144,7 +143,6 @@ function addRow(signature, obj) {
   let ten_days_ago = new Date().setDate(today.getDate() - 10);
   let bugs = row.insertCell(2);
   obj.bugs
-  .filter(bug => !tableOptions['hideResolved'] || bug.resolution == '')
   .sort((bug1, bug2) => new Date(bug2.last_change_time) - new Date(bug1.last_change_time))
   .forEach(function(bug) {
     let bugLink = document.createElement('a');
