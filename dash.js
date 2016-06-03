@@ -126,15 +126,13 @@ function addRow(signature, obj) {
 
   var key = row.insertCell(1);
 
-  if (!obj.startup_crash) {
-    var startupImage = document.createElement('img');
-    startupImage.title = (obj.startup_percent * 100).toFixed(2) + ' %';
-    startupImage.src = 'rocket_fly.png';
-    startupImage.width = 64 * obj.startup_percent;
-    startupImage.height = 64 * obj.startup_percent;
-    startupImage.style.paddingRight = 5;
-    key.appendChild(startupImage);
-  }
+  var startupImage = document.createElement('img');
+  startupImage.title = (obj.startup_percent * 100).toFixed(2) + ' %';
+  startupImage.src = 'rocket_fly.png';
+  startupImage.width = 64 * obj.startup_percent;
+  startupImage.height = 64 * obj.startup_percent;
+  startupImage.style.paddingRight = 5;
+  key.appendChild(startupImage);
 
   let signatureLink = document.createElement('a');
   signatureLink.appendChild(document.createTextNode(signature.length > 50 ? signature.substr(0, 49) + '…' : signature));
@@ -170,9 +168,23 @@ function addRow(signature, obj) {
 
   let graph = row.insertCell(3);
   if (tableOptions['graphType'] === 'Crashes per usage hours') {
-    graph.appendChild(createGraph(obj.crash_stats_per_mega_hours));
+    let crashes_by_khours = obj.crash_by_day.map(function(crashNum, i) {
+      return crashes.khours[i] ? (100 / crashes.throttle * crashNum * 1000 / crashes.khours[i]) : null;
+    });
+
+    graph.appendChild(createGraph(crashes_by_khours));
   } else if (tableOptions['graphType'] === 'Crashes per ADI') {
-    graph.appendChild(createGraph(obj.crash_stats_per_mega_adi));
+    let crashes_by_adi = obj.crash_by_day.map(function(crashNum, i) {
+      return crashes.adi[i] ? (100 / crashes.throttle * crashNum * 1000000 / crashes.adi[i]) : null;
+    });
+
+    graph.appendChild(createGraph(crashes_by_adi));
+  } else if (tableOptions['graphType'] === 'Crashes per total crashes') {
+    let crashes_by_total_crashes = obj.crash_by_day.map(function(crashNum, i) {
+      return crashes.crash_by_day[i] ? 100 * (100 / crashes.throttle * crashNum / crashes.crash_by_day[i]) : null;
+    });
+
+    graph.appendChild(createGraph(crashes_by_total_crashes));
   } else {
     graph.appendChild(createGraph(obj.crash_by_day));
   }
