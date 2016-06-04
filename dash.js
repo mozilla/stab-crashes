@@ -1,10 +1,25 @@
 var crashes;
 var tableOptions = {
-  'oom': false,
-  'shutdownhang': false,
-  'flash': false,
-  'graphType': null,
-  'crashesType': null,
+  'oom': {
+    value: false,
+    type: 'select',
+  },
+  'shutdownhang': {
+    value: false,
+    type: 'select',
+  },
+  'flash': {
+    value: false,
+    type: 'select',
+  },
+  'graphType': {
+    value: null,
+    type: 'option',
+  },
+  'crashesType': {
+    value: null,
+    type: 'option',
+  },
 };
 
 var onLoad = new Promise(function(resolve, reject) {
@@ -157,19 +172,19 @@ function addRow(signature, obj) {
   });
 
   let graph = row.insertCell(3);
-  if (tableOptions['graphType'] === 'Crashes per usage hours') {
+  if (tableOptions['graphType'].value === 'Crashes per usage hours') {
     let crashes_by_khours = obj.crash_by_day.map(function(crashNum, i) {
       return crashes.khours[i] ? (100 / crashes.throttle * crashNum * 1000 / crashes.khours[i]) : null;
     });
 
     graph.appendChild(createGraph(crashes_by_khours));
-  } else if (tableOptions['graphType'] === 'Crashes per ADI') {
+  } else if (tableOptions['graphType'].value === 'Crashes per ADI') {
     let crashes_by_adi = obj.crash_by_day.map(function(crashNum, i) {
       return crashes.adi[i] ? (100 / crashes.throttle * crashNum * 1000000 / crashes.adi[i]) : null;
     });
 
     graph.appendChild(createGraph(crashes_by_adi));
-  } else if (tableOptions['graphType'] === 'Crashes per total crashes') {
+  } else if (tableOptions['graphType'].value === 'Crashes per total crashes') {
     let crashes_by_total_crashes = obj.crash_by_day.map(function(crashNum, i) {
       return crashes.crash_by_day[i] ? 100 * (100 / crashes.throttle * crashNum / crashes.crash_by_day[i]) : null;
     });
@@ -183,9 +198,9 @@ function addRow(signature, obj) {
 
 function buildTable() {
   let file;
-  if (tableOptions['crashesType'] === 'All crashes') {
+  if (tableOptions['crashesType'].value === 'All crashes') {
     file = 'release.json';
-  } else if (tableOptions['crashesType'] === 'Startup crashes') {
+  } else if (tableOptions['crashesType'].value === 'Startup crashes') {
     file = 'release-startup.json'
   }
 
@@ -202,15 +217,15 @@ function buildTable() {
     Object.keys(crashes.signatures)
     .sort((signature1, signature2) => crashes.signatures[signature1].tc_rank - crashes.signatures[signature2].tc_rank)
     .forEach(function(signature) {
-      if (!tableOptions['oom'] && signature.toLowerCase().includes('oom')) {
+      if (!tableOptions['oom'].value && signature.toLowerCase().includes('oom')) {
         return;
       }
 
-      if (!tableOptions['shutdownhang'] && signature.toLowerCase().includes('shutdownhang')) {
+      if (!tableOptions['shutdownhang'].value && signature.toLowerCase().includes('shutdownhang')) {
         return;
       }
 
-      if (!tableOptions['flash'] && signature.match(/F_?[0-9]{10}_+/)) {
+      if (!tableOptions['flash'].value && signature.match(/F_?[0-9]{10}_+/)) {
         return;
       }
 
@@ -230,31 +245,28 @@ function rebuildTable() {
 onLoad
 .then(function() {
   Object.keys(tableOptions)
-  .forEach(function(option) {
-    let elem = document.getElementById(option);
-    tableOptions[option] = elem.checked;
+  .forEach(function(optionName) {
+    let option = tableOptions[optionName];
+    let elem = document.getElementById(optionName);
 
-    elem.onchange = function() {
-      tableOptions[option] = elem.checked;
-      rebuildTable();
-    };
+    if (option.type === 'select') {
+      option.value = elem.checked;
+
+      elem.onchange = function() {
+        option.value = elem.checked;
+        rebuildTable();
+      };
+    } else if (option.type === 'option') {
+      option.value = elem.options[elem.selectedIndex].value;
+
+      elem.onchange = function() {
+        option.value = elem.options[elem.selectedIndex].value;
+        rebuildTable();
+      };
+    } else {
+      throw new Error('Unexpected option type.');
+    }
   });
-
-  let graphType = document.getElementById('graphType');
-  tableOptions['graphType'] = graphType.options[graphType.selectedIndex].value;
-
-  graphType.onchange = function() {
-    tableOptions['graphType'] = graphType.options[graphType.selectedIndex].value;
-    rebuildTable();
-  };
-
-  let crashesType = document.getElementById('crashesType');
-  tableOptions['crashesType'] = crashesType.options[crashesType.selectedIndex].value;
-
-  crashesType.onchange = function() {
-    tableOptions['crashesType'] = crashesType.options[crashesType.selectedIndex].value;
-    rebuildTable();
-  };
 })
 .then(function() {
   buildTable();
