@@ -1,5 +1,5 @@
-var crashes;
-var tableOptions = {
+let crashesFile, crashes;
+let tableOptions = {
   'oom': {
     value: false,
     type: 'select',
@@ -197,7 +197,6 @@ function addRow(signature, obj) {
   } else {
     graph.appendChild(createGraph(obj.crash_by_day));
   }
-  
 }
 
 function buildTable() {
@@ -208,14 +207,23 @@ function buildTable() {
     file += '-startup.json'
   }
 
-  fetch(file)
-  .then(function(response) {
-    return response.json();
-  })
-  .then(function(val) {
-    crashes = val;
-    console.log(crashes);
-  })
+  let promise;
+  if (file === crashesFile) {
+    promise = Promise.resolve();
+  } else {
+    promise = fetch(file)
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(val) {
+      crashes = val;
+      console.log(crashes);
+    });
+
+    crashesFile = file;
+  }
+
+  promise
   .then(function() {
     // Order signatures by rank change or kairo's explosiveness.
     Object.keys(crashes.signatures)
