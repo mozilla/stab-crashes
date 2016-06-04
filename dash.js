@@ -4,19 +4,11 @@ var tableOptions = {
   'shutdownhang': false,
   'flash': false,
   'graphType': null,
+  'crashesType': null,
 };
 
 var onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
-});
-
-var loadCrashes = fetch('crashes.json')
-.then(function(response) {
-  return response.json();
-})
-.then(function(val) {
-  crashes = val;
-  console.log(crashes);
 });
 
 function agoString(val, str) {
@@ -190,23 +182,40 @@ function addRow(signature, obj) {
 }
 
 function buildTable() {
-  // Order signatures by rank change or kairo's explosiveness.
-  Object.keys(crashes.signatures)
-  .sort((signature1, signature2) => crashes.signatures[signature1].tc_rank - crashes.signatures[signature2].tc_rank)
-  .forEach(function(signature) {
-    if (!tableOptions['oom'] && signature.toLowerCase().includes('oom')) {
-      return;
-    }
+  let file;
+  if (tableOptions['crashesType'] === 'All crashes') {
+    file = 'release.json';
+  } else if (tableOptions['crashesType'] === 'Startup crashes') {
+    file = 'release-startup.json'
+  }
 
-    if (!tableOptions['shutdownhang'] && signature.toLowerCase().includes('shutdownhang')) {
-      return;
-    }
+  fetch(file)
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(val) {
+    crashes = val;
+    console.log(crashes);
+  })
+  .then(function() {
+    // Order signatures by rank change or kairo's explosiveness.
+    Object.keys(crashes.signatures)
+    .sort((signature1, signature2) => crashes.signatures[signature1].tc_rank - crashes.signatures[signature2].tc_rank)
+    .forEach(function(signature) {
+      if (!tableOptions['oom'] && signature.toLowerCase().includes('oom')) {
+        return;
+      }
 
-    if (!tableOptions['flash'] && signature.match(/F_?[0-9]{10}_+/)) {
-      return;
-    }
+      if (!tableOptions['shutdownhang'] && signature.toLowerCase().includes('shutdownhang')) {
+        return;
+      }
 
-    addRow(signature, crashes.signatures[signature]);
+      if (!tableOptions['flash'] && signature.match(/F_?[0-9]{10}_+/)) {
+        return;
+      }
+
+      addRow(signature, crashes.signatures[signature]);
+    });
   });
 }
 
@@ -222,7 +231,7 @@ onLoad
 .then(function() {
   Object.keys(tableOptions)
   .forEach(function(option) {
-    var elem = document.getElementById(option);
+    let elem = document.getElementById(option);
     tableOptions[option] = elem.checked;
 
     elem.onchange = function() {
@@ -231,16 +240,21 @@ onLoad
     };
   });
 
-  var graphType = document.getElementById('graphType');
+  let graphType = document.getElementById('graphType');
   tableOptions['graphType'] = graphType.options[graphType.selectedIndex].value;
 
   graphType.onchange = function() {
     tableOptions['graphType'] = graphType.options[graphType.selectedIndex].value;
     rebuildTable();
   };
-})
-.then(function() {
-  return loadCrashes;
+
+  let crashesType = document.getElementById('crashesType');
+  tableOptions['crashesType'] = crashesType.options[crashesType.selectedIndex].value;
+
+  crashesType.onchange = function() {
+    tableOptions['crashesType'] = crashesType.options[crashesType.selectedIndex].value;
+    rebuildTable();
+  };
 })
 .then(function() {
   buildTable();
