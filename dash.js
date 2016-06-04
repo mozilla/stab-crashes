@@ -12,11 +12,15 @@ var tableOptions = {
     value: false,
     type: 'select',
   },
-  'graphType': {
+  'version': {
     value: null,
     type: 'option',
   },
   'crashesType': {
+    value: null,
+    type: 'option',
+  },
+  'graphType': {
     value: null,
     type: 'option',
   },
@@ -197,11 +201,11 @@ function addRow(signature, obj) {
 }
 
 function buildTable() {
-  let file;
+  let file = tableOptions['version'].value;
   if (tableOptions['crashesType'].value === 'All crashes') {
-    file = 'release.json';
+    file += '.json';
   } else if (tableOptions['crashesType'].value === 'Startup crashes') {
-    file = 'release-startup.json'
+    file += '-startup.json'
   }
 
   fetch(file)
@@ -231,6 +235,9 @@ function buildTable() {
 
       addRow(signature, crashes.signatures[signature]);
     });
+  })
+  .catch(function(err) {
+    console.error(err);
   });
 }
 
