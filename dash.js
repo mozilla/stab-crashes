@@ -50,22 +50,22 @@ function prettyDate(date) {
   date = new Date(date);
   let today = new Date();
 
-  var hoursDiff = Math.round((today.getTime() - date.getTime()) / 3600000);
+  let hoursDiff = Math.round((today.getTime() - date.getTime()) / 3600000);
   if (hoursDiff < 24) {
     return agoString(hoursDiff, 'hour');
   }
 
-  var daysDiff = Math.round((today.getTime() - date.getTime()) / 86400000);
+  let daysDiff = Math.round((today.getTime() - date.getTime()) / 86400000);
   if (daysDiff < 10) {
     return agoString(daysDiff, 'day');
   }
 
-  var weeksDiff = Math.round((today.getTime() - date.getTime()) / (7 * 86400000));
+  let weeksDiff = Math.round((today.getTime() - date.getTime()) / (7 * 86400000));
   if (weeksDiff < 3) {
     return agoString(weeksDiff, 'week');
   }
 
-  var monthsDiff = (today.getMonth() + 12 * today.getFullYear()) - (date.getMonth() + 12 * date.getFullYear());
+  let monthsDiff = (today.getMonth() + 12 * today.getFullYear()) - (date.getMonth() + 12 * date.getFullYear());
   if (monthsDiff < 12) {
     return agoString(monthsDiff, 'month');
   }
@@ -77,44 +77,44 @@ function createGraph(data) {
   let startDay = data.find(d => d == null) === undefined ? 1 : 2;
   data = data.filter(d => d != null);
 
-  var margin = {top: 20, right: 20, bottom: 30, left: 50},
+  let margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 700 - margin.left - margin.right,
       height = 200 - margin.top - margin.bottom;
 
-  var x = d3.time.scale()
+  let x = d3.time.scale()
       .range([0, width]);
 
-  var y = d3.scale.linear()
+  let y = d3.scale.linear()
       .range([height, 0]);
 
-  var xAxis = d3.svg.axis()
+  let xAxis = d3.svg.axis()
       .scale(x)
       .tickFormat(d3.time.format('%d'))
       .ticks(data.length)
       .orient('bottom');
 
-  var yAxis = d3.svg.axis()
+  let yAxis = d3.svg.axis()
       .scale(y)
       .orient('left');
 
-  var line = d3.svg.line()
+  let line = d3.svg.line()
       .x(function(d, i) {
-        var date = new Date();
+        let date = new Date();
         date.setHours(0, 0, 0, 0);
         date.setDate(date.getDate() - startDay - i);
         return x(date);
       })
       .y(function(d, i) { return y(d); });
 
-  var svgElem = document.createElementNS(d3.ns.prefix.svg, 'svg');
-  var svg = d3.select(svgElem)
+  let svgElem = document.createElementNS(d3.ns.prefix.svg, 'svg');
+  let svg = d3.select(svgElem)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   x.domain(d3.extent(data, function(d, i) {
-    var date = new Date();
+    let date = new Date();
     date.setHours(0, 0, 0, 0);
     date.setDate(date.getDate() - startDay - i);
     return date;
@@ -138,8 +138,12 @@ function createGraph(data) {
   return svgElem;
 }
 
+function getVersion() {
+  return Number(crashes.versions[0].substring(0, crashes.versions[0].indexOf('.')));
+}
+
 function getFixedIn(bug) {
-  let version = Number(crashes.versions[0].substring(0, crashes.versions[0].indexOf('.')));
+  let version = getVersion();
 
   if (bug['cf_status_firefox' + version] != '' &&
       bug['cf_status_firefox' + version] != 'affected') {
@@ -225,6 +229,17 @@ function addRow(signature, obj) {
       exclamationMark.height = 16;
 
       bugs.appendChild(exclamationMark);
+    }
+
+    if (bug['cf_tracking_firefox' + getVersion()] !== '+' &&
+        (bug.resolution === '' || fixedIn.length > 0)) {
+      let questionMark = document.createElement('img');
+      questionMark.title = 'TRACK?';
+      questionMark.src = 'question_mark.svg';
+      questionMark.width = 16;
+      questionMark.height = 16;
+
+      bugs.appendChild(questionMark);
     }
 
     bugs.appendChild(document.createElement('br'));
