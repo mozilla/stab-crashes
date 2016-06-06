@@ -126,6 +126,34 @@ function createGraph(data) {
   return svgElem;
 }
 
+function getFixedIn(bug) {
+  let version = Number(crashes.versions[0].substring(0, crashes.versions[0].indexOf('.')));
+
+  if (bug['cf_status_firefox' + version] != '' &&
+      bug['cf_status_firefox' + version] != 'affected') {
+    return [];
+  }
+
+  let versionEnd = version;
+  if (tableOptions['version'].value == 'aurora') {
+    versionEnd += 1;
+  } else if (tableOptions['version'].value == 'beta') {
+    versionEnd += 2;
+  } else if (tableOptions['version'].value == 'release') {
+    versionEnd += 3;
+  }
+
+  let fixedIn = [];
+  for (version = version + 1; version <= versionEnd; version++) {
+    if (bug['cf_status_firefox' + version] === 'fixed' ||
+        bug['cf_status_firefox' + version] === 'verified') {
+      fixedIn.push(version);
+    }
+  }
+
+  return fixedIn;
+}
+
 function addRow(signature, obj) {
   var table = document.getElementById('table');
 
@@ -156,9 +184,13 @@ function addRow(signature, obj) {
   obj.bugs
   .sort((bug1, bug2) => new Date(bug2.last_change_time) - new Date(bug1.last_change_time))
   .forEach(function(bug) {
+    let fixedIn = getFixedIn(bug);
+
     let bugLink = document.createElement('a');
     bugLink.appendChild(document.createTextNode(bug.id));
-    bugLink.title = (bug.resolution ? bug.resolution + ' - ' : '') + 'Last activity: ' + prettyDate(bug.last_change_time);
+    bugLink.title = (bug.resolution ? bug.resolution + ' - ' : '') +
+                    'Last activity: ' + prettyDate(bug.last_change_time) +
+                    ((fixedIn.length > 0) ? (' - Fixed in ' + fixedIn.join(', ') + '.') : '');
     bugLink.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug.id;
     bugLink.className = bug.resolution != '' ? 'resolved' : '';
 
