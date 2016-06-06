@@ -167,16 +167,16 @@ function getFixedIn(bug) {
 }
 
 function addRow(signature, obj) {
-  var table = document.getElementById('table');
+  let table = document.getElementById('table');
 
-  var row = table.insertRow(table.rows.length);
+  let row = table.insertRow(table.rows.length);
 
-  var rank = row.insertCell(0);
+  let rank = row.insertCell(0);
   rank.appendChild(document.createTextNode(obj.tc_rank));
 
-  var key = row.insertCell(1);
+  let key = row.insertCell(1);
 
-  var startupImage = document.createElement('img');
+  let startupImage = document.createElement('img');
   startupImage.title = (obj.startup_percent * 100).toFixed(2) + ' %';
   startupImage.src = 'rocket_fly.png';
   startupImage.width = 64 * obj.startup_percent;
@@ -216,7 +216,18 @@ function addRow(signature, obj) {
     }
 
     bugs.appendChild(bugLink);
-    bugs.appendChild(document.createTextNode(' '));
+
+    if (fixedIn.length > 0) {
+      let exclamationMark = document.createElement('img');
+      exclamationMark.title = 'Fixed in ' + fixedIn.join(', ');
+      exclamationMark.src = 'exclamation_mark.svg';
+      exclamationMark.width = 16;
+      exclamationMark.height = 16;
+
+      bugs.appendChild(exclamationMark);
+    }
+
+    bugs.appendChild(document.createElement('br'));
   });
 
   let graph = row.insertCell(3);
