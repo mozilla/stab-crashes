@@ -42,6 +42,24 @@ let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
+function crashesByKhours(rawCrashes) {
+  return rawCrashes.map(function(crashNum, i) {
+    return crashes.khours[i] ? (100 / crashes.throttle * crashNum * 1000 / crashes.khours[i]) : null;
+  });
+}
+
+function crashesByADI(rawCrashes) {
+  return rawCrashes.map(function(crashNum, i) {
+    return crashes.adi[i] ? (100 / crashes.throttle * crashNum * 1000000 / crashes.adi[i]) : null;
+  });
+}
+
+function crashesByTotalCrashes(rawCrashes) {
+  return rawCrashes.map(function(crashNum, i) {
+    return crashes.crash_by_day[i] ? 100 * (100 / crashes.throttle * crashNum / crashes.crash_by_day[i]) : null;
+  });
+}
+
 function agoString(val, str) {
   return val + ' ' + (val == 1 ? str : str + 's') + ' ago';
 }
@@ -73,13 +91,12 @@ function prettyDate(date) {
   return agoString(today.getFullYear() - date.getFullYear(), 'year');
 }
 
-function createGraph(data) {
+function createGraph(svgElem, data, margin, totalWidth, totalHeight) {
   let startDay = data.find(d => d == null) === undefined ? 1 : 2;
   data = data.filter(d => d != null);
 
-  let margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 700 - margin.left - margin.right,
-      height = 200 - margin.top - margin.bottom;
+  let width = totalWidth - margin.left - margin.right;
+  let height = totalHeight - margin.top - margin.bottom;
 
   let x = d3.time.scale()
       .range([0, width]);
@@ -106,7 +123,6 @@ function createGraph(data) {
       })
       .y(function(d, i) { return y(d); });
 
-  let svgElem = document.createElementNS(d3.ns.prefix.svg, 'svg');
   let svg = d3.select(svgElem)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
@@ -246,27 +262,26 @@ function addRow(signature, obj) {
   });
 
   let graph = row.insertCell(3);
+
+  let svgElem = document.createElementNS(d3.ns.prefix.svg, 'svg');
+
+  let margin = { top: 20, right: 20, bottom: 30, left: 50 };
+  let width = 700;
+  let height = 200;
+
   if (getOption('graphType') === 'Crashes per usage hours') {
-    let crashes_by_khours = obj.crash_by_day.map(function(crashNum, i) {
-      return crashes.khours[i] ? (100 / crashes.throttle * crashNum * 1000 / crashes.khours[i]) : null;
-    });
-
-    graph.appendChild(createGraph(crashes_by_khours));
+    createGraph(svgElem, crashesByKhours(obj.crash_by_day), margin, width, height);
   } else if (getOption('graphType') === 'Crashes per ADI') {
-    let crashes_by_adi = obj.crash_by_day.map(function(crashNum, i) {
-      return crashes.adi[i] ? (100 / crashes.throttle * crashNum * 1000000 / crashes.adi[i]) : null;
-    });
-
-    graph.appendChild(createGraph(crashes_by_adi));
+    createGraph(svgElem, crashesByADI(obj.crash_by_day), margin, width, height);
   } else if (getOption('graphType') === 'Crashes per total crashes') {
-    let crashes_by_total_crashes = obj.crash_by_day.map(function(crashNum, i) {
-      return crashes.crash_by_day[i] ? 100 * (100 / crashes.throttle * crashNum / crashes.crash_by_day[i]) : null;
-    });
-
-    graph.appendChild(createGraph(crashes_by_total_crashes));
+    createGraph(svgElem, crashesByTotalCrashes(obj.crash_by_day), margin, width, height);
+  } else if (getOption('graphType') === 'Raw number of crashes') {
+    createGraph(svgElem, obj.crash_by_day, margin, width, height);
   } else {
-    graph.appendChild(createGraph(obj.crash_by_day));
+    throw new Error('Unexpected graph type');
   }
+
+  graph.appendChild(svgElem);
 }
 
 function buildTable() {
@@ -295,6 +310,25 @@ function buildTable() {
 
   promise
   .then(function() {
+    let svgElem = document.getElementById('overallGraph');
+    d3.select(svgElem).selectAll("*").remove();
+
+    let margin = { top: 20, right: 20, bottom: 30, left: 100 };
+    let width = 900;
+    let height = 300;
+
+    if (getOption('graphType') === 'Crashes per usage hours') {
+      createGraph(svgElem, crashesByKhours(crashes.crash_by_day), margin, width, height);
+    } else if (getOption('graphType') === 'Crashes per ADI') {
+      createGraph(svgElem, crashesByADI(crashes.crash_by_day), margin, width, height);
+    } else if (getOption('graphType') === 'Crashes per total crashes') {
+      createGraph(svgElem, crashesByTotalCrashes(crashes.crash_by_day), margin, width, height);
+    } else if (getOption('graphType') === 'Raw number of crashes') {
+      createGraph(svgElem, crashes.crash_by_day, margin, width, height);
+    } else {
+      throw new Error('Unexpected graph type');
+    }
+
     // Order signatures by rank change or kairo's explosiveness.
     Object.keys(crashes.signatures)
     .sort((signature1, signature2) => crashes.signatures[signature1].tc_rank - crashes.signatures[signature2].tc_rank)
