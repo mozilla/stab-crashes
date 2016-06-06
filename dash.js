@@ -26,7 +26,19 @@ let tableOptions = {
   },
 };
 
-var onLoad = new Promise(function(resolve, reject) {
+function getOption(name) {
+  return tableOptions[name].value;
+}
+
+function getOptionType(name) {
+  return tableOptions[name].type;
+}
+
+function setOption(name, value) {
+  return tableOptions[name].value = value;
+}
+
+let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
@@ -135,11 +147,11 @@ function getFixedIn(bug) {
   }
 
   let versionEnd = version;
-  if (tableOptions['version'].value == 'aurora') {
+  if (getOption('version') == 'aurora') {
     versionEnd += 1;
-  } else if (tableOptions['version'].value == 'beta') {
+  } else if (getOption('version') == 'beta') {
     versionEnd += 2;
-  } else if (tableOptions['version'].value == 'release') {
+  } else if (getOption('version') == 'release') {
     versionEnd += 3;
   }
 
@@ -208,19 +220,19 @@ function addRow(signature, obj) {
   });
 
   let graph = row.insertCell(3);
-  if (tableOptions['graphType'].value === 'Crashes per usage hours') {
+  if (getOption('graphType') === 'Crashes per usage hours') {
     let crashes_by_khours = obj.crash_by_day.map(function(crashNum, i) {
       return crashes.khours[i] ? (100 / crashes.throttle * crashNum * 1000 / crashes.khours[i]) : null;
     });
 
     graph.appendChild(createGraph(crashes_by_khours));
-  } else if (tableOptions['graphType'].value === 'Crashes per ADI') {
+  } else if (getOption('graphType') === 'Crashes per ADI') {
     let crashes_by_adi = obj.crash_by_day.map(function(crashNum, i) {
       return crashes.adi[i] ? (100 / crashes.throttle * crashNum * 1000000 / crashes.adi[i]) : null;
     });
 
     graph.appendChild(createGraph(crashes_by_adi));
-  } else if (tableOptions['graphType'].value === 'Crashes per total crashes') {
+  } else if (getOption('graphType') === 'Crashes per total crashes') {
     let crashes_by_total_crashes = obj.crash_by_day.map(function(crashNum, i) {
       return crashes.crash_by_day[i] ? 100 * (100 / crashes.throttle * crashNum / crashes.crash_by_day[i]) : null;
     });
@@ -232,10 +244,10 @@ function addRow(signature, obj) {
 }
 
 function buildTable() {
-  let file = tableOptions['version'].value;
-  if (tableOptions['crashesType'].value === 'All crashes') {
+  let file = getOption('version');
+  if (getOption('crashesType') === 'All crashes') {
     file += '.json';
-  } else if (tableOptions['crashesType'].value === 'Startup crashes') {
+  } else if (getOption('crashesType') === 'Startup crashes') {
     file += '-startup.json'
   }
 
@@ -261,15 +273,15 @@ function buildTable() {
     Object.keys(crashes.signatures)
     .sort((signature1, signature2) => crashes.signatures[signature1].tc_rank - crashes.signatures[signature2].tc_rank)
     .forEach(function(signature) {
-      if (!tableOptions['oom'].value && signature.toLowerCase().includes('oom')) {
+      if (!getOption('oom') && signature.toLowerCase().includes('oom')) {
         return;
       }
 
-      if (!tableOptions['shutdownhang'].value && signature.toLowerCase().includes('shutdownhang')) {
+      if (!getOption('shutdownhang') && signature.toLowerCase().includes('shutdownhang')) {
         return;
       }
 
-      if (!tableOptions['flash'].value && signature.match(/F_?[0-9]{10}_+/)) {
+      if (!getOption('flash') && signature.match(/F_?[0-9]{10}_+/)) {
         return;
       }
 
@@ -293,21 +305,21 @@ onLoad
 .then(function() {
   Object.keys(tableOptions)
   .forEach(function(optionName) {
-    let option = tableOptions[optionName];
+    let optionType = getOptionType(optionName);
     let elem = document.getElementById(optionName);
 
-    if (option.type === 'select') {
-      option.value = elem.checked;
+    if (optionType === 'select') {
+      setOption(optionName, elem.checked);
 
       elem.onchange = function() {
-        option.value = elem.checked;
+        setOption(optionName, elem.checked);
         rebuildTable();
       };
-    } else if (option.type === 'option') {
-      option.value = elem.options[elem.selectedIndex].value;
+    } else if (optionType === 'option') {
+      setOption(optionName, elem.options[elem.selectedIndex].value);
 
       elem.onchange = function() {
-        option.value = elem.options[elem.selectedIndex].value;
+        setOption(optionName, elem.options[elem.selectedIndex].value);
         rebuildTable();
       };
     } else {
