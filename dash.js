@@ -24,6 +24,10 @@ let tableOptions = {
     value: null,
     type: 'option',
   },
+  'sortingCode': {
+    value: null,
+    type: 'button',
+  }
 };
 
 function getOption(name) {
@@ -329,9 +333,11 @@ function buildTable() {
       throw new Error('Unexpected graph type');
     }
 
+    let sortingFunction = new Function('signatureObj1', 'signatureObj2', getOption('sortingCode'));
+
     // Order signatures by rank change or kairo's explosiveness.
     Object.keys(crashes.signatures)
-    .sort((signature1, signature2) => crashes.signatures[signature1].tc_rank - crashes.signatures[signature2].tc_rank)
+    .sort((signature1, signature2) => sortingFunction(crashes.signatures[signature1], crashes.signatures[signature2]))
     .forEach(function(signature) {
       if (!getOption('oom') && signature.toLowerCase().includes('oom')) {
         return;
@@ -380,6 +386,13 @@ onLoad
 
       elem.onchange = function() {
         setOption(optionName, elem.options[elem.selectedIndex].value);
+        rebuildTable();
+      };
+    } else if (optionType === 'button') {
+      setOption(optionName, elem.value);
+
+      document.getElementById(optionName + 'Button').onclick = function() {
+        setOption(optionName, elem.value);
         rebuildTable();
       };
     } else {

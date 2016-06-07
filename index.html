@@ -33,6 +33,19 @@
 </select>
 <br><br>
 <svg id="overallGraph"></svg>
+<br><br>
+<textarea id="sortingCode" rows="10" cols="75">
+if (signatureObj1.tc_rank > signatureObj2.tc_rank) {
+  return 1;
+} else if (signatureObj1.tc_rank < signatureObj2.tc_rank) {
+  return -1;
+} else {
+  return 0;
+}
+</textarea>
+<br>
+<button id="sortingCodeButton">Update sorting strategy</button>
+<br><br>
 <table id="table">
   <tr>
     <th>Rank</th>
