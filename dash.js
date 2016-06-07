@@ -60,7 +60,7 @@ function crashesByADI(rawCrashes) {
 
 function crashesByTotalCrashes(rawCrashes) {
   return rawCrashes.map(function(crashNum, i) {
-    return crashes.crash_by_day[i] ? 100 * (100 / crashes.throttle * crashNum / crashes.crash_by_day[i]) : null;
+    return crashes.crash_by_day[i] ? 100 * crashNum / crashes.crash_by_day[i] : null;
   });
 }
 
