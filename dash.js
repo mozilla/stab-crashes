@@ -1,24 +1,68 @@
-var crashes;
-var tableOptions = {
-  'oom': false,
-  'shutdownhang': false,
-  'flash': false,
-  'hideResolved': false,
-  'graphType': null,
+let crashesFile, crashes;
+let tableOptions = {
+  'oom': {
+    value: false,
+    type: 'select',
+  },
+  'shutdownhang': {
+    value: false,
+    type: 'select',
+  },
+  'flash': {
+    value: false,
+    type: 'select',
+  },
+  'version': {
+    value: null,
+    type: 'option',
+  },
+  'crashesType': {
+    value: null,
+    type: 'option',
+  },
+  'graphType': {
+    value: null,
+    type: 'option',
+  },
+  'sortingCode': {
+    value: null,
+    type: 'button',
+  }
 };
 
-var onLoad = new Promise(function(resolve, reject) {
+function getOption(name) {
+  return tableOptions[name].value;
+}
+
+function getOptionType(name) {
+  return tableOptions[name].type;
+}
+
+function setOption(name, value) {
+  return tableOptions[name].value = value;
+}
+
+let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
-var loadCrashes = fetch('crashes.json')
-.then(function(response) {
-  return response.json();
-})
-.then(function(val) {
-  crashes = val;
-  console.log(crashes);
-});
+function crashesByKhours(rawCrashes) {
+  return rawCrashes.map(function(crashNum, i) {
+    return crashes.khours[i] ? (100 / crashes.throttle * crashNum * 1000 / crashes.khours[i]) : null;
+  });
+}
+
+function crashesByADI(rawCrashes) {
+  return rawCrashes.map(function(crashNum, i) {
+    return crashes.adi[i] ? (100 / crashes.throttle * crashNum * 1000000 / crashes.adi[i]) : null;
+  });
+}
+
+function crashesByTotalCrashes(rawCrashes) {
+  return rawCrashes.map(function(crashNum, i) {
+    return crashes.crash_by_day[i] ? 100 * crashNum / crashes.crash_by_day[i] : null;
+  });
+}
 
 function agoString(val, str) {
   return val + ' ' + (val == 1 ? str : str + 's') + ' ago';
@@ -28,22 +72,22 @@ function prettyDate(date) {
   date = new Date(date);
   let today = new Date();
 
-  var hoursDiff = Math.round((today.getTime() - date.getTime()) / 3600000);
+  let hoursDiff = Math.round((today.getTime() - date.getTime()) / 3600000);
   if (hoursDiff < 24) {
     return agoString(hoursDiff, 'hour');
   }
 
-  var daysDiff = Math.round((today.getTime() - date.getTime()) / 86400000);
+  let daysDiff = Math.round((today.getTime() - date.getTime()) / 86400000);
   if (daysDiff < 10) {
     return agoString(daysDiff, 'day');
   }
 
-  var weeksDiff = Math.round((today.getTime() - date.getTime()) / (7 * 86400000));
+  let weeksDiff = Math.round((today.getTime() - date.getTime()) / (7 * 86400000));
   if (weeksDiff < 3) {
     return agoString(weeksDiff, 'week');
   }
 
-  var monthsDiff = (today.getMonth() + 12 * today.getFullYear()) - (date.getMonth() + 12 * date.getFullYear());
+  let monthsDiff = (today.getMonth() + 12 * today.getFullYear()) - (date.getMonth() + 12 * date.getFullYear());
   if (monthsDiff < 12) {
     return agoString(monthsDiff, 'month');
   }
@@ -51,48 +95,46 @@ function prettyDate(date) {
   return agoString(today.getFullYear() - date.getFullYear(), 'year');
 }
 
-function createGraph(data) {
+function createGraph(svgElem, data, margin, totalWidth, totalHeight) {
   let startDay = data.find(d => d == null) === undefined ? 1 : 2;
   data = data.filter(d => d != null);
 
-  var margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 700 - margin.left - margin.right,
-      height = 200 - margin.top - margin.bottom;
+  let width = totalWidth - margin.left - margin.right;
+  let height = totalHeight - margin.top - margin.bottom;
 
-  var x = d3.time.scale()
+  let x = d3.time.scale()
       .range([0, width]);
 
-  var y = d3.scale.linear()
+  let y = d3.scale.linear()
       .range([height, 0]);
 
-  var xAxis = d3.svg.axis()
+  let xAxis = d3.svg.axis()
       .scale(x)
       .tickFormat(d3.time.format('%d'))
       .ticks(data.length)
       .orient('bottom');
 
-  var yAxis = d3.svg.axis()
+  let yAxis = d3.svg.axis()
       .scale(y)
       .orient('left');
 
-  var line = d3.svg.line()
+  let line = d3.svg.line()
       .x(function(d, i) {
-        var date = new Date();
+        let date = new Date();
         date.setHours(0, 0, 0, 0);
         date.setDate(date.getDate() - startDay - i);
         return x(date);
       })
       .y(function(d, i) { return y(d); });
 
-  var svgElem = document.createElementNS(d3.ns.prefix.svg, 'svg');
-  var svg = d3.select(svgElem)
+  let svg = d3.select(svgElem)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   x.domain(d3.extent(data, function(d, i) {
-    var date = new Date();
+    let date = new Date();
     date.setHours(0, 0, 0, 0);
     date.setDate(date.getDate() - startDay - i);
     return date;
@@ -116,25 +158,55 @@ function createGraph(data) {
   return svgElem;
 }
 
+function getVersion() {
+  return Number(crashes.versions[0].substring(0, crashes.versions[0].indexOf('.')));
+}
+
+function getFixedIn(bug) {
+  let version = getVersion();
+
+  if (bug['cf_status_firefox' + version] != '' &&
+      bug['cf_status_firefox' + version] != 'affected') {
+    return [];
+  }
+
+  let versionEnd = version;
+  if (getOption('version') == 'aurora') {
+    versionEnd += 1;
+  } else if (getOption('version') == 'beta') {
+    versionEnd += 2;
+  } else if (getOption('version') == 'release') {
+    versionEnd += 3;
+  }
+
+  let fixedIn = [];
+  for (version = version + 1; version <= versionEnd; version++) {
+    if (bug['cf_status_firefox' + version] === 'fixed' ||
+        bug['cf_status_firefox' + version] === 'verified') {
+      fixedIn.push(version);
+    }
+  }
+
+  return fixedIn;
+}
+
 function addRow(signature, obj) {
-  var table = document.getElementById('table');
+  let table = document.getElementById('table');
 
-  var row = table.insertRow(table.rows.length);
+  let row = table.insertRow(table.rows.length);
 
-  var rank = row.insertCell(0);
+  let rank = row.insertCell(0);
   rank.appendChild(document.createTextNode(obj.tc_rank));
 
-  var key = row.insertCell(1);
+  let key = row.insertCell(1);
 
-  if (!obj.startup_crash) {
-    var startupImage = document.createElement('img');
-    startupImage.title = (obj.startup_percent * 100).toFixed(2) + ' %';
-    startupImage.src = 'rocket_fly.png';
-    startupImage.width = 64 * obj.startup_percent;
-    startupImage.height = 64 * obj.startup_percent;
-    startupImage.style.paddingRight = 5;
-    key.appendChild(startupImage);
-  }
+  let startupImage = document.createElement('img');
+  startupImage.title = (obj.startup_percent * 100).toFixed(2) + ' %';
+  startupImage.src = 'rocket_fly.png';
+  startupImage.width = 64 * obj.startup_percent;
+  startupImage.height = 64 * obj.startup_percent;
+  startupImage.style.paddingRight = 5;
+  key.appendChild(startupImage);
 
   let signatureLink = document.createElement('a');
   signatureLink.appendChild(document.createTextNode(signature.length > 50 ? signature.substr(0, 49) + '…' : signature));
@@ -146,12 +218,15 @@ function addRow(signature, obj) {
   let ten_days_ago = new Date().setDate(today.getDate() - 10);
   let bugs = row.insertCell(2);
   obj.bugs
-  .filter(bug => !tableOptions['hideResolved'] || bug.resolution == '')
   .sort((bug1, bug2) => new Date(bug2.last_change_time) - new Date(bug1.last_change_time))
   .forEach(function(bug) {
+    let fixedIn = getFixedIn(bug);
+
     let bugLink = document.createElement('a');
     bugLink.appendChild(document.createTextNode(bug.id));
-    bugLink.title = (bug.resolution ? bug.resolution + ' - ' : '') + 'Last activity: ' + prettyDate(bug.last_change_time);
+    bugLink.title = (bug.resolution ? bug.resolution + ' - ' : '') +
+                    'Last activity: ' + prettyDate(bug.last_change_time) +
+                    ((fixedIn.length > 0) ? (' - Fixed in ' + fixedIn.join(', ') + '.') : '');
     bugLink.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug.id;
     bugLink.className = bug.resolution != '' ? 'resolved' : '';
 
@@ -165,38 +240,122 @@ function addRow(signature, obj) {
     }
 
     bugs.appendChild(bugLink);
-    bugs.appendChild(document.createTextNode(' '));
+
+    if (fixedIn.length > 0) {
+      let exclamationMark = document.createElement('img');
+      exclamationMark.title = 'Fixed in ' + fixedIn.join(', ');
+      exclamationMark.src = 'exclamation_mark.svg';
+      exclamationMark.width = 16;
+      exclamationMark.height = 16;
+
+      bugs.appendChild(exclamationMark);
+    }
+
+    if (bug['cf_tracking_firefox' + getVersion()] !== '+' &&
+        (bug.resolution === '' || fixedIn.length > 0)) {
+      let questionMark = document.createElement('img');
+      questionMark.title = 'TRACK?';
+      questionMark.src = 'question_mark.svg';
+      questionMark.width = 16;
+      questionMark.height = 16;
+
+      bugs.appendChild(questionMark);
+    }
+
+    bugs.appendChild(document.createElement('br'));
   });
 
   let graph = row.insertCell(3);
-  if (tableOptions['graphType'] === 'Crashes per usage hours') {
-    graph.appendChild(createGraph(obj.crash_stats_per_mega_hours));
-  } else if (tableOptions['graphType'] === 'Crashes per ADI') {
-    graph.appendChild(createGraph(obj.crash_stats_per_mega_adi));
+
+  let svgElem = document.createElementNS(d3.ns.prefix.svg, 'svg');
+
+  let margin = { top: 20, right: 20, bottom: 30, left: 50 };
+  let width = 700;
+  let height = 200;
+
+  if (getOption('graphType') === 'Crashes per usage hours') {
+    createGraph(svgElem, crashesByKhours(obj.crash_by_day), margin, width, height);
+  } else if (getOption('graphType') === 'Crashes per ADI') {
+    createGraph(svgElem, crashesByADI(obj.crash_by_day), margin, width, height);
+  } else if (getOption('graphType') === 'Crashes per total crashes') {
+    createGraph(svgElem, crashesByTotalCrashes(obj.crash_by_day), margin, width, height);
+  } else if (getOption('graphType') === 'Raw number of crashes') {
+    createGraph(svgElem, obj.crash_by_day, margin, width, height);
   } else {
-    graph.appendChild(createGraph(obj.crash_by_day));
+    throw new Error('Unexpected graph type');
   }
-  
+
+  graph.appendChild(svgElem);
 }
 
 function buildTable() {
-  // Order signatures by rank change or kairo's explosiveness.
-  Object.keys(crashes.signatures)
-  .sort((signature1, signature2) => crashes.signatures[signature1].tc_rank - crashes.signatures[signature2].tc_rank)
-  .forEach(function(signature) {
-    if (!tableOptions['oom'] && signature.toLowerCase().includes('oom')) {
-      return;
+  let file = getOption('version');
+  if (getOption('crashesType') === 'All crashes') {
+    file += '.json';
+  } else if (getOption('crashesType') === 'Startup crashes') {
+    file += '-startup.json'
+  }
+
+  let promise;
+  if (file === crashesFile) {
+    promise = Promise.resolve();
+  } else {
+    promise = fetch(file)
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(val) {
+      crashes = val;
+      console.log(crashes);
+    });
+
+    crashesFile = file;
+  }
+
+  promise
+  .then(function() {
+    let svgElem = document.getElementById('overallGraph');
+    d3.select(svgElem).selectAll("*").remove();
+
+    let margin = { top: 20, right: 20, bottom: 30, left: 100 };
+    let width = 900;
+    let height = 300;
+
+    if (getOption('graphType') === 'Crashes per usage hours') {
+      createGraph(svgElem, crashesByKhours(crashes.crash_by_day), margin, width, height);
+    } else if (getOption('graphType') === 'Crashes per ADI') {
+      createGraph(svgElem, crashesByADI(crashes.crash_by_day), margin, width, height);
+    } else if (getOption('graphType') === 'Crashes per total crashes') {
+      createGraph(svgElem, crashesByTotalCrashes(crashes.crash_by_day), margin, width, height);
+    } else if (getOption('graphType') === 'Raw number of crashes') {
+      createGraph(svgElem, crashes.crash_by_day, margin, width, height);
+    } else {
+      throw new Error('Unexpected graph type');
     }
 
-    if (!tableOptions['shutdownhang'] && signature.toLowerCase().includes('shutdownhang')) {
-      return;
-    }
+    let sortingFunction = new Function('signatureObj1', 'signatureObj2', getOption('sortingCode'));
 
-    if (!tableOptions['flash'] && signature.match(/F_?[0-9]{10}_+/)) {
-      return;
-    }
+    // Order signatures by rank change or kairo's explosiveness.
+    Object.keys(crashes.signatures)
+    .sort((signature1, signature2) => sortingFunction(crashes.signatures[signature1], crashes.signatures[signature2]))
+    .forEach(function(signature) {
+      if (!getOption('oom') && signature.toLowerCase().includes('oom')) {
+        return;
+      }
 
-    addRow(signature, crashes.signatures[signature]);
+      if (!getOption('shutdownhang') && signature.toLowerCase().includes('shutdownhang')) {
+        return;
+      }
+
+      if (!getOption('flash') && signature.match(/F_?[0-9]{10}_+/)) {
+        return;
+      }
+
+      addRow(signature, crashes.signatures[signature]);
+    });
+  })
+  .catch(function(err) {
+    console.error(err);
   });
 }
 
@@ -211,26 +370,35 @@ function rebuildTable() {
 onLoad
 .then(function() {
   Object.keys(tableOptions)
-  .forEach(function(option) {
-    var elem = document.getElementById(option);
-    tableOptions[option] = elem.checked;
+  .forEach(function(optionName) {
+    let optionType = getOptionType(optionName);
+    let elem = document.getElementById(optionName);
 
-    elem.onchange = function() {
-      tableOptions[option] = elem.checked;
-      rebuildTable();
-    };
+    if (optionType === 'select') {
+      setOption(optionName, elem.checked);
+
+      elem.onchange = function() {
+        setOption(optionName, elem.checked);
+        rebuildTable();
+      };
+    } else if (optionType === 'option') {
+      setOption(optionName, elem.options[elem.selectedIndex].value);
+
+      elem.onchange = function() {
+        setOption(optionName, elem.options[elem.selectedIndex].value);
+        rebuildTable();
+      };
+    } else if (optionType === 'button') {
+      setOption(optionName, elem.value);
+
+      document.getElementById(optionName + 'Button').onclick = function() {
+        setOption(optionName, elem.value);
+        rebuildTable();
+      };
+    } else {
+      throw new Error('Unexpected option type.');
+    }
   });
-
-  var graphType = document.getElementById('graphType');
-  tableOptions['graphType'] = graphType.options[graphType.selectedIndex].value;
-
-  graphType.onchange = function() {
-    tableOptions['graphType'] = graphType.options[graphType.selectedIndex].value;
-    rebuildTable();
-  };
-})
-.then(function() {
-  return loadCrashes;
 })
 .then(function() {
   buildTable();
