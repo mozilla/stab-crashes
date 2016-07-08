@@ -96,7 +96,7 @@ function prettyDate(date) {
 }
 
 function createGraph(svgElem, data, margin, totalWidth, totalHeight) {
-  let startDay = data.find(d => d == null) === undefined ? 1 : 2;
+  let startDay = 1 + data.filter(d => d == null).length;
   data = data.filter(d => d != null);
 
   let width = totalWidth - margin.left - margin.right;
@@ -314,6 +314,16 @@ function buildTable() {
 
   promise
   .then(function() {
+    var khours_mean = crashes.khours.reduce((prev, cur) => prev + cur, 0) / crashes.khours.length;
+
+    crashes.khours = crashes.khours.map(function(crashNum, i) {
+      if ((i == 0 || i == 1) && crashes.khours[i] < khours_mean * 0.8) {
+        return 0;
+      }
+
+      return crashes.khours[i];
+    });
+
     let svgElem = document.getElementById('overallGraph');
     d3.select(svgElem).selectAll("*").remove();
 
