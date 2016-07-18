@@ -37,3 +37,25 @@ td {
   stroke: steelblue;
   stroke-width: 1.5px;
 }
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltip-dialog {
+    visibility: hidden;
+    width: 820px;
+    border: 1px solid black;
+    text-align: center;
+    background-color: white;
+    border-radius: 6px;
+    padding: 10px 0;
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+}
+
+.tooltip:hover .tooltip-dialog {
+    visibility: visible;
+}

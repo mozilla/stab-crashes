@@ -208,10 +208,25 @@ function addRow(signature, obj) {
   startupImage.style.paddingRight = 5;
   key.appendChild(startupImage);
 
+  let signatureDiv = document.createElement('div');
+  signatureDiv.className = 'tooltip';
+
   let signatureLink = document.createElement('a');
   signatureLink.appendChild(document.createTextNode(signature.length > 50 ? signature.substr(0, 49) + '…' : signature));
   signatureLink.href = 'https://crash-stats.mozilla.com/signature/?date=<%3D' + crashes.end_date + '&date=>%3D' + crashes.start_date + '&product=Firefox&' + crashes.versions.map(version => 'version=' + version).join('&') + '&signature=' + signature;
-  key.appendChild(signatureLink);
+  signatureDiv.appendChild(signatureLink);
+
+  let signatureTooltip = document.createElement('div');
+  signatureTooltip.className = 'tooltip-dialog';
+  let signatureImage = document.createElement('img');
+  signatureImage.title = signature + ' correlations.';
+  signatureImage.src = 'plots/' + getOption('version') + '/' + signature + '.png';
+  signatureImage.width = 800;
+  signatureImage.height = 600;
+  signatureTooltip.appendChild(signatureImage);
+  signatureDiv.appendChild(signatureTooltip);
+
+  key.appendChild(signatureDiv);
 
   let today = new Date();
   let three_days_ago = new Date().setDate(today.getDate() - 3);
