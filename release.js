@@ -6,24 +6,32 @@ var fs = require('fs-extra');
 fs.removeSync('dist');
 fs.mkdirSync('dist');
 
-childProcess.exec('cd ../clouseau && python -m clouseau.stability.crashes -o "' + path.join(process.cwd(), 'dist') + '"', function (error, stdout, stderr) {
+childProcess.exec('cd ../clouseau && python -m clouseau.stability.crashes -o "' + path.join(process.cwd(), 'dist') + '"', function(error, stdout, stderr) {
   if (error) {
     console.error(stdout);
     console.error(stderr);
     return;
   }
 
-  [
-    'index.html', 'dash.js', 'style.css', 'exclamation_mark.svg',
-    'question_mark.svg', 'rocket_fly.png',
-  ].forEach(function(file) {
-    fs.copySync(file, path.join('dist', file));
-  });
-
-  ghpages.publish('dist', function(err) {
-    if (err) {
-      console.error('Error while publishing to gh-pages');
-      console.error(err);
+  childProcess.exec('cd ../crashcorrelations && python -m plotgen -o "' + path.join(process.cwd(), 'dist', 'plots') + '"', function(error, stdout, stderr) {
+    if (error) {
+      console.error(stdout);
+      console.error(stderr);
+      return;
     }
+
+    [
+      'index.html', 'dash.js', 'style.css', 'exclamation_mark.svg',
+      'question_mark.svg', 'rocket_fly.png',
+    ].forEach(function(file) {
+      fs.copySync(file, path.join('dist', file));
+    });
+
+    ghpages.publish('dist', function(err) {
+      if (err) {
+        console.error('Error while publishing to gh-pages');
+        console.error(err);
+      }
+    });
   });
 });
