@@ -22,12 +22,14 @@ childProcess.exec('cd ../clouseau && python -m clouseau.stability.crashes -o "' 
 
     [
       'index.html', 'dash.js', 'style.css', 'exclamation_mark.svg',
-      'question_mark.svg', 'rocket_fly.png',
+      'question_mark.svg', 'rocket_fly.png', '.nojekyll',
     ].forEach(function(file) {
       fs.copySync(file, path.join('dist', file));
     });
 
-    ghpages.publish('dist', function(err) {
+    ghpages.publish('dist', {
+      dotfiles: true,
+    }, function(err) {
       if (err) {
         console.error('Error while publishing to gh-pages');
         console.error(err);
