@@ -25,8 +25,6 @@ function getCorrelations(signature) {
   let image = document.getElementById('correlations_image');
   image.title = signature + ' correlations.';
   image.src = 'plots/' + getOption('channel') + '/' + signature + '.png';
-  image.width = 1200;
-  image.height = 900;
 }
 
 onLoad
