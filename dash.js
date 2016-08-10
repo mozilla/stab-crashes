@@ -321,7 +321,6 @@ function buildTable() {
     })
     .then(function(val) {
       crashes = val;
-      console.log(crashes);
     });
 
     crashesFile = file;
