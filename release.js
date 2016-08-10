@@ -22,7 +22,9 @@ childProcess.exec('cd ../clouseau && python -m clouseau.stability.crashes -o "' 
 
     [
       'index.html', 'dash.js', 'style.css', 'exclamation_mark.svg',
-      'question_mark.svg', 'rocket_fly.png', '.nojekyll',
+      'question_mark.svg', 'rocket_fly.png',
+      'correlations.html', 'correlations.js',
+      '.nojekyll',
     ].forEach(function(file) {
       fs.copySync(file, path.join('dist', file));
     });
