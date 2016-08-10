@@ -26,6 +26,10 @@ let onLoad = new Promise(function(resolve, reject) {
 });
 
 function getCorrelations() {
+  if (!getOption('channel') || !getOption('signature')) {
+    return;
+  }
+
   let url = new URL(location.href);
   url.search = '?channel=' + getOption('channel') + '&signature=' + getOption('signature');
   history.replaceState({}, document.title, url.href);
@@ -46,12 +50,17 @@ onLoad
 
     for (let queryVar of queryVars) {
       if (queryVar.startsWith(optionName + '=')) {
-        let option = queryVar.substring((optionName + '=').length)
+        let option = queryVar.substring((optionName + '=').length);
+        console.log('setOption' + optionName + ' ' + option)
         setOption(optionName, option);
       }
     }
 
     if (optionType === 'select') {
+      if (getOption(optionName)) {
+        elem.checked = getOption(optionName);
+      }
+
       setOption(optionName, elem.checked);
 
       elem.onchange = function() {
@@ -59,6 +68,15 @@ onLoad
         getCorrelations();
       };
     } else if (optionType === 'option') {
+      if (getOption(optionName)) {
+        for (let i = 0; i < elem.options.length; i++) {
+          if (elem.options[i].value === getOption(optionName)) {
+            elem.selectedIndex = i;
+            break;
+          }
+        }
+      }
+
       setOption(optionName, elem.options[elem.selectedIndex].value);
 
       elem.onchange = function() {
@@ -66,6 +84,10 @@ onLoad
         getCorrelations();
       };
     } else if (optionType === 'button') {
+      if (getOption(optionName)) {
+        elem.value = getOption(optionName);
+      }
+
       setOption(optionName, elem.value);
 
       document.getElementById(optionName + 'Button').onclick = function() {
