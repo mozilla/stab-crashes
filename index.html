@@ -2,57 +2,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Stability Dashboard</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+<title>Stability</title>
 </head>
 <body>
-<script src="dash.js" type="text/javascript"></script>
-<input type="checkbox" name="oom" id="oom"><label for="oom">Show OOM crashes</label>
-<input type="checkbox" name="shutdownhang" id="shutdownhang"><label for="shutdownhang">Show shutdownhang crashes</label>
-<input type="checkbox" name="flash" id="flash"><label for="flash">Show Flash-related crashes</label>
-<br><br>
-<label for="version">Version:</label>
-<select name="version" id="version">
-  <option selected>release</option>
-  <option>beta</option>
-  <option>aurora</option>
-  <option>nightly</option>
-</select>
-<label for="crashesType">Crashes type:</label>
-<select name="crashesType" id="crashesType">
-  <option selected>All crashes</option>
-  <option>Startup crashes</option>
-</select>
-<label for="graphType">Graph type:</label>
-<select name="graphType" id="graphType">
-  <option selected>Crashes per usage hours</option>
-  <option>Crashes per ADI</option>
-  <option>Crashes per total crashes</option>
-  <option>Raw number of crashes</option>
-</select>
-<br><br>
-<svg id="overallGraph"></svg>
-<br><br>
-<textarea id="sortingCode" rows="10" cols="75">
-if (signatureObj1.tc_rank > signatureObj2.tc_rank) {
-  return 1;
-} else if (signatureObj1.tc_rank < signatureObj2.tc_rank) {
-  return -1;
-} else {
-  return 0;
-}
-</textarea>
-<br>
-<button id="sortingCodeButton">Update sorting strategy</button>
-<br><br>
-<table id="table">
-  <tr>
-    <th>Rank</th>
-    <th>Signature</th>
-    <th>Bug(s)</th>
-    <th>Evolution</th>
-  </tr>
-</table>
+<a href="dashboard.html">Stability Dashboard</a>&nbsp;&nbsp;&nbsp;&lt;-----&gt;&nbsp;&nbsp;&nbsp;<a href="correlations.html">Signature Correlations</a>&nbsp;&nbsp;&nbsp;&lt;-----&gt;&nbsp;&nbsp;&nbsp;<a href="missing_uplifts.html">Missing Uplifts</a>
 </body>
 </html>
