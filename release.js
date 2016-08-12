@@ -6,7 +6,7 @@ var fs = require('fs-extra');
 fs.removeSync('dist');
 fs.mkdirSync('dist');
 
-childProcess.exec('cd ../clouseau && python -m clouseau.stability.crashes -o "' + path.join(process.cwd(), 'dist') + '"', function(error, stdout, stderr) {
+childProcess.exec('cd ../clouseau && python -m clouseau.stability.crashes -t 100 -o "' + path.join(process.cwd(), 'dist') + '"', function(error, stdout, stderr) {
   if (error) {
     console.error(stdout);
     console.error(stderr);
