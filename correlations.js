@@ -34,9 +34,8 @@ function getCorrelations() {
   url.search = '?channel=' + getOption('channel') + '&signature=' + getOption('signature');
   history.replaceState({}, document.title, url.href);
 
-  let image = document.getElementById('correlations_image');
-  image.title = signature + ' correlations.';
-  image.src = 'plots/' + getOption('channel') + '/' + getOption('signature') + '.png';
+  let svgElem = document.getElementById('correlations_image');
+  correlationGraph(svgElem, 1200, 900, getOption('signature'), getOption('channel'));
 }
 
 onLoad

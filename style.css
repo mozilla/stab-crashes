@@ -21,6 +21,14 @@ td {
   text-decoration: line-through;
 }
 
+text {
+  font: 10px sans-serif;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
 .axis path,
 .axis line {
   fill: none;
@@ -45,7 +53,7 @@ td {
 
 .tooltip .tooltip-dialog {
     visibility: hidden;
-    width: 820px;
+    width: 1220px;
     border: 1px solid black;
     text-align: center;
     background-color: white;
