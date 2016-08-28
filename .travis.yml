@@ -3,7 +3,7 @@ node_js:
 - stable
 before_install:
 - openssl aes-256-cbc -K $encrypted_8f1589bc8b8c_key -iv $encrypted_8f1589bc8b8c_iv -in deploy-key.enc -out ~/.ssh/deploy-key -d
-- chmod u=rw,og= ~/.ssh/publish-key
+- chmod u=rw,og= ~/.ssh/deploy-key
 - echo "Host github.com" >> ~/.ssh/config
 - echo "HostName github.com" >> ~/.ssh/config
 - echo "IdentityFile ~/.ssh/deploy-key" >> ~/.ssh/config
