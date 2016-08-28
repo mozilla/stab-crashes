@@ -1,7 +1,7 @@
 let crashesFile, crashes;
 let tableOptions = {
   'oom': {
-    value: false,
+    value: true,
     type: 'select',
   },
   'shutdownhang': {
