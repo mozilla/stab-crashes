@@ -15,6 +15,7 @@ function execute(cmd, args, cwd, callback) {
   proc.on('close', function(code) {
     if (code != 0) {
       console.error('Process ' + cmd + ' exited with code ' + code);
+      process.exit(code);
       return;
     }
 
@@ -43,6 +44,7 @@ function generateDashboardData() {
         if (err) {
           console.error('Error while publishing to gh-pages');
           console.error(err);
+          process.exit(1);
         }
       });
     });
