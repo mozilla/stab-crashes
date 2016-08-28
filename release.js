@@ -22,23 +22,29 @@ function execute(cmd, args, cwd, callback) {
   });
 }
 
+function installRequirements(callback) {
+  execute('pip', ['install', '-r', 'requirements.txt'], 'clouseau', callback);
+}
+
 function copyConfig() {
   fs.createReadStream('config.ini').pipe(fs.createWriteStream('clouseau/config.ini'));
 }
 
 function generateDashboardData() {
-  copyConfig();
+  installRequirements(function() {
+    copyConfig();
 
-  execute('python', ['-m', 'clouseau.stability.crashes', '-t', '100', '-o', path.join(process.cwd(), 'dist')], 'clouseau', function() {
-    copyFiles();
+    execute('python', ['-m', 'clouseau.stability.crashes', '-t', '100', '-o', path.join(process.cwd(), 'dist')], 'clouseau', function() {
+      copyFiles();
 
-    ghpages.publish('dist', {
-      dotfiles: true,
-    }, function(err) {
-      if (err) {
-        console.error('Error while publishing to gh-pages');
-        console.error(err);
-      }
+      ghpages.publish('dist', {
+        dotfiles: true,
+      }, function(err) {
+        if (err) {
+          console.error('Error while publishing to gh-pages');
+          console.error(err);
+        }
+      });
     });
   });
 }
