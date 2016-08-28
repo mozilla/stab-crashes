@@ -6,13 +6,44 @@ var fs = require('fs-extra');
 fs.removeSync('dist');
 fs.mkdirSync('dist');
 
-childProcess.exec('cd ../clouseau && python -m clouseau.stability.crashes -t 100 -o "' + path.join(process.cwd(), 'dist') + '"', function(error, stdout, stderr) {
-  if (error) {
-    console.error(stdout);
-    console.error(stderr);
-    return;
-  }
+function execute(cmd, args, cwd, callback) {
+  var proc = childProcess.spawn(cmd, args, {
+    cwd: cwd,
+    stdio: 'inherit',
+  });
 
+  proc.on('close', function(code) {
+    if (code != 0) {
+      console.error('Process ' + cmd + ' exited with code ' + code);
+      return;
+    }
+
+    callback();
+  });
+}
+
+function copyConfig() {
+  fs.createReadStream('config.ini').pipe(fs.createWriteStream('clouseau/config.ini'));
+}
+
+function generateDashboardData() {
+  copyConfig();
+
+  execute('python', ['-m', 'clouseau.stability.crashes', '-t', '100', '-o', path.join(process.cwd(), 'dist')], 'clouseau', function() {
+    copyFiles();
+
+    ghpages.publish('dist', {
+      dotfiles: true,
+    }, function(err) {
+      if (err) {
+        console.error('Error while publishing to gh-pages');
+        console.error(err);
+      }
+    });
+  });
+}
+
+function copyFiles() {
   [
     'index.html',
     'correlations.js',
@@ -24,13 +55,12 @@ childProcess.exec('cd ../clouseau && python -m clouseau.stability.crashes -t 100
   ].forEach(function(file) {
     fs.copySync(file, path.join('dist', file));
   });
+}
 
-  ghpages.publish('dist', {
-    dotfiles: true,
-  }, function(err) {
-    if (err) {
-      console.error('Error while publishing to gh-pages');
-      console.error(err);
-    }
-  });
+fs.exists('clouseau', function(exists) {
+  if (exists) {
+    execute('git', ['pull'], 'clouseau', generateDashboardData);
+  } else {
+    execute('git', ['clone', 'https://github.com/mozilla/clouseau'], process.cwd(), generateDashboardData);
+  }
 });
