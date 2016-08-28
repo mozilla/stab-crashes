@@ -1,4 +1,4 @@
-var correlations = (function() {
+var correlations = (() => {
   let correlationData;
 
   function loadCorrelationData() {
@@ -7,41 +7,35 @@ var correlations = (function() {
     }
 
     return fetch('https://analysis-output.telemetry.mozilla.org/top-100-signatures-correlations/data/top100_results.json.gz')
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(data) {
+    .then(response => response.json())
+    .then(data => {
       correlationData = data;
       return data;
-    })
+    });
   }
 
   function itemToLabel(item) {
     return Object.getOwnPropertyNames(item)
-    .map(function(key) {
-      return key + ' = ' + item[key]
-    })
+    .map(key => key + ' = ' + item[key])
     .join(' ∧ ');
   }
 
   function text(textElem, signature, channel) {
     loadCorrelationData()
-    .then(function(data) {
+    .then(data => {
       let correlationData = data[channel][signature];
 
       textElem.textContent = correlationData
-      .sort(function(a, b) {
-          return Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a);
-      })
-      .reduce(function(prev, cur) {
-        return prev + itemToLabel(cur.item) + ' (' + (cur.support_b * 100).toFixed(2) + '% vs ' + (cur.support_a * 100).toFixed(2) + '%)\n';
-      }, '');
+      .sort((a, b) => Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a))
+      .reduce((prev, cur) =>
+        prev + itemToLabel(cur.item) + ' (' + (cur.support_b * 100).toFixed(2) + '% vs ' + (cur.support_a * 100).toFixed(2) + '%)\n'
+        , '');
     });
   }
 
   function graph(svgElem, totalWidth, totalHeight, signature, channel) {
     loadCorrelationData()
-    .then(function(data) {
+    .then(data => {
       d3.select(svgElem).selectAll('*').remove();
 
       let correlationData = data[channel][signature];
@@ -78,14 +72,14 @@ var correlations = (function() {
 
       let options = ['Overall', signature];
 
-      correlationData.forEach(function(d) {
+      correlationData.forEach(d => {
         d.values = [
           { name: 'Overall', value: d.support_a },
           { name: signature, value: d.support_b },
         ]
       });
 
-      y0.domain(correlationData.map(function(d) { return itemToLabel(d.item); }));
+      y0.domain(correlationData.map(d => itemToLabel(d.item)));
       y1.domain(options).rangeRoundBands([0, y0.rangeBand()]);
       x.domain([0, 100]);
 
@@ -102,31 +96,31 @@ var correlations = (function() {
           .data(correlationData)
           .enter().append('g')
           .attr('class', 'rect')
-          .attr('transform', function(d) { return 'translate( 0,'+ y0(itemToLabel(d.item)) +')'; });
+          .attr('transform', d => 'translate( 0,'+ y0(itemToLabel(d.item)) +')');
 
       let bar_enter = bar.selectAll('rect')
-          .data(function(d) { return d.values; })
+          .data(d => d.values)
           .enter()
 
       bar_enter.append('rect')
           .attr('height', y1.rangeBand())
-          .attr('y', function(d) { return y1(d.name); })
-          .attr('x', function(d) { return 0; })
-          .attr('value', function(d){return d.name;})
-          .attr('width', function(d) { return x((d.value * 100).toFixed(2)); })
-          .style('fill', function(d) { return color(d.name); });
+          .attr('y', d => y1(d.name))
+          .attr('x', d => 0)
+          .attr('value', d => d.name)
+          .attr('width', d => x((d.value * 100).toFixed(2)))
+          .style('fill', d => color(d.name));
 
       bar_enter.append('text')
-          .attr('x', function(d) { return x((d.value * 100).toFixed(2)) + 5;  })
-          .attr('y', function(d) { return y1(d.name) + (y1.rangeBand()/2); })
+          .attr('x', d => x((d.value * 100).toFixed(2)) + 5)
+          .attr('y', d => y1(d.name) + (y1.rangeBand()/2))
           .attr('dy', '.35em')
-          .text(function(d) { return (d.value * 100).toFixed(2); });
+          .text(d => (d.value * 100).toFixed(2));
 
       let legend = svg.selectAll('.legend')
           .data(options.slice())
           .enter().append('g')
           .attr('class', 'legend')
-          .attr('transform', function(d, i) { return 'translate(' + margin.right + ',' + i * 20 + ')'; });
+          .attr('transform', (d, i) => 'translate(' + margin.right + ',' + i * 20 + ')');
 
       legend.append('rect')
           .attr('x', width - 18)
@@ -139,7 +133,7 @@ var correlations = (function() {
           .attr('y', 9)
           .attr('dy', '.35em')
           .style('text-anchor', 'end')
-          .text(function(d) { return d; });
+          .text(d => d);
     });
   }
 
