@@ -27,6 +27,8 @@ var correlationGraph = (function() {
   function correlationGraph(svgElem, totalWidth, totalHeight, signature, channel) {
     loadCorrelationData()
     .then(function(data) {
+      d3.select(svgElem).selectAll('*').remove();
+
       let dataset = data[channel][signature];
 
       let margin = {top: 20, right: 300, bottom: 30, left: 300};
@@ -54,10 +56,10 @@ var correlationGraph = (function() {
           .orient('left');
 
       let svg = d3.select(svgElem)
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 
       let options = ['Overall', signature];
@@ -73,56 +75,56 @@ var correlationGraph = (function() {
       y1.domain(options).rangeRoundBands([0, y0.rangeBand()]);
       x.domain([0, 100]);
 
-      svg.append("g")
-         .attr("class", "x axis")
-         .attr("transform", "translate(0," + height + ")")
+      svg.append('g')
+         .attr('class', 'x axis')
+         .attr('transform', 'translate(0,' + height + ')')
          .call(xAxis);
 
-      svg.append("g")
-         .attr("class", "y axis")
+      svg.append('g')
+         .attr('class', 'y axis')
          .call(yAxis);
 
-      let bar = svg.selectAll(".bar")
+      let bar = svg.selectAll('.bar')
           .data(dataset)
-          .enter().append("g")
-          .attr("class", "rect")
-          .attr("transform", function(d) { return "translate( 0,"+ y0(itemToLabel(d.item)) +")"; });
+          .enter().append('g')
+          .attr('class', 'rect')
+          .attr('transform', function(d) { return 'translate( 0,'+ y0(itemToLabel(d.item)) +')'; });
 
-      let bar_enter = bar.selectAll("rect")
+      let bar_enter = bar.selectAll('rect')
           .data(function(d) { return d.valores; })
           .enter()
 
-      bar_enter.append("rect")
-          .attr("height", y1.rangeBand())
-          .attr("y", function(d) { return y1(d.name); })
-          .attr("x", function(d) { return 0; })
-          .attr("value", function(d){return d.name;})
-          .attr("width", function(d) { return x((d.value * 100).toFixed(2)); })
-          .style("fill", function(d) { return color(d.name); });
+      bar_enter.append('rect')
+          .attr('height', y1.rangeBand())
+          .attr('y', function(d) { return y1(d.name); })
+          .attr('x', function(d) { return 0; })
+          .attr('value', function(d){return d.name;})
+          .attr('width', function(d) { return x((d.value * 100).toFixed(2)); })
+          .style('fill', function(d) { return color(d.name); });
 
-      bar_enter.append("text")
-          .attr("x", function(d) { return x((d.value * 100).toFixed(2)) + 5;  })
-          .attr("y", function(d) { return y1(d.name) + (y1.rangeBand()/2); })
-          .attr("dy", ".35em")
+      bar_enter.append('text')
+          .attr('x', function(d) { return x((d.value * 100).toFixed(2)) + 5;  })
+          .attr('y', function(d) { return y1(d.name) + (y1.rangeBand()/2); })
+          .attr('dy', '.35em')
           .text(function(d) { return (d.value * 100).toFixed(2); });
 
-      let legend = svg.selectAll(".legend")
+      let legend = svg.selectAll('.legend')
           .data(options.slice())
-          .enter().append("g")
-          .attr("class", "legend")
-          .attr("transform", function(d, i) { return "translate(" + margin.right + "," + i * 20 + ")"; });
+          .enter().append('g')
+          .attr('class', 'legend')
+          .attr('transform', function(d, i) { return 'translate(' + margin.right + ',' + i * 20 + ')'; });
 
-      legend.append("rect")
-          .attr("x", width - 18)
-          .attr("width", 18)
-          .attr("height", 18)
-          .style("fill", color);
+      legend.append('rect')
+          .attr('x', width - 18)
+          .attr('width', 18)
+          .attr('height', 18)
+          .style('fill', color);
 
-      legend.append("text")
-          .attr("x", width - 24)
-          .attr("y", 9)
-          .attr("dy", ".35em")
-          .style("text-anchor", "end")
+      legend.append('text')
+          .attr('x', width - 24)
+          .attr('y', 9)
+          .attr('dy', '.35em')
+          .style('text-anchor', 'end')
           .text(function(d) { return d; });
     });
   }

@@ -35,7 +35,7 @@ function getCorrelations() {
   history.replaceState({}, document.title, url.href);
 
   let svgElem = document.getElementById('correlations_image');
-  correlationGraph(svgElem, 1200, 900, getOption('signature'), getOption('channel'));
+  correlationGraph(svgElem, 1200, 900, decodeURIComponent(getOption('signature')), getOption('channel'));
 }
 
 onLoad
