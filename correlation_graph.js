@@ -27,6 +27,8 @@ var correlationGraph = (function() {
   function correlationGraph(svgElem, totalWidth, totalHeight, signature, channel) {
     loadCorrelationData()
     .then(function(data) {
+      d3.select(svgElem).selectAll('*').remove();
+
       let dataset = data[channel][signature];
 
       let margin = {top: 20, right: 300, bottom: 30, left: 300};
