@@ -222,7 +222,7 @@ function addRow(signature, obj) {
   signatureTooltip.appendChild(signatureImage);
   signatureDiv.appendChild(signatureTooltip);
   key.appendChild(signatureDiv);
-  correlationGraph(signatureImage, 1200, 900, signature, getOption('version'));
+  correlations.graph(signatureImage, 1200, 900, signature, getOption('version'));
 
   key.appendChild(signatureDiv);
 
