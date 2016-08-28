@@ -24,7 +24,7 @@ function execute(cmd, args, cwd, callback) {
 }
 
 function installRequirements(callback) {
-  execute('pip', ['install', '-r', 'requirements.txt'], 'clouseau', callback);
+  execute('pip', ['install', '--user', '-r', 'requirements.txt'], 'clouseau', callback);
 }
 
 function copyConfig() {
