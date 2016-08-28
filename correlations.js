@@ -30,6 +30,9 @@ var correlations = (function() {
       let correlationData = data[channel][signature];
 
       textElem.textContent = correlationData
+      .sort(function(a, b) {
+          return Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a);
+      })
       .reduce(function(prev, cur) {
         return prev + itemToLabel(cur.item) + ' (' + (cur.support_b * 100).toFixed(2) + '% vs ' + (cur.support_a * 100).toFixed(2) + '%)\n';
       }, '');
