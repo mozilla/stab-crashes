@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+- stable
+before_install:
+- openssl aes-256-cbc -K $encrypted_8f1589bc8b8c_key -iv $encrypted_8f1589bc8b8c_iv -in deploy-key.enc -out ~/.ssh/deploy-key -d
+- chmod u=rw,og= ~/.ssh/publish-key
+- echo "Host github.com" >> ~/.ssh/config
+- echo "HostName github.com" >> ~/.ssh/config
+- echo "IdentityFile ~/.ssh/deploy-key" >> ~/.ssh/config
+- echo "User git" >> ~/.ssh/config
+- git remote set-url origin git@github.com:mozilla/stab-crashes.git
+install: npm install
+before_script:
+- git config --global user.name "Marco Castelluccio"
+- git config --global user.email "mcastelluccio@mozilla.com"
+script:
+- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && node release.js'
+
