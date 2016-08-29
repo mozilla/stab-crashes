@@ -6,7 +6,7 @@ var correlations = (() => {
       return Promise.resolve(correlationData);
     }
 
-    return fetch('https://analysis-output.telemetry.mozilla.org/top-100-signatures-correlations/data/top100_results.json.gz')
+    return fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/top_results.json.gz')
     .then(response => response.json())
     .then(data => {
       correlationData = data;
