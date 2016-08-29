@@ -26,6 +26,10 @@ var correlations = (() => {
       textElem.textContent = '';
 
       let correlationData = data[channel][signature];
+      if (!correlationData) {
+        textElem.textContent = 'No correlation data was generated for this signature on this channel.'
+        return;
+      }
 
       textElem.textContent = correlationData
       .sort((a, b) => Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a))
@@ -41,6 +45,9 @@ var correlations = (() => {
       d3.select(svgElem).selectAll('*').remove();
 
       let correlationData = data[channel][signature];
+      if (!correlationData) {
+        return;
+      }
 
       let margin = { top: 20, right: 300, bottom: 30, left: 300 };
       let width = totalWidth - margin.left - margin.right;
