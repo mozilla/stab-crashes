@@ -52,8 +52,7 @@ onLoad
 
     for (let queryVar of queryVars) {
       if (queryVar.startsWith(optionName + '=')) {
-        let option = queryVar.substring((optionName + '=').length);
-        console.log('setOption' + optionName + ' ' + option)
+        let option = queryVar.substring((optionName + '=').length).trim();
         setOption(optionName, option);
       }
     }
@@ -90,10 +89,10 @@ onLoad
         elem.value = getOption(optionName);
       }
 
-      setOption(optionName, elem.value);
+      setOption(optionName, elem.value.trim());
 
       document.getElementById(optionName + 'Button').onclick = function() {
-        setOption(optionName, elem.value);
+        setOption(optionName, elem.value.trim());
         getCorrelations();
       };
     } else {
