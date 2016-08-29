@@ -23,6 +23,8 @@ var correlations = (() => {
   function text(textElem, signature, channel) {
     loadCorrelationData()
     .then(data => {
+      textElem.textContent = '';
+
       let correlationData = data[channel][signature];
 
       textElem.textContent = correlationData
