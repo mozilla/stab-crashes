@@ -13,6 +13,6 @@ before_install:
 - git remote set-url origin git@github.com:mozilla/stab-crashes.git
 install:
 - npm install
-- pip install -r requirements.txt
+- pip install --user -r requirements.txt
 script:
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && node release.js'
