@@ -16,4 +16,4 @@ install:
 - pip install -r test-requirements.txt
 script:
 - flake8 .
-- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && python release.py && ghp-import -n -p -m "Updates" dist'
+- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && python generate-data.py && ghp-import -n -p -m "Updates" dist'
