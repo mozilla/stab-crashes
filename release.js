@@ -35,7 +35,7 @@ function generateDashboardData() {
   installRequirements(function() {
     copyConfig();
 
-    execute('python', ['-m', 'clouseau.stability.crashes', '-t', '100', '-o', path.join(process.cwd(), 'dist')], 'clouseau', function() {
+    execute('python', ['-m', 'clouseau.crashes', '-t', '100', '-o', path.join(process.cwd(), 'dist')], 'clouseau', function() {
       copyFiles();
 
       ghpages.publish('dist', {
