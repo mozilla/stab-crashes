@@ -12,6 +12,7 @@ from datetime import (datetime, timedelta)
 import os
 import shutil
 from libmozdata import config
+config.set_config(config.ConfigIni('config.ini'))  # NOQA
 import libmozdata.socorro as socorro
 import libmozdata.utils as utils
 from libmozdata.redash import Redash
@@ -289,8 +290,6 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tclimit', action='store', default=100, help='number of top crashes to retrieve')
 
     args = parser.parse_args()
-
-    config.set_config(config.ConfigIni('config.ini'))
 
     try:
         shutil.rmtree('dist')
