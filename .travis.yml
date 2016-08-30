@@ -12,7 +12,8 @@ before_install:
 - echo "User git" >> ~/.ssh/config
 - git remote set-url origin git@github.com:mozilla/stab-crashes.git
 install:
-- pip install --user -r requirements.txt
+- pip install -r requirements.txt
+- pip install -r test-requirements.txt
 script:
 - flake8 .
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && python release.py && ghp-import -n -p -m "Updates" dist'
