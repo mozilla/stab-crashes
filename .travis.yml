@@ -1,6 +1,6 @@
-language: node_js
-node_js:
-- stable
+language: python
+python:
+- 3.5
 before_install:
 - openssl aes-256-cbc -K $encrypted_8f1589bc8b8c_key -iv $encrypted_8f1589bc8b8c_iv -in secrets.tar.enc -out secrets.tar -d
 - tar xvf secrets.tar
@@ -12,7 +12,7 @@ before_install:
 - echo "User git" >> ~/.ssh/config
 - git remote set-url origin git@github.com:mozilla/stab-crashes.git
 install:
-- npm install
 - pip install --user -r requirements.txt
 script:
-- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && node release.js'
+- flake8 .
+- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && python release.py && ghp-import -n -p -m "Updates" dist'

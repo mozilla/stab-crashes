@@ -10,6 +10,7 @@ import six
 import functools
 from datetime import (datetime, timedelta)
 import os
+import shutil
 from libmozdata import config
 import libmozdata.socorro as socorro
 import libmozdata.utils as utils
@@ -282,7 +283,6 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Track')
-    parser.add_argument('-o', '--output-directory', action='store', required=True, help='the output directory')
     parser.add_argument('-c', '--channels', action='store', nargs='+', default=['release', 'beta', 'aurora', 'nightly'], help='the channels')
     parser.add_argument('-d', '--date', action='store', default='yesterday_utc', help='the end date')
     parser.add_argument('-D', '--duration', action='store', default=11, help='the duration')
@@ -291,6 +291,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     config.set_config(config.ConfigIni('config.ini'))
+
+    try:
+        shutil.rmtree('dist')
+    except:
+        pass
+    os.mkdir('dist')
 
     for channel in args.channels:
         for startup in [False, True]:
@@ -302,3 +308,16 @@ if __name__ == "__main__":
 
             with open('dist/' + channel + ('-startup' if startup else '') + '.json', 'w') as f:
                 json.dump(stats, f, allow_nan=False)
+
+    files = [
+        'index.html',
+        'correlations.js',
+        'dashboard.html', 'dashboard.js', 'style.css', 'exclamation_mark.svg',
+        'question_mark.svg', 'rocket_fly.png',
+        'correlations.html', 'correlations_page.js',
+        'missing_uplifts.html', 'missing_uplifts.js',
+        '.nojekyll'
+    ]
+
+    for f in files:
+        shutil.copyfile(f, 'dist/' + f)
