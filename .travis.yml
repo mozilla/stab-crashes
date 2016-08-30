@@ -11,7 +11,9 @@ before_install:
 - echo "IdentityFile ~/.ssh/deploy-key" >> ~/.ssh/config
 - echo "User git" >> ~/.ssh/config
 - git remote set-url origin git@github.com:mozilla/stab-crashes.git
-install: npm install
+install:
+- npm install
+- pip install -r requirements.txt
 before_script:
 - git config --global user.name "Marco Castelluccio"
 - git config --global user.email "mcastelluccio@mozilla.com"

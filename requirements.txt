@@ -1,0 +1,2 @@
+libmozdata>=0.1.0
+six>=1.10.0

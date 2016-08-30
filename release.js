@@ -6,9 +6,8 @@ var fs = require('fs-extra');
 fs.removeSync('dist');
 fs.mkdirSync('dist');
 
-function execute(cmd, args, cwd, callback) {
+function execute(cmd, args, callback) {
   var proc = childProcess.spawn(cmd, args, {
-    cwd: cwd,
     stdio: 'inherit',
   });
 
@@ -23,32 +22,20 @@ function execute(cmd, args, cwd, callback) {
   });
 }
 
-function installRequirements(callback) {
-  execute('pip', ['install', '--user', '-r', 'requirements.txt'], 'clouseau', callback);
-}
-
-function copyConfig() {
-  fs.createReadStream('config.ini').pipe(fs.createWriteStream('clouseau/config.ini'));
-}
-
 function generateDashboardData() {
-  installRequirements(function() {
-    copyConfig();
+  execute('python', ['-m', 'generate-data', '-o', path.join(process.cwd(), 'dist')], function() {
+    copyFiles();
 
-    execute('python', ['-m', 'clouseau.crashes', '-t', '100', '-o', path.join(process.cwd(), 'dist')], 'clouseau', function() {
-      copyFiles();
-
-      ghpages.publish('dist', {
-        dotfiles: true,
-      }, function(err) {
-        if (err) {
-          console.error('Error while publishing to gh-pages');
-          console.error(err);
-          process.exit(1);
-        }
-      });
+    ghpages.publish('dist', {
+      dotfiles: true,
+    }, function(err) {
+      if (err) {
+        console.error('Error while publishing to gh-pages');
+        console.error(err);
+        process.exit(1);
+      }
     });
-  });
+  })
 }
 
 function copyFiles() {
@@ -65,10 +52,4 @@ function copyFiles() {
   });
 }
 
-fs.exists('clouseau', function(exists) {
-  if (exists) {
-    execute('git', ['pull'], 'clouseau', generateDashboardData);
-  } else {
-    execute('git', ['clone', 'https://github.com/mozilla/clouseau'], process.cwd(), generateDashboardData);
-  }
-});
+generateDashboardData();
