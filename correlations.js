@@ -79,7 +79,7 @@ var correlations = (() => {
           .append('g')
           .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-      let options = ['Overall', signature];
+      let options = [signature, 'Overall'];
 
       correlationData.forEach(d => {
         d.values = [
