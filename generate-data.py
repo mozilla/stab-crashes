@@ -11,8 +11,6 @@ import functools
 from datetime import (datetime, timedelta)
 import os
 import shutil
-from libmozdata import config
-config.set_config(config.ConfigIni('config.ini'))  # NOQA
 import libmozdata.socorro as socorro
 import libmozdata.utils as utils
 from libmozdata.redash import Redash
