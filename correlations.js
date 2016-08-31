@@ -20,6 +20,20 @@ var correlations = (() => {
     .join(' ∧ ');
   }
 
+  function toPercentage(num) {
+    let result = (num * 100).toFixed(2);
+
+    if (result == '100.00') {
+      return '100.0'
+    }
+
+    if (result.substring(0, result.indexOf('.')).length == 1) {
+      return '0' + result;
+    }
+
+    return result;
+  }
+
   function text(textElem, signature, channel) {
     loadCorrelationData()
     .then(data => {
@@ -34,7 +48,7 @@ var correlations = (() => {
       textElem.textContent = correlationData
       .sort((a, b) => Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a))
       .reduce((prev, cur) =>
-        prev + itemToLabel(cur.item) + ' (' + (cur.support_b * 100).toFixed(2) + '% in signature vs ' + (cur.support_a * 100).toFixed(2) + '% overall)\n'
+        prev + '(' + toPercentage(cur.support_b) + '% in signature vs ' + toPercentage(cur.support_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
         , '');
     });
   }
