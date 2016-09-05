@@ -34,6 +34,11 @@ var correlations = (() => {
     return result;
   }
 
+  function sortCorrelationData(correlationData) {
+    return correlationData
+    .sort((a, b) => Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a));
+  }
+
   function text(textElem, signature, channel) {
     loadCorrelationData()
     .then(data => {
@@ -45,8 +50,7 @@ var correlations = (() => {
         return;
       }
 
-      textElem.textContent = correlationData
-      .sort((a, b) => Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a))
+      textElem.textContent = sortCorrelationData(correlationData)
       .reduce((prev, cur) =>
         prev + '(' + toPercentage(cur.support_b) + '% in signature vs ' + toPercentage(cur.support_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
         , '');
@@ -62,6 +66,8 @@ var correlations = (() => {
       if (!correlationData) {
         return;
       }
+      correlationData = sortCorrelationData(correlationData);
+      correlationData.reverse();
 
       let margin = { top: 20, right: 300, bottom: 30, left: 300 };
       let width = totalWidth - margin.left - margin.right;
