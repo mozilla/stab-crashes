@@ -313,6 +313,7 @@ if __name__ == "__main__":
         'question_mark.svg', 'rocket_fly.png',
         'correlations.html', 'correlations_page.js',
         'missing_uplifts.html', 'missing_uplifts.js',
+        'compare-betas.html', 'compare-betas.js',
     ]
 
     for f in files:
