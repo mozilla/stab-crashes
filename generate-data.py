@@ -314,6 +314,7 @@ if __name__ == "__main__":
         'correlations.html', 'correlations_page.js',
         'missing_uplifts.html', 'missing_uplifts.js',
         'compare-betas.html', 'compare-betas.js',
+        'beta-stability-pushlog.html', 'beta-stability-pushlog.js',
     ]
 
     for f in files:
