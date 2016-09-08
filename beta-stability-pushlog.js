@@ -34,7 +34,71 @@ function getComparison() {
   url.search = '?beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
   history.replaceState({}, document.title, url.href);
 
-  document.getElementById('frame').src = 'https://crash-analysis.mozilla.com/rkaiser/datil/searchcompare/?common=product%3DFirefox&p1=version%3D' + getOption('beta1') + '&p2=version%3D' + getOption('beta2');
+  let fromchange = 'FIREFOX_' + getOption('beta1').replace('.', '_') + '_RELEASE';
+  let tochange = 'FIREFOX_' + getOption('beta2').replace('.', '_') + '_RELEASE';
+
+  console.log()
+
+  fetch('https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=' + fromchange + '&tochange=' + tochange)
+  .then(response => response.text())
+  .then(data => {
+    let bugs = [];
+    let regex = /Bug ([0-9]+)/gi;
+    let res;
+    while ((res = regex.exec(data)) !== null) {
+      bugs.push(res[1]);
+    }
+
+    let table = document.getElementById('table');
+
+    for (let bug of bugs) {
+      fetch('https://bugzilla.mozilla.org/rest/bug/' + bug + '?include_fields=cf_crash_signature')
+      .then(response => response.json())
+      .then(data => {
+        // Skip bugs with no signatures.
+        if ('bugs' in data && data['bugs'][0]['cf_crash_signature'] == '') {
+          return;
+        }
+
+        let row = table.insertRow(table.rows.length);
+        let bugElem = row.insertCell(0);
+        let aElem = document.createElement('a');
+        aElem.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug;
+        aElem.textContent = bug;
+        bugElem.appendChild(aElem);
+
+        let evolution = row.insertCell(1);
+
+        let result = document.createElement('span');
+
+        if (!('bugs' in data)) {
+          result.style.color = 'maroon';
+          result.textContent = 'Not accessible.';
+        } else {
+          let signatures = data['bugs'][0]['cf_crash_signature'];
+          signatures = signatures.replace(/\[@ /g, '[@');
+          signatures = signatures.replace(/\[@/g, '');
+          signatures = signatures.replace(/ ]\r\n/g, '\\');
+          signatures = signatures.replace(/]\r\n/g, '\\');
+          signatures = signatures.replace(']', '');
+
+          signatures = signatures.split('\\');
+
+          let query1 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=Firefox&_results_number=0&_facets_size=0&version=' + getOption('beta1') + '&signature=%3D' + signatures.join('&signature=%3D'))
+          .then(response => response.json());
+          let query2 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=Firefox&_results_number=0&_facets_size=0&version=' + getOption('beta2') + '&signature=%3D' + signatures.join('&signature=%3D'))
+          .then(response => response.json());
+
+          Promise.all([ query1, query2 ])
+          .then(data => {
+            result.textContent = data[0]['total'] + ' before; ' + data[1]['total'] + ' after.';
+          });
+        }
+
+        evolution.appendChild(result);
+      });
+    }
+  });
 }
 
 onLoad
