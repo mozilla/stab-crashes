@@ -30,14 +30,16 @@ function getComparison() {
     return;
   }
 
+  while(table.rows.length > 1) {
+    table.deleteRow(table.rows.length - 1);
+  }
+
   let url = new URL(location.href);
   url.search = '?beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
   history.replaceState({}, document.title, url.href);
 
   let fromchange = 'FIREFOX_' + getOption('beta1').replace('.', '_') + '_RELEASE';
   let tochange = 'FIREFOX_' + getOption('beta2').replace('.', '_') + '_RELEASE';
-
-  console.log()
 
   fetch('https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=' + fromchange + '&tochange=' + tochange)
   .then(response => response.text())
