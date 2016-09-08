@@ -92,6 +92,10 @@ onLoad
       }
 
       setOption(optionName, elem.options[elem.selectedIndex].value);
+
+      elem.onchange = function() {
+        setOption(optionName, elem.options[elem.selectedIndex].value);
+      };
     } else if (optionType === 'button') {
       if (getOption(optionName)) {
         elem.value = getOption(optionName);
