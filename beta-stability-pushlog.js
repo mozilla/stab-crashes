@@ -53,7 +53,7 @@ function getComparison() {
 
     let table = document.getElementById('table');
 
-    for (let bug of bugs) {
+    bugs.forEach(bug =>
       fetch('https://bugzilla.mozilla.org/rest/bug/' + bug + '?include_fields=cf_crash_signature')
       .then(response => response.json())
       .then(data => {
@@ -98,8 +98,8 @@ function getComparison() {
         }
 
         evolution.appendChild(result);
-      });
-    }
+      })
+    );
   });
 }
 
