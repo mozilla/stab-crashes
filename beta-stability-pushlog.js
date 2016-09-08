@@ -44,11 +44,11 @@ function getComparison() {
   fetch('https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=' + fromchange + '&tochange=' + tochange)
   .then(response => response.text())
   .then(data => {
-    let bugs = [];
+    let bugs = new Set();
     let regex = /Bug ([0-9]+)/gi;
     let res;
     while ((res = regex.exec(data)) !== null) {
-      bugs.push(res[1]);
+      bugs.add(res[1]);
     }
 
     let table = document.getElementById('table');
