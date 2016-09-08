@@ -25,6 +25,28 @@ let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
+function dateToStr(date) {
+  let month = '' + (date.getMonth() + 1);
+  let day = '' + date.getDate();
+  let year = date.getFullYear();
+
+  if (month.length < 2) {
+    month = '0' + month;
+  }
+
+  if (day.length < 2) {
+    day = '0' + day;
+  }
+
+  return year + '-' + month + '-' + day;
+}
+
+function addDays(date, days) {
+  let result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
 function getComparison() {
   if (!getOption('beta1') || !getOption('beta2')) {
     return;
@@ -38,68 +60,80 @@ function getComparison() {
   url.search = '?beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
   history.replaceState({}, document.title, url.href);
 
-  let fromchange = 'FIREFOX_' + getOption('beta1').replace('.', '_') + '_RELEASE';
-  let tochange = 'FIREFOX_' + getOption('beta2').replace('.', '_') + '_RELEASE';
+  fetch('https://product-details.mozilla.org/1.0/firefox_history_development_releases.json')
+  .then(response => response.json())
+  .then(release_history => {
+    let date1 = new Date(release_history[getOption('beta1')]);
+    let date2 = new Date(release_history[getOption('beta2')]);
+    let endDate1 = addDays(date1, 7);
+    let endDate2 = addDays(date2, 7);
 
-  fetch('https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=' + fromchange + '&tochange=' + tochange)
-  .then(response => response.text())
-  .then(data => {
-    let bugs = new Set();
-    let regex = /Bug ([0-9]+)/gi;
-    let res;
-    while ((res = regex.exec(data)) !== null) {
-      bugs.add(res[1]);
-    }
+    document.getElementById('dates').innerHTML = getOption('beta1') + ' released on ' + dateToStr(date1) + ' (crashes from ' + dateToStr(date1) + ' to ' + dateToStr(endDate1) + ')<br>' + getOption('beta2') + ' released on ' + dateToStr(date2) + ' (crashes from ' + dateToStr(date2) + ' to ' + dateToStr(endDate2) + ')';
 
-    let table = document.getElementById('table');
 
-    bugs.forEach(bug =>
-      fetch('https://bugzilla.mozilla.org/rest/bug/' + bug + '?include_fields=cf_crash_signature')
-      .then(response => response.json())
-      .then(data => {
-        // Skip bugs with no signatures.
-        if ('bugs' in data && data['bugs'][0]['cf_crash_signature'] == '') {
-          return;
-        }
+    let fromchange = 'FIREFOX_' + getOption('beta1').replace('.', '_') + '_RELEASE';
+    let tochange = 'FIREFOX_' + getOption('beta2').replace('.', '_') + '_RELEASE';
 
-        let row = table.insertRow(table.rows.length);
-        let bugElem = row.insertCell(0);
-        let aElem = document.createElement('a');
-        aElem.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug;
-        aElem.textContent = bug;
-        bugElem.appendChild(aElem);
+    fetch('https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=' + fromchange + '&tochange=' + tochange)
+    .then(response => response.text())
+    .then(data => {
+      let bugs = new Set();
+      let regex = /Bug ([0-9]+)/gi;
+      let res;
+      while ((res = regex.exec(data)) !== null) {
+        bugs.add(res[1]);
+      }
 
-        let evolution = row.insertCell(1);
+      let table = document.getElementById('table');
 
-        let result = document.createElement('span');
+      bugs.forEach(bug =>
+        fetch('https://bugzilla.mozilla.org/rest/bug/' + bug + '?include_fields=cf_crash_signature')
+        .then(response => response.json())
+        .then(data => {
+          // Skip bugs with no signatures.
+          if ('bugs' in data && data['bugs'][0]['cf_crash_signature'] == '') {
+            return;
+          }
 
-        if (!('bugs' in data)) {
-          result.style.color = 'maroon';
-          result.textContent = 'Not accessible.';
-        } else {
-          let signatures = data['bugs'][0]['cf_crash_signature'];
-          signatures = signatures.replace(/\[@ /g, '[@');
-          signatures = signatures.replace(/\[@/g, '');
-          signatures = signatures.replace(/ ]\r\n/g, '\\');
-          signatures = signatures.replace(/]\r\n/g, '\\');
-          signatures = signatures.replace(']', '');
+          let row = table.insertRow(table.rows.length);
+          let bugElem = row.insertCell(0);
+          let aElem = document.createElement('a');
+          aElem.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug;
+          aElem.textContent = bug;
+          bugElem.appendChild(aElem);
 
-          signatures = signatures.split('\\');
+          let evolution = row.insertCell(1);
 
-          let query1 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=Firefox&_results_number=0&_facets_size=0&version=' + getOption('beta1') + '&signature=%3D' + signatures.join('&signature=%3D'))
-          .then(response => response.json());
-          let query2 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=Firefox&_results_number=0&_facets_size=0&version=' + getOption('beta2') + '&signature=%3D' + signatures.join('&signature=%3D'))
-          .then(response => response.json());
+          let result = document.createElement('span');
 
-          Promise.all([ query1, query2 ])
-          .then(data => {
-            result.textContent = data[0]['total'] + ' before; ' + data[1]['total'] + ' after.';
-          });
-        }
+          if (!('bugs' in data)) {
+            result.style.color = 'maroon';
+            result.textContent = 'Not accessible.';
+          } else {
+            let signatures = data['bugs'][0]['cf_crash_signature'];
+            signatures = signatures.replace(/\[@ /g, '[@');
+            signatures = signatures.replace(/\[@/g, '');
+            signatures = signatures.replace(/ ]\r\n/g, '\\');
+            signatures = signatures.replace(/]\r\n/g, '\\');
+            signatures = signatures.replace(']', '');
 
-        evolution.appendChild(result);
-      })
-    );
+            signatures = signatures.split('\\');
+
+            let query1 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=Firefox&_results_number=0&_facets_size=0&version=' + getOption('beta1') + '&date=>%3D' + dateToStr(date1) + '&date=<%3D' + dateToStr(date2) + '&signature=%3D' + signatures.join('&signature=%3D'))
+            .then(response => response.json());
+            let query2 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=Firefox&_results_number=0&_facets_size=0&version=' + getOption('beta2') + '&date=>%3D' + dateToStr(date1) + '&date=<%3D' + dateToStr(date2) + '&signature=%3D' + signatures.join('&signature=%3D'))
+            .then(response => response.json());
+
+            Promise.all([ query1, query2 ])
+            .then(data => {
+              result.textContent = data[0]['total'] + ' before; ' + data[1]['total'] + ' after.';
+            });
+          }
+
+          evolution.appendChild(result);
+        })
+      );
+    });
   });
 }
 
