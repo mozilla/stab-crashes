@@ -47,12 +47,16 @@ function addDays(date, days) {
   return result;
 }
 
+function getBaseVersion(version) {
+  return version.substring(0, version.indexOf('.0b'));
+}
+
 function getReleaseDate(version, release_history) {
   if (version.endsWith('b99') && !(version in release_history)) {
     // XXX: Assume release date is really close to latest beta build. Remove this
     // hack when https://bugzilla.mozilla.org/show_bug.cgi?id=1192197 is fixed.
     let maxDate = new Date(0);
-    for (let release of Object.entries(release_history).filter(r => r[0].startsWith(version.substring(0, version.indexOf('b'))))) {
+    for (let release of Object.entries(release_history).filter(r => r[0].startsWith(getBaseVersion(version)))) {
       let date = new Date(release[1]);
       if (date > maxDate) {
         maxDate = date;
@@ -67,7 +71,7 @@ function getReleaseDate(version, release_history) {
 
 function getTag(version) {
   if (version.endsWith('b99')) {
-    return 'FIREFOX_RELEASE_49_BASE';
+    return 'FIREFOX_RELEASE_' + getBaseVersion(version) + '_BASE';
   }
 
   return 'FIREFOX_' + version.replace('.', '_') + '_RELEASE';
@@ -168,18 +172,23 @@ onLoad
 .then(data => {
   let betas1 = document.getElementById('beta1');
   let betas2 = document.getElementById('beta2');
-  let hits = data['hits'];
-  for (let hit of hits.reverse()) {
-    let version = hit['version'];
-    if (isNaN(version[version.length - 1])) {
-      continue;
-    }
+
+  let hits = data['hits'].filter(hit => !isNaN(hit['version'][hit['version'].length - 1])).reverse();
+
+  for (let i = 0; i < hits.length; i++) {
+    let version = hits[i]['version'];
 
     var opt = document.createElement('option');
     opt.value = version;
     opt.textContent = version;
-    betas1.appendChild(opt);
-    betas2.appendChild(opt.cloneNode(true));
+
+    if (i != hits.length - 1) {
+      betas1.appendChild(opt);
+    }
+
+    if (i != 0) {
+      betas2.appendChild(opt.cloneNode(true));
+    }
   }
 
   betas1.selectedIndex = betas1.options.length - 2;
