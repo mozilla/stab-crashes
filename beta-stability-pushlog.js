@@ -47,6 +47,32 @@ function addDays(date, days) {
   return result;
 }
 
+function getReleaseDate(version, release_history) {
+  if (version.endsWith('b99') && !(version in release_history)) {
+    // XXX: Assume release date is really close to latest beta build. Remove this
+    // hack when https://bugzilla.mozilla.org/show_bug.cgi?id=1192197 is fixed.
+    let maxDate = new Date(0);
+    for (let release of Object.entries(release_history).filter(r => r[0].startsWith(version.substring(0, version.indexOf('b'))))) {
+      let date = new Date(release[1]);
+      if (date > maxDate) {
+        maxDate = date;
+      }
+    }
+
+    return maxDate;
+  }
+
+  return new Date(release_history[version]);
+}
+
+function getTag(version) {
+  if (version.endsWith('b99')) {
+    return 'FIREFOX_RELEASE_49_BASE';
+  }
+
+  return 'FIREFOX_' + version.replace('.', '_') + '_RELEASE';
+}
+
 function getComparison() {
   if (!getOption('beta1') || !getOption('beta2')) {
     return;
@@ -63,16 +89,15 @@ function getComparison() {
   fetch('https://product-details.mozilla.org/1.0/firefox_history_development_releases.json')
   .then(response => response.json())
   .then(release_history => {
-    let date1 = new Date(release_history[getOption('beta1')]);
-    let date2 = new Date(release_history[getOption('beta2')]);
+    let date1 = getReleaseDate(getOption('beta1'), release_history);
+    let date2 = getReleaseDate(getOption('beta2'), release_history);
     let endDate1 = addDays(date1, 7);
     let endDate2 = addDays(date2, 7);
 
     document.getElementById('dates').innerHTML = getOption('beta1') + ' released on ' + dateToStr(date1) + ' (crashes from ' + dateToStr(date1) + ' to ' + dateToStr(endDate1) + ')<br>' + getOption('beta2') + ' released on ' + dateToStr(date2) + ' (crashes from ' + dateToStr(date2) + ' to ' + dateToStr(endDate2) + ')';
 
-
-    let fromchange = 'FIREFOX_' + getOption('beta1').replace('.', '_') + '_RELEASE';
-    let tochange = 'FIREFOX_' + getOption('beta2').replace('.', '_') + '_RELEASE';
+    let fromchange = getTag(getOption('beta1'));
+    let tochange = getTag(getOption('beta2'));
 
     fetch('https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=' + fromchange + '&tochange=' + tochange)
     .then(response => response.text())
