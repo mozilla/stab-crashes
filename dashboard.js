@@ -219,10 +219,12 @@ function addRow(signature, obj) {
   let signatureTooltip = document.createElement('div');
   signatureTooltip.className = 'tooltip-dialog';
   let signatureImage = document.createElementNS(d3.ns.prefix.svg, 'svg');
+  signatureImage.setAttribute('width', 1200);
+  signatureImage.setAttribute('height', 900);
   signatureTooltip.appendChild(signatureImage);
   signatureDiv.appendChild(signatureTooltip);
   key.appendChild(signatureDiv);
-  correlations.graph(signatureImage, 1200, 900, signature, getOption('version'));
+  correlations.graph(signatureImage, signature, getOption('version'));
 
   key.appendChild(signatureDiv);
 

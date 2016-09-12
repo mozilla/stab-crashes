@@ -66,14 +66,14 @@ var correlations = (() => {
       let total_a = data[channel].total;
       let total_b = data[channel]['signatures'][signature].total;
 
-      textElem.textContent = sortCorrelationData(correlationData)
+      textElem.textContent = sortCorrelationData(correlationData, total_a, total_b)
       .reduce((prev, cur) =>
         prev + '(' + toPercentage(cur.count_b / total_b) + '% in signature vs ' + toPercentage(cur.count_a / total_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
       , '');
     });
   }
 
-  function graph(svgElem, totalWidth, totalHeight, signature, channel) {
+  function graph(svgElem, signature, channel) {
     loadCorrelationData()
     .then(data => {
       d3.select(svgElem).selectAll('*').remove();
@@ -89,8 +89,8 @@ var correlations = (() => {
       correlationData.reverse();
 
       let margin = { top: 20, right: 300, bottom: 30, left: 300 };
-      let width = totalWidth - margin.left - margin.right;
-      let height = totalHeight - margin.top - margin.bottom;
+      let width = svgElem.getAttribute('width') - margin.left - margin.right;
+      let height = svgElem.getAttribute('height') - margin.top - margin.bottom;
 
       let y0 = d3.scale.ordinal()
           .rangeRoundBands([height, 0], .2, 0.5);

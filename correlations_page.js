@@ -41,7 +41,7 @@ function getCorrelations() {
   correlations.text(preElem, signature, channel);
 
   let svgElem = document.getElementById('correlations_image');
-  correlations.graph(svgElem, 1200, 900, signature, channel);
+  correlations.graph(svgElem, signature, channel);
 }
 
 onLoad
