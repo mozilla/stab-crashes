@@ -10,7 +10,7 @@ var correlations = (() => {
     .then(response => response.json())
     .then(data => {
       correlationData = data;
-      return data;
+      return correlationData;
     });
   }
 
@@ -44,16 +44,19 @@ var correlations = (() => {
     .then(data => {
       textElem.textContent = '';
 
-      let correlationData = data[channel][signature];
+      let correlationData = data[channel]['signatures'][signature]['results'];
       if (!correlationData) {
         textElem.textContent = 'No correlation data was generated for this signature on this channel.'
         return;
       }
 
+      let total_a = data[channel].total;
+      let total_b = data[channel]['signatures'][signature].total;
+
       textElem.textContent = sortCorrelationData(correlationData)
       .reduce((prev, cur) =>
-        prev + '(' + toPercentage(cur.support_b) + '% in signature vs ' + toPercentage(cur.support_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
-        , '');
+        prev + '(' + toPercentage(cur.count_b / total_b) + '% in signature vs ' + toPercentage(cur.count_a / total_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
+      , '');
     });
   }
 
