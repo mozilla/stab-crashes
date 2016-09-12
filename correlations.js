@@ -34,7 +34,7 @@ var correlations = (() => {
     return result;
   }
 
-  function sortCorrelationData(correlationData) {
+  function sortCorrelationData(correlationData, total_a, total_b) {
     return correlationData
     .sort((a, b) => {
       let rule_a_len = Object.keys(a.item).length;
@@ -48,7 +48,7 @@ var correlations = (() => {
         return 1;
       }
 
-      return Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a);
+      return Math.abs(b.count_b / total_b - b.count_a / total_a) - Math.abs(a.count_b / total_b - a.count_a / total_a);
     });
   }
 
@@ -78,11 +78,14 @@ var correlations = (() => {
     .then(data => {
       d3.select(svgElem).selectAll('*').remove();
 
-      let correlationData = data[channel][signature];
+      let total_a = data[channel].total;
+      let total_b = data[channel]['signatures'][signature].total;
+
+      let correlationData = data[channel]['signatures'][signature]['results'];
       if (!correlationData) {
         return;
       }
-      correlationData = sortCorrelationData(correlationData);
+      correlationData = sortCorrelationData(correlationData, total_a, total_b);
       correlationData.reverse();
 
       let margin = { top: 20, right: 300, bottom: 30, left: 300 };
@@ -119,8 +122,8 @@ var correlations = (() => {
 
       correlationData.forEach(d => {
         d.values = [
-          { name: 'Overall', value: d.support_a },
-          { name: signature, value: d.support_b },
+          { name: 'Overall', value: d.count_a / total_a },
+          { name: signature, value: d.count_b / total_b },
         ]
       });
 
