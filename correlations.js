@@ -48,7 +48,8 @@ var correlations = (() => {
         return 1;
       }
 
-      return Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a));
+      return Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a);
+    });
   }
 
   function text(textElem, signature, channel) {
