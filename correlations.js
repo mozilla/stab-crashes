@@ -36,7 +36,19 @@ var correlations = (() => {
 
   function sortCorrelationData(correlationData) {
     return correlationData
-    .sort((a, b) => Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a));
+    .sort((a, b) => {
+      let rule_a_len = Object.keys(a.item).length;
+      let rule_b_len = Object.keys(b.item).length;
+
+      if (rule_a_len < rule_b_len) {
+        return -1;
+      }
+
+      if (rule_a_len > rule_b_len) {
+        return 1;
+      }
+
+      return Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a));
   }
 
   function text(textElem, signature, channel) {
