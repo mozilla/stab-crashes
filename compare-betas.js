@@ -52,6 +52,37 @@ function getComparison() {
   document.getElementById('frame').src = 'https://crash-analysis.mozilla.com/rkaiser/datil/searchcompare/?common=product%3DFirefox&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '');
 }
 
+function compareBuildIDs(build_id1, build_id2) {
+  build_id1 = '' + build_id1;
+  build_id2 = '' + build_id2;
+
+  let year1 = Number(build_id1.substring(0, 4));
+  let year2 = Number(build_id2.substring(0, 4));
+  if (year1 > year2) {
+    return -1;
+  } else if (year1 < year2) {
+    return 1;
+  }
+
+  let month1 = Number(build_id1.substring(4, 6));
+  let month2 = Number(build_id2.substring(4, 6));
+  if (month1 > month2) {
+    return -1;
+  } else if (month1 < month2) {
+    return 1;
+  }
+
+  let day1 = Number(build_id1.substring(6, 8));
+  let day2 = Number(build_id2.substring(6, 8));
+  if (day1 > day2) {
+    return -1;
+  } else if (day1 < day2) {
+    return 1;
+  }
+
+  return 0;
+}
+
 onLoad
 .then(() => fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&active=true&build_type=beta'))
 .then(response => response.json())
@@ -63,7 +94,7 @@ onLoad
     return fetch('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + rc + '&product=Firefox&_facets=build_id&_results_number=0')
     .then(response => response.json())
     .then(data => {
-      return data['facets']['build_id'].map(elem => rc + ' - ' + elem['term']).concat(versions);
+      return data['facets']['build_id'].sort((a, b) => compareBuildIDs(a['term'], b['term'])).map(elem => rc + ' - ' + elem['term']).concat(versions);
     });
   } else {
     return versions;
