@@ -34,11 +34,14 @@ function getCorrelations() {
   url.search = '?channel=' + getOption('channel') + '&signature=' + getOption('signature');
   history.replaceState({}, document.title, url.href);
 
+  let signature = decodeURIComponent(getOption('signature'));
+  let channel = getOption('channel');
+
   let preElem = document.getElementById('correlations_text');
-  correlations.text(preElem, decodeURIComponent(getOption('signature')), getOption('channel'))
+  correlations.text(preElem, signature, channel);
 
   let svgElem = document.getElementById('correlations_image');
-  correlations.graph(svgElem, 1200, 900, decodeURIComponent(getOption('signature')), getOption('channel'));
+  correlations.graph(svgElem, signature, channel);
 }
 
 onLoad

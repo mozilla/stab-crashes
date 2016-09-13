@@ -10,7 +10,7 @@ var correlations = (() => {
     .then(response => response.json())
     .then(data => {
       correlationData = data;
-      return data;
+      return correlationData;
     });
   }
 
@@ -34,9 +34,22 @@ var correlations = (() => {
     return result;
   }
 
-  function sortCorrelationData(correlationData) {
+  function sortCorrelationData(correlationData, total_a, total_b) {
     return correlationData
-    .sort((a, b) => Math.abs(b.support_b - b.support_a) - Math.abs(a.support_b - a.support_a));
+    .sort((a, b) => {
+      let rule_a_len = Object.keys(a.item).length;
+      let rule_b_len = Object.keys(b.item).length;
+
+      if (rule_a_len < rule_b_len) {
+        return -1;
+      }
+
+      if (rule_a_len > rule_b_len) {
+        return 1;
+      }
+
+      return Math.abs(b.count_b / total_b - b.count_a / total_a) - Math.abs(a.count_b / total_b - a.count_a / total_a);
+    });
   }
 
   function text(textElem, signature, channel) {
@@ -44,34 +57,40 @@ var correlations = (() => {
     .then(data => {
       textElem.textContent = '';
 
-      let correlationData = data[channel][signature];
+      let correlationData = data[channel]['signatures'][signature]['results'];
       if (!correlationData) {
         textElem.textContent = 'No correlation data was generated for this signature on this channel.'
         return;
       }
 
-      textElem.textContent = sortCorrelationData(correlationData)
+      let total_a = data[channel].total;
+      let total_b = data[channel]['signatures'][signature].total;
+
+      textElem.textContent = sortCorrelationData(correlationData, total_a, total_b)
       .reduce((prev, cur) =>
-        prev + '(' + toPercentage(cur.support_b) + '% in signature vs ' + toPercentage(cur.support_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
-        , '');
+        prev + '(' + toPercentage(cur.count_b / total_b) + '% in signature vs ' + toPercentage(cur.count_a / total_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
+      , '');
     });
   }
 
-  function graph(svgElem, totalWidth, totalHeight, signature, channel) {
+  function graph(svgElem, signature, channel) {
     loadCorrelationData()
     .then(data => {
       d3.select(svgElem).selectAll('*').remove();
 
-      let correlationData = data[channel][signature];
+      let total_a = data[channel].total;
+      let total_b = data[channel]['signatures'][signature].total;
+
+      let correlationData = data[channel]['signatures'][signature]['results'];
       if (!correlationData) {
         return;
       }
-      correlationData = sortCorrelationData(correlationData);
+      correlationData = sortCorrelationData(correlationData, total_a, total_b);
       correlationData.reverse();
 
       let margin = { top: 20, right: 300, bottom: 30, left: 300 };
-      let width = totalWidth - margin.left - margin.right;
-      let height = totalHeight - margin.top - margin.bottom;
+      let width = svgElem.getAttribute('width') - margin.left - margin.right;
+      let height = svgElem.getAttribute('height') - margin.top - margin.bottom;
 
       let y0 = d3.scale.ordinal()
           .rangeRoundBands([height, 0], .2, 0.5);
@@ -103,8 +122,8 @@ var correlations = (() => {
 
       correlationData.forEach(d => {
         d.values = [
-          { name: 'Overall', value: d.support_a },
-          { name: signature, value: d.support_b },
+          { name: 'Overall', value: d.count_a / total_a },
+          { name: signature, value: d.count_b / total_b },
         ]
       });
 
