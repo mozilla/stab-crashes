@@ -121,7 +121,7 @@ onLoad
     }
   }
 
-  betas1.selectedIndex = betas1.options.length - 2;
+  betas1.selectedIndex = betas1.options.length - 1;
   betas2.selectedIndex = betas2.options.length - 1;
 })
 .then(function() {
