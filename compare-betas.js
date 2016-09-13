@@ -30,31 +30,95 @@ function getComparison() {
     return;
   }
 
+  let version1 = getOption('beta1');
+  let version2 = getOption('beta2');
+  let build_id1 = '';
+  let build_id2 = '';
+  if (version1.includes(' - ')) {
+    let vals = version1.split(' - ');
+    version1 = vals[0];
+    build_id1 = vals[1];
+  }
+  if (version2.includes(' - ')) {
+    let vals = version2.split(' - ');
+    version2 = vals[0];
+    build_id2 = vals[1];
+  }
+
   let url = new URL(location.href);
   url.search = '?beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
   history.replaceState({}, document.title, url.href);
 
-  document.getElementById('frame').src = 'https://crash-analysis.mozilla.com/rkaiser/datil/searchcompare/?common=product%3DFirefox&p1=version%3D' + getOption('beta1') + '&p2=version%3D' + getOption('beta2');
+  document.getElementById('frame').src = 'https://crash-analysis.mozilla.com/rkaiser/datil/searchcompare/?common=product%3DFirefox&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '');
+}
+
+function compareBuildIDs(build_id1, build_id2) {
+  build_id1 = '' + build_id1;
+  build_id2 = '' + build_id2;
+
+  let year1 = Number(build_id1.substring(0, 4));
+  let year2 = Number(build_id2.substring(0, 4));
+  if (year1 > year2) {
+    return -1;
+  } else if (year1 < year2) {
+    return 1;
+  }
+
+  let month1 = Number(build_id1.substring(4, 6));
+  let month2 = Number(build_id2.substring(4, 6));
+  if (month1 > month2) {
+    return -1;
+  } else if (month1 < month2) {
+    return 1;
+  }
+
+  let day1 = Number(build_id1.substring(6, 8));
+  let day2 = Number(build_id2.substring(6, 8));
+  if (day1 > day2) {
+    return -1;
+  } else if (day1 < day2) {
+    return 1;
+  }
+
+  return 0;
 }
 
 onLoad
 .then(() => fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&active=true&build_type=beta'))
 .then(response => response.json())
 .then(data => {
+  let versions = data['hits'].map(hit => hit['version']).filter(version => !isNaN(version[version.length - 1]));
+
+  let rc = versions.find(version => version.endsWith('b99'));
+  if (rc) {
+    return fetch('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + rc + '&product=Firefox&_facets=build_id&_results_number=0')
+    .then(response => response.json())
+    .then(data => {
+      return data['facets']['build_id'].sort((a, b) => compareBuildIDs(a['term'], b['term'])).map(elem => rc + ' - ' + elem['term']).concat(versions);
+    });
+  } else {
+    return versions;
+  }
+})
+.then(versions => {
   let betas1 = document.getElementById('beta1');
   let betas2 = document.getElementById('beta2');
-  let hits = data['hits'];
-  for (let hit of hits.reverse()) {
-    let version = hit['version'];
-    if (isNaN(version[version.length - 1])) {
-      continue;
-    }
+
+  versions = versions.reverse();
+
+  for (let i = 0; i < versions.length; i++) {
+    let version = versions[i];
 
     var opt = document.createElement('option');
-    opt.value = version;
-    opt.textContent = version;
-    betas1.appendChild(opt);
-    betas2.appendChild(opt.cloneNode(true));
+    opt.value = opt.textContent = version;
+
+    if (i != versions.length - 1) {
+      betas1.appendChild(opt);
+    }
+
+    if (i != 0) {
+      betas2.appendChild(opt.cloneNode(true));
+    }
   }
 
   betas1.selectedIndex = betas1.options.length - 2;
@@ -84,7 +148,7 @@ onLoad
     } else if (optionType === 'option') {
       if (getOption(optionName)) {
         for (let i = 0; i < elem.options.length; i++) {
-          if (elem.options[i].value === getOption(optionName)) {
+          if (elem.options[i].value === decodeURIComponent(getOption(optionName))) {
             elem.selectedIndex = i;
             break;
           }
