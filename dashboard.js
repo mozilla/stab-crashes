@@ -216,15 +216,16 @@ function addRow(signature, obj) {
   signatureLink.href = 'https://crash-stats.mozilla.com/signature/?date=<%3D' + crashes.end_date + '&date=>%3D' + crashes.start_date + '&product=Firefox&' + crashes.versions.map(version => 'version=' + version).join('&') + '&signature=' + signature;
   signatureDiv.appendChild(signatureLink);
 
-  let signatureTooltip = document.createElement('div');
-  signatureTooltip.className = 'tooltip-dialog';
-  let signatureImage = document.createElementNS(d3.ns.prefix.svg, 'svg');
-  signatureImage.setAttribute('width', 1200);
-  signatureImage.setAttribute('height', 900);
-  signatureTooltip.appendChild(signatureImage);
-  signatureDiv.appendChild(signatureTooltip);
-  key.appendChild(signatureDiv);
-  correlations.graph(signatureImage, signature, getOption('version'));
+  signatureLink.onmouseover = function() {
+    let signatureTooltip = document.createElement('div');
+    signatureTooltip.className = 'tooltip-dialog';
+    let signatureImage = document.createElementNS(d3.ns.prefix.svg, 'svg');
+    signatureImage.setAttribute('width', 1200);
+    signatureImage.setAttribute('height', 900);
+    signatureTooltip.appendChild(signatureImage);
+    signatureDiv.appendChild(signatureTooltip);
+    correlations.graph(signatureImage, signature, getOption('version'));
+  };
 
   key.appendChild(signatureDiv);
 
