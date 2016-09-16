@@ -17,6 +17,7 @@ from libmozdata.redash import Redash
 from libmozdata.connection import (Connection, Query)
 from libmozdata.bugzilla import Bugzilla
 import libmozdata.versions
+import gfx_critical_errors
 
 v = libmozdata.versions.get(base=True)
 
@@ -305,6 +306,9 @@ if __name__ == "__main__":
 
             with open('dist/' + channel + ('-startup' if startup else '') + '.json', 'w') as f:
                 json.dump(stats, f, allow_nan=False)
+
+    with open('dist/graphics_critical_errors.json', 'w') as f:
+        json.dump(gfx_critical_errors.analyze_gfx_critical_errors(), f)
 
     files = [
         'index.html',
