@@ -319,6 +319,7 @@ if __name__ == "__main__":
         'missing_uplifts.html', 'missing_uplifts.js',
         'compare-betas.html', 'compare-betas.js',
         'beta-stability-pushlog.html', 'beta-stability-pushlog.js',
+        'graphics_critical_errors.html', 'graphics_critical_errors.js',
     ]
 
     for f in files:
