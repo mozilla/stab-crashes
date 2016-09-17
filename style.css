@@ -6,15 +6,11 @@ th, td {
   padding: 8px;
   padding-top: 40px;
   padding-bottom: 40px;
+  border: 2px solid #ddd;
 }
 
 th {
-  border-bottom: 2px solid #ddd;
   font-weight: bold;
-}
-
-td {
-  border-top: 1px solid #ddd;
 }
 
 .resolved {
