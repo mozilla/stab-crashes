@@ -16,6 +16,10 @@ let tableOptions = {
     value: null,
     type: 'option',
   },
+  'sortBy': {
+    value: null,
+    type: 'option',
+  },
   'crashesType': {
     value: null,
     type: 'option',
@@ -360,12 +364,22 @@ function buildTable() {
       let signatureObj1 = crashes.signatures[signature1];
       let signatureObj2 = crashes.signatures[signature2];
 
-      if (signatureObj1.tc_rank > signatureObj2.tc_rank) {
-        return 1;
-      } else if (signatureObj1.tc_rank < signatureObj2.tc_rank) {
-        return -1;
+      if (getOption('sortBy') == 'Number of crash reports') {
+        if (signatureObj1.tc_rank > signatureObj2.tc_rank) {
+          return 1;
+        } else if (signatureObj1.tc_rank < signatureObj2.tc_rank) {
+          return -1;
+        } else {
+          return 0;
+        }
       } else {
-        return 0;
+        if (signatureObj1.estimated_user_count < signatureObj2.estimated_user_count) {
+          return 1;
+        } else if (signatureObj1.estimated_user_count > signatureObj2.estimated_user_count) {
+          return -1;
+        } else {
+          return 0;
+        }
       }
     })
     .forEach(function(signature) {
