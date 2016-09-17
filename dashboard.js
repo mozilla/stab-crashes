@@ -198,7 +198,13 @@ function addRow(signature, obj) {
   let rank = row.insertCell(0);
   rank.appendChild(document.createTextNode(obj.tc_rank));
 
-  let key = row.insertCell(1);
+  let usersVolume = row.insertCell(1);
+  usersVolume.appendChild(document.createTextNode(obj.estimated_user_count));
+
+  let reportsVolume = row.insertCell(2);
+  reportsVolume.appendChild(document.createTextNode(obj.crash_count));
+
+  let key = row.insertCell(3);
 
   let startupImage = document.createElement('img');
   startupImage.title = (obj.startup_percent * 100).toFixed(2) + ' %';
@@ -232,7 +238,7 @@ function addRow(signature, obj) {
   let today = new Date();
   let three_days_ago = new Date().setDate(today.getDate() - 3);
   let ten_days_ago = new Date().setDate(today.getDate() - 10);
-  let bugs = row.insertCell(2);
+  let bugs = row.insertCell(4);
   obj.bugs
   .sort((bug1, bug2) => new Date(bug2.last_change_time) - new Date(bug1.last_change_time))
   .forEach(function(bug) {
@@ -281,12 +287,12 @@ function addRow(signature, obj) {
     bugs.appendChild(document.createElement('br'));
   });
 
-  let graph = row.insertCell(3);
+  let graph = row.insertCell(5);
 
   let svgElem = document.createElementNS(d3.ns.prefix.svg, 'svg');
 
   let margin = { top: 20, right: 20, bottom: 30, left: 50 };
-  let width = 700;
+  let width = 500;
   let height = 200;
 
   if (getOption('graphType') === 'Crashes per usage hours') {
