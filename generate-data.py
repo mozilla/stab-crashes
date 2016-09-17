@@ -103,7 +103,7 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
 
     def signature_handler(json):
         for signature in json['facets']['signature']:
-            signatures[signature['term']] = [signature['count'], 0, 0, 0, 0]
+            signatures[signature['term']] = [signature['count'], 0, 0, 0, 0, 0]
 
             for platform in signature['facets']['platform']:
                 if platform['term'] == 'Linux':
@@ -117,6 +117,8 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
                 if int(uptime['term']) < 60:
                     signatures[signature['term']][4] += uptime['count']
 
+            signatures[signature['term']][5] = signature['facets']['cardinality_install_time']['value']
+
         for facets in json['facets']['histogram_date']:
             overall_crashes_by_day.insert(0, facets['count'])
 
@@ -125,7 +127,7 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
         'version': versions,
         'date': socorro.SuperSearch.get_search_date(start_date, end_date),
         'release_channel': channel,
-        '_aggs.signature': ['platform', 'uptime'],
+        '_aggs.signature': ['platform', 'uptime', '_cardinality.install_time'],
         '_results_number': 0,
         '_facets_size': tc_limit,
         '_histogram.date': ['product'],
@@ -265,6 +267,7 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
         startup_percent = float(stats[0][4]) / float(stats[0][0])
         _signatures[sgn] = {'tc_rank': _signatures[sgn],
                             'crash_count': stats[0][0],
+                            'estimated_user_count': stats[0][5],
                             'startup_percent': startup_percent,
                             'crash_by_day': stats[1],
                             'bugs': bugs[sgn]}
