@@ -23,10 +23,6 @@ let tableOptions = {
   'graphType': {
     value: null,
     type: 'option',
-  },
-  'sortingCode': {
-    value: null,
-    type: 'button',
   }
 };
 
@@ -358,11 +354,20 @@ function buildTable() {
       throw new Error('Unexpected graph type');
     }
 
-    let sortingFunction = new Function('signatureObj1', 'signatureObj2', getOption('sortingCode'));
-
     // Order signatures by rank change or kairo's explosiveness.
     Object.keys(crashes.signatures)
-    .sort((signature1, signature2) => sortingFunction(crashes.signatures[signature1], crashes.signatures[signature2]))
+    .sort((signature1, signature2) => {
+      let signatureObj1 = crashes.signatures[signature1];
+      let signatureObj2 = crashes.signatures[signature2];
+
+      if (signatureObj1.tc_rank > signatureObj2.tc_rank) {
+        return 1;
+      } else if (signatureObj1.tc_rank < signatureObj2.tc_rank) {
+        return -1;
+      } else {
+        return 0;
+      }
+    })
     .forEach(function(signature) {
       if (!getOption('oom') && signature.toLowerCase().includes('oom')) {
         return;
