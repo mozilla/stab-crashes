@@ -1,2 +1,3 @@
 dist/
 mozdata.ini
+*.pyc
