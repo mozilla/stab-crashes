@@ -20,6 +20,11 @@
   <option>aurora</option>
   <option>nightly</option>
 </select>
+<label for="sortBy">Sort by:</label>
+<select name="sortBy" id="sortBy">
+  <option selected>Number of users crashing</option>
+  <option>Number of crash reports</option>
+</select>
 <label for="crashesType">Crashes type:</label>
 <select name="crashesType" id="crashesType">
   <option selected>All crashes</option>
@@ -32,24 +37,12 @@
   <option>Crashes per total crashes</option>
   <option>Raw number of crashes</option>
 </select>
-<br><br>
 <svg id="overallGraph"></svg>
-<br><br>
-<textarea id="sortingCode" rows="10" cols="75">
-if (signatureObj1.tc_rank > signatureObj2.tc_rank) {
-  return 1;
-} else if (signatureObj1.tc_rank < signatureObj2.tc_rank) {
-  return -1;
-} else {
-  return 0;
-}
-</textarea>
-<br>
-<button id="sortingCodeButton">Update sorting strategy</button>
-<br><br>
 <table id="table">
   <tr>
     <th>Rank</th>
+    <th>Users</th>
+    <th>Reports</th>
     <th>Signature</th>
     <th>Bug(s)</th>
     <th>Evolution</th>
