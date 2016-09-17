@@ -1,17 +1,63 @@
 var correlations = (() => {
   let correlationData;
 
-  function loadCorrelationData() {
-    if (correlationData) {
-      return Promise.resolve(correlationData);
+  function sha1(str) {
+    return crypto.subtle.digest('SHA-1', new TextEncoder('utf-8').encode(str))
+    .then(hash => hex(hash));
+  }
+
+  function hex(buffer) {
+    let hexCodes = [];
+    let view = new DataView(buffer);
+
+    for (let i = 0; i < view.byteLength; i += 4) {
+      // Using getUint32 reduces the number of iterations needed (we process 4 bytes each time).
+      let value = view.getUint32(i);
+      // toString(16) will give the hex representation of the number without padding.
+      let stringValue = value.toString(16);
+      // We use concatenation and slice for padding.
+      let padding = '00000000';
+      let paddedValue = (padding + stringValue).slice(-padding.length);
+      hexCodes.push(paddedValue);
     }
 
-    return fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/top_results.json.gz')
-    .then(response => response.json())
-    .then(data => {
-      correlationData = data;
-      return correlationData;
-    });
+    // Join all the hex strings into one
+    return hexCodes.join('');
+  }
+
+  function loadCorrelationData(signature, channel) {
+    let loadChannelsData;
+    if (correlationData) {
+      loadChannelsData = Promise.resolve();
+    } else {
+      loadChannelsData = fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/all.json.gz')
+      .then(response => response.json())
+      .then(totals => {
+          correlationData = {};
+          for (let ch of Object.keys(totals)) {
+            correlationData[ch] = {
+              'total': totals[ch],
+              'signatures': {},
+            }
+          }
+      });
+    }
+
+    return loadChannelsData
+    .then(() => {
+      if (signature in correlationData[channel]['signatures']) {
+        return;
+      }
+
+      return sha1(signature)
+      .then(sha1signature => fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/' + channel + '/' + sha1signature + '.json.gz'))
+      .then(response => response.json())
+      .then(data => {
+        correlationData[channel]['signatures'][signature] = data;
+      })
+      .catch(() => {});
+    })
+    .then(() => correlationData);
   }
 
   function itemToLabel(item) {
@@ -53,15 +99,16 @@ var correlations = (() => {
   }
 
   function text(textElem, signature, channel) {
-    loadCorrelationData()
+    loadCorrelationData(signature, channel)
     .then(data => {
       textElem.textContent = '';
 
-      let correlationData = data[channel]['signatures'][signature]['results'];
-      if (!correlationData) {
+      if (!(signature in data[channel]['signatures']) || !data[channel]['signatures'][signature]['results']) {
         textElem.textContent = 'No correlation data was generated for this signature on this channel.'
         return;
       }
+
+      let correlationData = data[channel]['signatures'][signature]['results'];
 
       let total_a = data[channel].total;
       let total_b = data[channel]['signatures'][signature].total;
@@ -75,17 +122,18 @@ var correlations = (() => {
   }
 
   function graph(svgElem, signature, channel) {
-    loadCorrelationData()
+    loadCorrelationData(signature, channel)
     .then(data => {
       d3.select(svgElem).selectAll('*').remove();
+
+      if (!(signature in data[channel]['signatures']) || !data[channel]['signatures'][signature]['results']) {
+        return;
+      }
 
       let total_a = data[channel].total;
       let total_b = data[channel]['signatures'][signature].total;
 
       let correlationData = data[channel]['signatures'][signature]['results'];
-      if (!correlationData) {
-        return;
-      }
       correlationData = sortCorrelationData(correlationData, total_a, total_b);
       correlationData = correlationData.filter(elem => Object.keys(elem.item).length == 1);
       correlationData.reverse();
