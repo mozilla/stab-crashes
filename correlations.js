@@ -114,7 +114,6 @@ var correlations = (() => {
       let total_b = data[channel]['signatures'][signature].total;
 
       textElem.textContent = sortCorrelationData(correlationData, total_a, total_b)
-      .filter(elem => Object.keys(elem.item).length == 1)
       .reduce((prev, cur) =>
         prev + '(' + toPercentage(cur.count_b / total_b) + '% in signature vs ' + toPercentage(cur.count_a / total_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
       , '');
@@ -135,7 +134,6 @@ var correlations = (() => {
 
       let correlationData = data[channel]['signatures'][signature]['results'];
       correlationData = sortCorrelationData(correlationData, total_a, total_b);
-      correlationData = correlationData.filter(elem => Object.keys(elem.item).length == 1);
       correlationData.reverse();
 
       let margin = { top: 20, right: 300, bottom: 30, left: 300 };
