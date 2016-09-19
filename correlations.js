@@ -132,7 +132,8 @@ var correlations = (() => {
       let total_a = data[channel].total;
       let total_b = data[channel]['signatures'][signature].total;
 
-      let correlationData = data[channel]['signatures'][signature]['results'];
+      let correlationData = data[channel]['signatures'][signature]['results']
+      .filter(elem => Object.keys(elem.item).length <= 1);
       correlationData = sortCorrelationData(correlationData, total_a, total_b);
       correlationData.reverse();
 
