@@ -53,9 +53,6 @@ function getComparison() {
 }
 
 function compareBuildIDs(build_id1, build_id2) {
-  build_id1 = '' + build_id1;
-  build_id2 = '' + build_id2;
-
   let year1 = Number(build_id1.substring(0, 4));
   let year2 = Number(build_id2.substring(0, 4));
   if (year1 > year2) {
@@ -83,6 +80,41 @@ function compareBuildIDs(build_id1, build_id2) {
   return 0;
 }
 
+function compareVersions(versionA, versionB) {
+  let majorA = Number(versionA.substring(0, versionA.indexOf('.')));
+  let majorB = Number(versionB.substring(0, versionB.indexOf('.')));
+
+  if (majorA > majorB) {
+    return -1
+  } else if (majorA < majorB) {
+    return 1;
+  }
+
+  let minorA;
+  let minorB;
+  if (!versionA.includes(' - ')) {
+    minorA = Number(versionA.substring(versionA.indexOf('b') + 1))
+  } else {
+    minorA = Number(versionA.substring(versionA.indexOf('b') + 1), versionA.indexOf(' '));
+  }
+  if (!versionB.includes(' - ')) {
+    minorB = Number(versionB.substring(versionB.indexOf('b') + 1))
+  } else {
+    minorB = Number(versionB.substring(versionB.indexOf('b') + 1), versionB.indexOf(' '));
+  }
+
+  if (minorA > minorB) {
+    return -1;
+  } else if (minorA < minorB) {
+    return 1;
+  }
+
+  let buildIDA = versionA.substring(versionA.indexOf(' - ') + 3);
+  let buildIDB = versionB.substring(versionB.indexOf(' - ') + 3);
+
+  return compareBuildIDs(buildIDA, buildIDB);
+}
+
 onLoad
 .then(() => fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&active=true&build_type=beta'))
 .then(response => response.json())
@@ -94,7 +126,7 @@ onLoad
     return fetch('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + rc + '&product=Firefox&_facets=build_id&_results_number=0')
     .then(response => response.json())
     .then(data => {
-      return data['facets']['build_id'].sort((a, b) => compareBuildIDs(a['term'], b['term'])).map(elem => rc + ' - ' + elem['term']).concat(versions);
+      return data['facets']['build_id'].map(elem => rc + ' - ' + elem['term']).concat(versions).sort(compareVersions);
     });
   } else {
     return versions;
