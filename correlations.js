@@ -104,7 +104,7 @@ var correlations = (() => {
       textElem.textContent = '';
 
       if (!(signature in data[channel]['signatures']) || !data[channel]['signatures'][signature]['results']) {
-        textElem.textContent = 'No correlation data was generated for this signature on this channel.'
+        textElem.textContent = 'No correlation data was generated for the signature "' + signature + '" on the ' + channel + ' channel.'
         return;
       }
 
