@@ -75,25 +75,25 @@ function compareBuildIDs(build_id1, build_id2) {
   let year1 = Number(build_id1.substring(0, 4));
   let year2 = Number(build_id2.substring(0, 4));
   if (year1 > year2) {
-    return -1;
-  } else if (year1 < year2) {
     return 1;
+  } else if (year1 < year2) {
+    return -1;
   }
 
   let month1 = Number(build_id1.substring(4, 6));
   let month2 = Number(build_id2.substring(4, 6));
   if (month1 > month2) {
-    return -1;
-  } else if (month1 < month2) {
     return 1;
+  } else if (month1 < month2) {
+    return -1;
   }
 
   let day1 = Number(build_id1.substring(6, 8));
   let day2 = Number(build_id2.substring(6, 8));
   if (day1 > day2) {
-    return -1;
-  } else if (day1 < day2) {
     return 1;
+  } else if (day1 < day2) {
+    return -1;
   }
 
   return 0;
@@ -104,9 +104,9 @@ function compareVersions(versionA, versionB) {
   let majorB = Number(versionB.substring(0, versionB.indexOf('.')));
 
   if (majorA > majorB) {
-    return -1
+    return 1
   } else if (majorA < majorB) {
-    return 1;
+    return -1;
   }
 
   let minorA;
@@ -123,9 +123,9 @@ function compareVersions(versionA, versionB) {
   }
 
   if (minorA > minorB) {
-    return -1;
-  } else if (minorA < minorB) {
     return 1;
+  } else if (minorA < minorB) {
+    return -1;
   }
 
   let buildIDA = versionA.substring(versionA.indexOf(' - ') + 3);
@@ -145,17 +145,25 @@ onLoad
     return fetch('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + rc + '&product=Firefox&_facets=build_id&_results_number=0')
     .then(response => response.json())
     .then(data => {
-      return data['facets']['build_id'].map(elem => rc + ' - ' + elem['term']).concat(versions).sort(compareVersions);
+      return data['facets']['build_id'].map(elem => rc + ' - ' + elem['term'])
+      .concat(versions)
+      .sort(compareVersions);
     });
   } else {
     return versions;
   }
 })
 .then(versions => {
+  // Only consider the latest 10 builds.
+  if (versions.length > 10) {
+    versions = versions.slice(versions.length - 10);
+  }
+
+  return versions;
+})
+.then(versions => {
   let betas1 = document.getElementById('beta1');
   let betas2 = document.getElementById('beta2');
-
-  versions = versions.reverse();
 
   for (let i = 0; i < versions.length; i++) {
     let version = versions[i];
