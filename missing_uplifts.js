@@ -65,6 +65,8 @@ function getFixedIn(bug) {
   let version = getVersion();
 
   if (bug['cf_status_firefox' + version] != '' &&
+      bug['cf_status_firefox' + version] != '---' &&
+      bug['cf_status_firefox' + version] != '?' &&
       bug['cf_status_firefox' + version] != 'affected') {
     return [];
   }
@@ -79,7 +81,7 @@ function getFixedIn(bug) {
   }
 
   let fixedIn = [];
-  for (version = version + 1; version <= versionEnd; version++) {
+  for (version += 1; version <= versionEnd; version++) {
     if (bug['cf_status_firefox' + version] === 'fixed' ||
         bug['cf_status_firefox' + version] === 'verified') {
       fixedIn.push(version);
