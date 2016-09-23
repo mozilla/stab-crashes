@@ -166,14 +166,34 @@ function getComparison() {
   });
 }
 
+let curBeta;
+
 onLoad
+.then(() => fetch('https://product-details.mozilla.org/1.0/firefox_versions.json'))
+.then(response => response.json())
+.then(result => {
+  let betaVersion = result['LATEST_FIREFOX_DEVEL_VERSION'];
+  curBeta = betaVersion.substring(0, betaVersion.indexOf('.'));
+})
 .then(() => fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&active=true&build_type=beta'))
 .then(response => response.json())
 .then(data => {
   let betas1 = document.getElementById('beta1');
   let betas2 = document.getElementById('beta2');
 
-  let hits = data['hits'].filter(hit => !isNaN(hit['version'][hit['version'].length - 1])).reverse();
+  let hits = data['hits']
+  .filter(hit => !isNaN(hit['version'][hit['version'].length - 1]))
+  .filter(hit => hit['version'].startsWith(curBeta))
+  .reverse();
+
+  if (hits.length <= 1) {
+    let warning = 'Need at least two beta builds in order to compare.';
+    if (hits.length == 1) {
+      warning += ' Currently only ' + hits[0]['version'] + ' is available.'
+    }
+    document.getElementById('dates').innerHTML = '<p style="font-weight: bold; color: red;">' + warning + '</p>';
+    throw new Error('Need at least two beta builds in order to compare.');
+  }
 
   for (let i = 0; i < hits.length; i++) {
     let version = hits[i]['version'];
