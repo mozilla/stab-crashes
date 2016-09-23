@@ -8,6 +8,10 @@ let options = {
     value: null,
     type: 'option',
   },
+  'wontfix': {
+    value: null,
+    type: 'select',
+  }
 };
 
 function getOption(name) {
@@ -64,12 +68,12 @@ function getVersion() {
 function getFixedIn(bug) {
   let version = getVersion();
 
-  if (bug['cf_status_firefox' + version] != '' &&
-      bug['cf_status_firefox' + version] != '---' &&
-      bug['cf_status_firefox' + version] != '?' &&
-      bug['cf_status_firefox' + version] != 'wontfix' &&
-      bug['cf_status_firefox' + version] != 'fix-optional' &&
-      bug['cf_status_firefox' + version] != 'affected') {
+  let statuses = ['', '---', '?', 'fix-optional', 'affected'];
+  if (getOption('wontfix')) {
+    statuses.push('wontfix');
+  }
+
+  if (!statuses.includes(bug['cf_status_firefox' + version])) {
     return [];
   }
 
