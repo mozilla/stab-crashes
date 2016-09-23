@@ -8,6 +8,10 @@ let options = {
     value: null,
     type: 'option',
   },
+  'wontfix': {
+    value: null,
+    type: 'select',
+  }
 };
 
 function getOption(name) {
@@ -64,10 +68,12 @@ function getVersion() {
 function getFixedIn(bug) {
   let version = getVersion();
 
-  if (bug['cf_status_firefox' + version] != '' &&
-      bug['cf_status_firefox' + version] != '---' &&
-      bug['cf_status_firefox' + version] != '?' &&
-      bug['cf_status_firefox' + version] != 'affected') {
+  let statuses = ['', '---', '?', 'fix-optional', 'affected'];
+  if (getOption('wontfix')) {
+    statuses.push('wontfix');
+  }
+
+  if (!statuses.includes(bug['cf_status_firefox' + version])) {
     return [];
   }
 
@@ -132,7 +138,7 @@ function addRow(signature, obj) {
     }
 
     let bugLink = document.createElement('a');
-    bugLink.appendChild(document.createTextNode(bug.id + ' - ' + 'Fixed in ' + fixedIn.join(', ')));
+    bugLink.appendChild(document.createTextNode(bug.id + ' - ' + 'Fixed in ' + fixedIn.join(', ') + ', \'' + bug['cf_status_firefox' + getVersion()] + '\' in ' + getVersion() + '.'));
     bugLink.title = (bug.resolution ? bug.resolution + ' - ' : '') +
                     'Last activity: ' + prettyDate(bug.last_change_time);
     bugLink.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug.id;
