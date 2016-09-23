@@ -67,6 +67,8 @@ function getFixedIn(bug) {
   if (bug['cf_status_firefox' + version] != '' &&
       bug['cf_status_firefox' + version] != '---' &&
       bug['cf_status_firefox' + version] != '?' &&
+      bug['cf_status_firefox' + version] != 'wontfix' &&
+      bug['cf_status_firefox' + version] != 'fix-optional' &&
       bug['cf_status_firefox' + version] != 'affected') {
     return [];
   }
