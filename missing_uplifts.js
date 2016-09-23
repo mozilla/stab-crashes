@@ -134,7 +134,7 @@ function addRow(signature, obj) {
     }
 
     let bugLink = document.createElement('a');
-    bugLink.appendChild(document.createTextNode(bug.id + ' - ' + 'Fixed in ' + fixedIn.join(', ')));
+    bugLink.appendChild(document.createTextNode(bug.id + ' - ' + 'Fixed in ' + fixedIn.join(', ') + ', \'' + bug['cf_status_firefox' + getVersion()] + '\' in ' + getVersion() + '.'));
     bugLink.title = (bug.resolution ? bug.resolution + ' - ' : '') +
                     'Last activity: ' + prettyDate(bug.last_change_time);
     bugLink.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug.id;
