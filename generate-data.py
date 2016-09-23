@@ -298,6 +298,7 @@ if __name__ == "__main__":
     except:
         pass
     os.mkdir('dist')
+    os.mkdir('dist/images')
 
     for channel in args.channels:
         for startup in [False, True]:
@@ -323,7 +324,7 @@ if __name__ == "__main__":
         'compare-betas.html', 'compare-betas.js',
         'beta-stability-pushlog.html', 'beta-stability-pushlog.js',
         'graphics_critical_errors.html', 'graphics_critical_errors.js',
-    ]
+    ] + ['images/' + image for image in os.listdir('images')]
 
     for f in files:
         shutil.copyfile(f, 'dist/' + f)
