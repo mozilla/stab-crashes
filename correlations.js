@@ -33,7 +33,6 @@ var correlations = (() => {
     return fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/all.json.gz')
     .then(response => response.json())
     .then(totals => {
-        console.log(totals);
         correlationData = {
           'date': totals['date'],
         };
