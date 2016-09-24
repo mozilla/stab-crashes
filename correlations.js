@@ -25,25 +25,30 @@ var correlations = (() => {
     return hexCodes.join('');
   }
 
-  function loadCorrelationData(signature, channel) {
-    let loadChannelsData;
+  function loadChannelsData() {
     if (correlationData) {
-      loadChannelsData = Promise.resolve();
-    } else {
-      loadChannelsData = fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/all.json.gz')
-      .then(response => response.json())
-      .then(totals => {
-          correlationData = {};
-          for (let ch of Object.keys(totals)) {
-            correlationData[ch] = {
-              'total': totals[ch],
-              'signatures': {},
-            }
-          }
-      });
+      return Promise.resolve();
     }
 
-    return loadChannelsData
+    return fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/all.json.gz')
+    .then(response => response.json())
+    .then(totals => {
+        console.log(totals);
+        correlationData = {
+          'date': totals['date'],
+        };
+
+        for (let ch of ['release', 'beta', 'aurora', 'nightly']) {
+          correlationData[ch] = {
+            'total': totals[ch],
+            'signatures': {},
+          }
+        }
+    });
+  }
+
+  function loadCorrelationData(signature, channel) {
+    return loadChannelsData()
     .then(() => {
       if (signature in correlationData[channel]['signatures']) {
         return;
@@ -58,6 +63,11 @@ var correlations = (() => {
       .catch(() => {});
     })
     .then(() => correlationData);
+  }
+
+  function getAnalysisDate() {
+    return loadChannelsData()
+    .then(() => correlationData['date']);
   }
 
   function itemToLabel(item) {
@@ -235,6 +245,7 @@ var correlations = (() => {
   }
 
   return {
+    getAnalysisDate: getAnalysisDate,
     text: text,
     graph: graph,
   };

@@ -46,6 +46,10 @@ function getCorrelations() {
 
 onLoad
 .then(function() {
+  correlations.getAnalysisDate()
+  .then(date => document.getElementById('date').textContent = date)
+})
+.then(function() {
   let queryVars = new URL(location.href).search.substring(1).split('&');
 
   Object.keys(options)
