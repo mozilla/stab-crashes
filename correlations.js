@@ -89,7 +89,7 @@ var correlations = (() => {
     return result;
   }
 
-  function sortCorrelationData(correlationData, total_a, total_b) {
+  function sortCorrelationData(correlationData, total_reference, total_group) {
     return correlationData
     .sort((a, b) => {
       let rule_a_len = Object.keys(a.item).length;
@@ -103,7 +103,7 @@ var correlations = (() => {
         return 1;
       }
 
-      return Math.abs(b.count_b / total_b - b.count_a / total_a) - Math.abs(a.count_b / total_b - a.count_a / total_a);
+      return Math.abs(b.count_group / total_group - b.count_reference / total_reference) - Math.abs(a.count_group / total_group - a.count_reference / total_reference);
     });
   }
 
@@ -119,12 +119,12 @@ var correlations = (() => {
 
       let correlationData = data[channel]['signatures'][signature]['results'];
 
-      let total_a = data[channel].total;
-      let total_b = data[channel]['signatures'][signature].total;
+      let total_reference = data[channel].total;
+      let total_group = data[channel]['signatures'][signature].total;
 
-      textElem.textContent = sortCorrelationData(correlationData, total_a, total_b)
+      textElem.textContent = sortCorrelationData(correlationData, total_reference, total_group)
       .reduce((prev, cur) =>
-        prev + '(' + toPercentage(cur.count_b / total_b) + '% in signature vs ' + toPercentage(cur.count_a / total_a) + '% overall) ' + itemToLabel(cur.item) + '\n'
+        prev + '(' + toPercentage(cur.count_group / total_group) + '% in signature vs ' + toPercentage(cur.count_reference / total_reference) + '% overall) ' + itemToLabel(cur.item) + '\n'
       , '');
     });
   }
@@ -138,12 +138,12 @@ var correlations = (() => {
         return;
       }
 
-      let total_a = data[channel].total;
-      let total_b = data[channel]['signatures'][signature].total;
+      let total_reference = data[channel].total;
+      let total_group = data[channel]['signatures'][signature].total;
 
       let correlationData = data[channel]['signatures'][signature]['results']
       .filter(elem => Object.keys(elem.item).length <= 1);
-      correlationData = sortCorrelationData(correlationData, total_a, total_b);
+      correlationData = sortCorrelationData(correlationData, total_reference, total_group);
       correlationData.reverse();
 
       let margin = { top: 20, right: 300, bottom: 30, left: 300 };
@@ -180,8 +180,8 @@ var correlations = (() => {
 
       correlationData.forEach(d => {
         d.values = [
-          { name: 'Overall', value: d.count_a / total_a },
-          { name: signature, value: d.count_b / total_b },
+          { name: 'Overall', value: d.count_reference / total_reference },
+          { name: signature, value: d.count_group / total_group },
         ]
       });
 
