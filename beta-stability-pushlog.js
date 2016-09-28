@@ -120,11 +120,17 @@ function getComparison() {
       let table = document.getElementById('table');
 
       bugs.forEach(bug =>
-        fetch('https://bugzilla.mozilla.org/rest/bug/' + bug + '?include_fields=cf_crash_signature')
+        fetch('https://bugzilla.mozilla.org/rest/bug/' + bug + '?include_fields=product,component,cf_crash_signature')
         .then(response => response.json())
         .then(data => {
           // Skip bugs with no signatures.
           if ('bugs' in data && data['bugs'][0]['cf_crash_signature'] == '') {
+            return;
+          }
+
+          // Skip bugs that are not related to the current product.
+          if ('bugs' in data && getOption('product') === 'Firefox' &&
+              (data['bugs'][0]['product'] === 'Firefox for Android' || data['bugs'][0]['component'] === 'WebExtensions: Android')) {
             return;
           }
 
