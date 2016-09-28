@@ -86,12 +86,12 @@ function getComparison() {
     return;
   }
 
-  while(table.rows.length > 1) {
+  while (table.rows.length > 1) {
     table.deleteRow(table.rows.length - 1);
   }
 
   let url = new URL(location.href);
-  url.search = '?beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
+  url.search = '?product=' + getOption('product') + '&beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
   history.replaceState({}, document.title, url.href);
 
   fetch('https://product-details.mozilla.org/1.0/firefox_history_development_releases.json')
