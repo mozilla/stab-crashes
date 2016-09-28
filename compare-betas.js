@@ -50,7 +50,7 @@ function getComparison() {
   }
 
   let url = new URL(location.href);
-  url.search = '?beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
+  url.search = '?product=' + getOption('product') + '&beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
   history.replaceState({}, document.title, url.href);
 
   document.getElementById('frame').src = 'https://crash-analysis.mozilla.com/rkaiser/datil/searchcompare/?common=product%3D' + getOption('product') + '&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '');
