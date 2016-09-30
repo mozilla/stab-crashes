@@ -230,7 +230,7 @@ function addRow(signature, obj) {
     signatureImage.setAttribute('height', 900);
     signatureTooltip.appendChild(signatureImage);
     signatureDiv.appendChild(signatureTooltip);
-    correlations.graph(signatureImage, signature, getOption('version'));
+    correlations.graph(signatureImage, signature, getOption('version'), 'Firefox');
   };
 
   key.appendChild(signatureDiv);

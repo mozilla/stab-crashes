@@ -1,5 +1,5 @@
 var correlations = (() => {
-  let correlationData;
+  let correlationData = {};
 
   function sha1(str) {
     return crypto.subtle.digest('SHA-1', new TextEncoder('utf-8').encode(str))
@@ -25,20 +25,30 @@ var correlations = (() => {
     return hexCodes.join('');
   }
 
-  function loadChannelsData() {
-    if (correlationData) {
+  function getDataURL(product) {
+    if (product === 'Firefox') {
+      return 'https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/';
+    } else if (product === 'FennecAndroid') {
+      return 'https://analysis-output.telemetry.mozilla.org/top-fennec-signatures-correlations/data/';
+    } else {
+      throw new Error('Unknown product: ' + product);
+    }
+  }
+
+  function loadChannelsData(product) {
+    if (correlationData[product]) {
       return Promise.resolve();
     }
 
-    return fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/all.json.gz')
+    return fetch(getDataURL(product) + 'all.json.gz')
     .then(response => response.json())
     .then(totals => {
-        correlationData = {
+        correlationData[product] = {
           'date': totals['date'],
         };
 
         for (let ch of ['release', 'beta', 'aurora', 'nightly']) {
-          correlationData[ch] = {
+          correlationData[product][ch] = {
             'total': totals[ch],
             'signatures': {},
           }
@@ -46,27 +56,28 @@ var correlations = (() => {
     });
   }
 
-  function loadCorrelationData(signature, channel) {
-    return loadChannelsData()
+  function loadCorrelationData(signature, channel, product) {
+    return loadChannelsData(product)
     .then(() => {
-      if (signature in correlationData[channel]['signatures']) {
+      if (signature in correlationData[product][channel]['signatures']) {
         return;
       }
 
       return sha1(signature)
-      .then(sha1signature => fetch('https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/' + channel + '/' + sha1signature + '.json.gz'))
+      .then(sha1signature => fetch(getDataURL(product) + channel + '/' + sha1signature + '.json.gz'))
       .then(response => response.json())
       .then(data => {
-        correlationData[channel]['signatures'][signature] = data;
-      })
-      .catch(() => {});
+        correlationData[product][channel]['signatures'][signature] = data;
+      });
     })
+    .catch(() => {})
     .then(() => correlationData);
   }
 
-  function getAnalysisDate() {
-    return loadChannelsData()
-    .then(() => correlationData['date']);
+  function getAnalysisDate(product) {
+    return loadChannelsData(product)
+    .then(() => correlationData[product]['date'])
+    .catch(() => '');
   }
 
   function itemToLabel(item) {
@@ -107,20 +118,25 @@ var correlations = (() => {
     });
   }
 
-  function text(textElem, signature, channel) {
-    loadCorrelationData(signature, channel)
+  function text(textElem, signature, channel, product) {
+    loadCorrelationData(signature, channel, product)
     .then(data => {
       textElem.textContent = '';
 
-      if (!(signature in data[channel]['signatures']) || !data[channel]['signatures'][signature]['results']) {
-        textElem.textContent = 'No correlation data was generated for the signature "' + signature + '" on the ' + channel + ' channel.'
+      if (!(product in data)) {
+        textElem.textContent = 'No correlation data was generated for the \'' + product + '\' product.'
         return;
       }
 
-      let correlationData = data[channel]['signatures'][signature]['results'];
+      if (!(signature in data[product][channel]['signatures']) || !data[product][channel]['signatures'][signature]['results']) {
+        textElem.textContent = 'No correlation data was generated for the signature "' + signature + '" on the ' + channel + ' channel, for the \'' + product + '\' product.'
+        return;
+      }
 
-      let total_reference = data[channel].total;
-      let total_group = data[channel]['signatures'][signature].total;
+      let correlationData = data[product][channel]['signatures'][signature]['results'];
+
+      let total_reference = data[product][channel].total;
+      let total_group = data[product][channel]['signatures'][signature].total;
 
       textElem.textContent = sortCorrelationData(correlationData, total_reference, total_group)
       .reduce((prev, cur) =>
@@ -129,19 +145,19 @@ var correlations = (() => {
     });
   }
 
-  function graph(svgElem, signature, channel) {
-    loadCorrelationData(signature, channel)
+  function graph(svgElem, signature, channel, product) {
+    loadCorrelationData(signature, channel, product)
     .then(data => {
       d3.select(svgElem).selectAll('*').remove();
 
-      if (!(signature in data[channel]['signatures']) || !data[channel]['signatures'][signature]['results']) {
+      if (!(product in data) || !(signature in data[product][channel]['signatures']) || !data[product][channel]['signatures'][signature]['results']) {
         return;
       }
 
-      let total_reference = data[channel].total;
-      let total_group = data[channel]['signatures'][signature].total;
+      let total_reference = data[product][channel].total;
+      let total_group = data[product][channel]['signatures'][signature].total;
 
-      let correlationData = data[channel]['signatures'][signature]['results']
+      let correlationData = data[product][channel]['signatures'][signature]['results']
       .filter(elem => Object.keys(elem.item).length <= 1);
       correlationData = sortCorrelationData(correlationData, total_reference, total_group);
       correlationData.reverse();
