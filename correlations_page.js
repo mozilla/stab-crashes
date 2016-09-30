@@ -1,4 +1,8 @@
 let options = {
+  'product': {
+    value: null,
+    type: 'option',
+  },
   'channel': {
     value: null,
     type: 'option',
@@ -31,24 +35,26 @@ function getCorrelations() {
   }
 
   let url = new URL(location.href);
-  url.search = '?channel=' + getOption('channel') + '&signature=' + getOption('signature');
+  url.search = '?product=' + getOption('product') + '&channel=' + getOption('channel') + '&signature=' + getOption('signature');
   history.replaceState({}, document.title, url.href);
 
   let signature = decodeURIComponent(getOption('signature'));
   let channel = getOption('channel');
+  let product = getOption('product');
 
   let preElem = document.getElementById('correlations_text');
-  correlations.text(preElem, signature, channel);
+  correlations.text(preElem, signature, channel, product);
 
   let svgElem = document.getElementById('correlations_image');
-  correlations.graph(svgElem, signature, channel);
+  correlations.graph(svgElem, signature, channel, product);
+}
+
+function updateAnalysisDate() {
+  correlations.getAnalysisDate(getOption('product'))
+  .then(date => document.getElementById('date').textContent = date)
 }
 
 onLoad
-.then(function() {
-  correlations.getAnalysisDate()
-  .then(date => document.getElementById('date').textContent = date)
-})
 .then(function() {
   let queryVars = new URL(location.href).search.substring(1).split('&');
 
@@ -89,6 +95,7 @@ onLoad
 
       elem.onchange = function() {
         setOption(optionName, elem.options[elem.selectedIndex].value);
+        updateAnalysisDate();
         getCorrelations();
       };
     } else if (optionType === 'button') {
@@ -108,6 +115,7 @@ onLoad
   });
 })
 .then(function() {
+  updateAnalysisDate();
   getCorrelations();
 })
 .catch(function(err) {
