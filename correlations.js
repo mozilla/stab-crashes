@@ -90,7 +90,7 @@ var correlations = (() => {
     let result = (num * 100).toFixed(2);
 
     if (result == '100.00') {
-      return '100.0'
+      return '100.0';
     }
 
     if (result.substring(0, result.indexOf('.')).length == 1) {
