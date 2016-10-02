@@ -321,7 +321,7 @@ if __name__ == "__main__":
         'question_mark.svg', 'rocket_fly.png',
         'correlations.html', 'correlations_page.js',
         'missing_uplifts.html', 'missing_uplifts.js',
-        'compare-betas.html', 'compare-betas.js',
+        'compare-betas.html', 'compare-betas.js', 'scomp.html', 'scomp.css', 'scomp.js',
         'beta-stability-pushlog.html', 'beta-stability-pushlog.js',
         'graphics_critical_errors.html', 'graphics_critical_errors.js',
     ] + ['images/' + image for image in os.listdir('images')]
