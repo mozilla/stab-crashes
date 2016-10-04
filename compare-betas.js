@@ -29,6 +29,42 @@ let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
+function dateToStr(date) {
+  let month = '' + (date.getMonth() + 1);
+  let day = '' + date.getDate();
+  let year = date.getFullYear();
+
+  if (month.length < 2) {
+    month = '0' + month;
+  }
+
+  if (day.length < 2) {
+    day = '0' + day;
+  }
+
+  return year + '-' + month + '-' + day;
+}
+
+function addDays(date, days) {
+  let result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+function getBaseVersion(version) {
+  return version.substring(0, version.indexOf('.0b'));
+}
+
+function getReleaseDate(version, build_id, release_history) {
+  if (build_id) {
+    // XXX: Assume release date is the build ID. Remove this
+    // hack when https://bugzilla.mozilla.org/show_bug.cgi?id=1192197 is fixed.
+    return new Date(build_id.substring(0, 4) + '-' + build_id.substring(4, 6) + '-' + build_id.substring(6, 8))
+  }
+
+  return new Date(release_history[version]);
+}
+
 function getComparison() {
   if (!getOption('beta1') || !getOption('beta2')) {
     return;
@@ -49,30 +85,37 @@ function getComparison() {
     build_id2 = vals[1];
   }
 
-  let url = new URL(location.href);
-  url.search = '?product=' + getOption('product') + '&beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
-  history.replaceState({}, document.title, url.href);
+  fetch('https://product-details.mozilla.org/1.0/firefox_history_development_releases.json')
+  .then(response => response.json())
+  .then(release_history => {
+    let date1 = getReleaseDate(version1, build_id1, release_history);
+    let date2 = getReleaseDate(version2, build_id2, release_history);
 
-  document.getElementById('frame').src = 'scomp.html?common=product%3D' + getOption('product') + '&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '');
+    let url = new URL(location.href);
+    url.search = '?product=' + getOption('product') + '&beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
+    history.replaceState({}, document.title, url.href);
 
-  let total1, total2;
-  Promise.all([
-    fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version1 + ((build_id1) ? '&build_id=' + build_id1 : '') + '&_results_number=0&_facets_size=0')
-    .then(response => response.json())
-    .then(results => total1 = results['total']),
-    fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version2 + ((build_id2) ? '&build_id=' + build_id2 : '') + '&_results_number=0&_facets_size=0')
-    .then(response => response.json())
-    .then(results => total2 = results['total']),
-  ])
-  .then(() => {
-    let warning = '';
-    if (total1 < total2 * 0.3) {
-      warning = 'WARNING: Number of crash reports for ' + getOption('beta1') + ' (' + total1 + ') are way lower than for ' + getOption('beta2') + ' (' + total2 +'); the comparison might be skewed.';
-    } else if (total2 < total1 * 0.3) {
-      warning = 'WARNING: Number of crash reports for ' + getOption('beta2') + ' (' + total2 + ') are way lower than for ' + getOption('beta1') + ' (' + total1 +'); the comparison might be skewed.';
-    }
-    document.getElementById('warning').textContent = warning;
-  })
+    document.getElementById('frame').src = 'scomp.html?common=product%3D' + getOption('product') + '&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '');
+
+    let total1, total2;
+    Promise.all([
+      fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version1 + ((build_id1) ? '&build_id=' + build_id1 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + dateToStr(date1))
+      .then(response => response.json())
+      .then(results => total1 = results['total']),
+      fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version2 + ((build_id2) ? '&build_id=' + build_id2 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + dateToStr(date2))
+      .then(response => response.json())
+      .then(results => total2 = results['total']),
+    ])
+    .then(() => {
+      let warning = '';
+      if (total1 < total2 * 0.3) {
+        warning = 'WARNING: Number of crash reports for ' + getOption('beta1') + ' (' + total1 + ') are way lower than for ' + getOption('beta2') + ' (' + total2 +'); the comparison might be skewed.';
+      } else if (total2 < total1 * 0.3) {
+        warning = 'WARNING: Number of crash reports for ' + getOption('beta2') + ' (' + total2 + ') are way lower than for ' + getOption('beta1') + ' (' + total1 +'); the comparison might be skewed.';
+      }
+      document.getElementById('warning').textContent = warning;
+    });
+  });
 }
 
 function compareBuildIDs(build_id1, build_id2) {
