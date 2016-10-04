@@ -90,8 +90,6 @@ function getComparison() {
   .then(release_history => {
     let date1 = getReleaseDate(version1, build_id1, release_history);
     let date2 = getReleaseDate(version2, build_id2, release_history);
-    let endDate1 = addDays(date1, 7);
-    let endDate2 = addDays(date2, 7);
 
     let url = new URL(location.href);
     url.search = '?product=' + getOption('product') + '&beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');

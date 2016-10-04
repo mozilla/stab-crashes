@@ -48,7 +48,12 @@ function dateToStr(date) {
 function addDays(date, days) {
   let result = new Date(date);
   result.setDate(result.getDate() + days);
-  return result;
+  let today = new Date();
+  if (result > today) {
+    return today;
+  } else {
+    return result;
+  }
 }
 
 function getBaseVersion(version) {
@@ -158,9 +163,9 @@ function getComparison() {
 
             signatures = signatures.split('\\');
 
-            let query1 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta1') + '&date=>%3D' + dateToStr(date1) + '&date=<%3D' + dateToStr(date2) + '&signature=%3D' + signatures.join('&signature=%3D'))
+            let query1 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta1') + '&date=>%3D' + dateToStr(date1) + '&date=<%3D' + dateToStr(endDate1) + '&signature=%3D' + signatures.join('&signature=%3D'))
             .then(response => response.json());
-            let query2 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta2') + '&date=>%3D' + dateToStr(date1) + '&date=<%3D' + dateToStr(date2) + '&signature=%3D' + signatures.join('&signature=%3D'))
+            let query2 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta2') + '&date=>%3D' + dateToStr(date2) + '&date=<%3D' + dateToStr(endDate2) + '&signature=%3D' + signatures.join('&signature=%3D'))
             .then(response => response.json());
 
             Promise.all([ query1, query2 ])
