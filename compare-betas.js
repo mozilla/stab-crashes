@@ -193,12 +193,14 @@ onLoad
     .then(response => response.json())
     .then(data => {
       return data['facets']['build_id'].map(elem => rc + ' - ' + elem['term'])
-      .concat(versions)
-      .sort(compareVersions);
+      .concat(versions);
     });
   } else {
     return versions;
   }
+})
+.then(versions => {
+  return versions.sort(compareVersions);
 })
 .then(versions => {
   // Only consider the latest 10 builds.
