@@ -182,7 +182,7 @@ function compareVersions(versionA, versionB) {
 }
 
 onLoad
-.then(() => fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&active=true&build_type=beta'))
+.then(() => fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&build_type=beta'))
 .then(response => response.json())
 .then(data => {
   let versions = data['hits'].map(hit => hit['version']).filter(version => !isNaN(version[version.length - 1]));
