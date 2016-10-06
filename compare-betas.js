@@ -108,9 +108,9 @@ function getComparison() {
     ])
     .then(() => {
       let warning = '';
-      if (total1 < total2 * 0.3) {
+      if (total1 < total2 * 0.2) {
         warning = 'WARNING: Number of crash reports for ' + getOption('beta1') + ' (' + total1 + ') are way lower than for ' + getOption('beta2') + ' (' + total2 +'); the comparison might be skewed.';
-      } else if (total2 < total1 * 0.3) {
+      } else if (total2 < total1 * 0.2) {
         warning = 'WARNING: Number of crash reports for ' + getOption('beta2') + ' (' + total2 + ') are way lower than for ' + getOption('beta1') + ' (' + total1 +'); the comparison might be skewed.';
       }
       document.getElementById('warning').textContent = warning;
