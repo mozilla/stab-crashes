@@ -101,10 +101,10 @@ function getComparison() {
     Promise.all([
       fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version1 + ((build_id1) ? '&build_id=' + build_id1 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + dateToStr(date1))
       .then(response => response.json())
-      .then(results => total1 = results['total']),
+      .then(results => total1 = results['total'] || 0),
       fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version2 + ((build_id2) ? '&build_id=' + build_id2 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + dateToStr(date2))
       .then(response => response.json())
-      .then(results => total2 = results['total']),
+      .then(results => total2 = results['total'] || 0),
     ])
     .then(() => {
       let warning = '';
