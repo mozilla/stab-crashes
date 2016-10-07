@@ -62,6 +62,10 @@ function getReleaseDate(version, build_id, release_history) {
     return new Date(build_id.substring(0, 4) + '-' + build_id.substring(4, 6) + '-' + build_id.substring(6, 8))
   }
 
+  if (!(version in release_history)) {
+    return new Date();
+  }
+
   return new Date(release_history[version]);
 }
 
