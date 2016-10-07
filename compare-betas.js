@@ -92,21 +92,21 @@ function getComparison() {
   fetch('https://product-details.mozilla.org/1.0/firefox_history_development_releases.json')
   .then(response => response.json())
   .then(release_history => {
-    let date1 = getReleaseDate(version1, build_id1, release_history);
-    let date2 = getReleaseDate(version2, build_id2, release_history);
+    let date1 = dateToStr(getReleaseDate(version1, build_id1, release_history));
+    let date2 = dateToStr(getReleaseDate(version2, build_id2, release_history));
 
     let url = new URL(location.href);
     url.search = '?product=' + getOption('product') + '&beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
     history.replaceState({}, document.title, url.href);
 
-    document.getElementById('frame').src = 'scomp.html?common=product%3D' + getOption('product') + '&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '');
+    document.getElementById('frame').src = 'scomp.html?common=product%3D' + getOption('product') + '&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '%26date%3D%3E' + date1 + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '') + '%26date%3D%3E' + date2;
 
     let total1, total2;
     Promise.all([
-      fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version1 + ((build_id1) ? '&build_id=' + build_id1 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + dateToStr(date1))
+      fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version1 + ((build_id1) ? '&build_id=' + build_id1 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + date1)
       .then(response => response.json())
       .then(results => total1 = results['total'] || 0),
-      fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version2 + ((build_id2) ? '&build_id=' + build_id2 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + dateToStr(date2))
+      fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version2 + ((build_id2) ? '&build_id=' + build_id2 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + date2)
       .then(response => response.json())
       .then(results => total2 = results['total'] || 0),
     ])
