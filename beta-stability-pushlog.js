@@ -139,6 +139,11 @@ function getComparison() {
             return;
           }
 
+          // Skip bugs where the cf_crash_signature field is not defined.
+          if ('bugs' in data && !('cf_crash_signature' in data['bugs'][0])) {
+            return;
+          }
+
           let row = table.insertRow(table.rows.length);
           let bugElem = row.insertCell(0);
           let aElem = document.createElement('a');

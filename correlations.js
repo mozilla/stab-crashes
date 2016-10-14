@@ -100,6 +100,21 @@ var correlations = (() => {
     return result;
   }
 
+  function confidenceInterval(count1, total1, count2, total2) {
+    let prop1 = count1 / total1;
+    let prop2 = count2 / total2;
+    let diff = prop1 - prop2;
+
+    // Wald 95% confidence interval for the difference between the proportions.
+    let standard_error = Math.sqrt(prop1 * (1 - prop1) / total1 + prop2 * (1 - prop2) / total2);
+    let ci = [diff - 1.96 * standard_error, diff + 1.96 * standard_error];
+
+    // Yates continuity correction for the confidence interval.
+    let correction = 0.5 * (1.0 / total1 + 1.0 / total2);
+
+    return [ci[0] - correction, ci[1] + correction];
+  }
+
   function sortCorrelationData(correlationData, total_reference, total_group) {
     return correlationData
     .sort((a, b) => {
@@ -114,7 +129,10 @@ var correlations = (() => {
         return 1;
       }
 
-      return Math.abs(b.count_group / total_group - b.count_reference / total_reference) - Math.abs(a.count_group / total_group - a.count_reference / total_reference);
+      let ciA = confidenceInterval(a.count_group, total_group, a.count_reference, total_reference);
+      let ciB = confidenceInterval(b.count_group, total_group, b.count_reference, total_reference);
+
+      return Math.min(Math.abs(ciB[0]), Math.abs(ciB[1])) - Math.min(Math.abs(ciA[0]), Math.abs(ciA[1]));
     });
   }
 
