@@ -324,6 +324,7 @@ if __name__ == "__main__":
         'compare-betas.html', 'compare-betas.js', 'scomp.html', 'scomp.css', 'scomp.js',
         'beta-stability-pushlog.html', 'beta-stability-pushlog.js',
         'graphics_critical_errors.html', 'graphics_critical_errors.js',
+        'buildid_changeset.html', 'buildid_changeset.js',
     ] + ['images/' + image for image in os.listdir('images')]
 
     for f in files:
