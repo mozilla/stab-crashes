@@ -67,7 +67,7 @@ function toTwoDigits(num) {
 function fromBuildIDtoChangeset(buildID) {
   let buildObj = parseBuildID(buildID);
 
-  let directory = 'http://ftp.mozilla.org/pub/firefox/nightly/' + buildObj.year + '/' + toTwoDigits(buildObj.month) + '/' + buildObj.year + '-' + toTwoDigits(buildObj.month) + '-' + toTwoDigits(buildObj.day) + '-' + toTwoDigits(buildObj.hour) + '-' + toTwoDigits(buildObj.minute) + '-' + toTwoDigits(buildObj.second) + '-mozilla-central/';
+  let directory = 'https://ftp.mozilla.org/pub/firefox/nightly/' + buildObj.year + '/' + toTwoDigits(buildObj.month) + '/' + buildObj.year + '-' + toTwoDigits(buildObj.month) + '-' + toTwoDigits(buildObj.day) + '-' + toTwoDigits(buildObj.hour) + '-' + toTwoDigits(buildObj.minute) + '-' + toTwoDigits(buildObj.second) + '-mozilla-central/';
 
   return fetch(directory)
   .then(response => response.text())
@@ -127,7 +127,7 @@ function findFirstBuildID(date, year=null, month=null) {
     month = possibleDate.getUTCMonth() + 1;
   }
 
-  return fetch('http://ftp.mozilla.org/pub/firefox/nightly/' + year + '/' + toTwoDigits(month) + '/')
+  return fetch('https://ftp.mozilla.org/pub/firefox/nightly/' + year + '/' + toTwoDigits(month) + '/')
   .then(response => response.text())
   .then(data => {
     let re = />(\d+)-(\d\d)-(\d\d)-(\d\d)-(\d\d)-(\d\d)-mozilla-central\/</g;
