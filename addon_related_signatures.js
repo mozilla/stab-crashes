@@ -2,7 +2,24 @@ let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
-function addRow(channel, signature, addons) {
+function getAddons(obj) {
+  return obj['addons']
+  .reduce((prev, cur) => {
+    return prev.concat(
+      Object.getOwnPropertyNames(cur['item'])
+      .filter(elem => elem.startsWith('Addon'))
+      .map(elem => {
+        return {
+          'name': elem.substring(elem.indexOf('"') + 1, elem.lastIndexOf('"')),
+          'support': cur['count_group'] / obj['total'],
+        };
+      })
+    );
+  }, [])
+  .filter((addon, i, addons) => addons.indexOf(addon) === i);
+}
+
+function addRow(channel, obj) {
   let table = document.getElementById('table');
 
   let row = table.insertRow(table.rows.length);
@@ -12,20 +29,15 @@ function addRow(channel, signature, addons) {
 
   let signature_column = row.insertCell(1);
   let signature_link = document.createElement('a');
-  signature_link.textContent = signature;
-  signature_link.href = 'correlations.html?product=Firefox&channel=' + channel + '&signature=' + signature;
+  signature_link.textContent = obj['signature'];
+  signature_link.href = 'correlations.html?product=Firefox&channel=' + channel + '&signature=' + obj['signature'];
   signature_column.appendChild(signature_link);
 
   let addons_column = row.insertCell(2);
   let addons_pre = document.createElement('pre');
 
-  addons_pre.textContent = addons
-  .reduce((prev, cur) => {
-    return prev.concat(Object.getOwnPropertyNames(cur['item'])
-    .filter(elem => elem.startsWith('Addon'))
-    .map(elem => elem.substring(elem.indexOf('"') + 1, elem.lastIndexOf('"'))));
-  }, [])
-  .filter((addon_name, i, addon_names) => addon_names.indexOf(addon_name) === i)
+  addons_pre.textContent = getAddons(obj)
+  .map(elem => elem['name'] + ' (' + (elem['support'] * 100).toFixed(2) + '%)')
   .join(', ');
 
   addons_column.appendChild(addons_pre);
@@ -36,9 +48,8 @@ function buildTable() {
   .then(response => response.json())
   .then(addon_related_signatures => {
     for (let channel of ['release', 'beta', 'aurora', 'nightly']) {
-      for (let obj of addon_related_signatures[channel]) {
-        addRow(channel, obj['signature'], obj['addons'])
-      }
+      addon_related_signatures[channel]
+      .forEach(obj => addRow(channel, obj));
     }
   })
   .catch(function(err) {
