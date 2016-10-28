@@ -410,6 +410,8 @@ function buildTable() {
 }
 
 function rebuildTable() {
+  let table = document.getElementById('table');
+
   while(table.rows.length > 1) {
     table.deleteRow(table.rows.length - 1);
   }
