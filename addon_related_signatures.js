@@ -49,6 +49,7 @@ function buildTable() {
   .then(addon_related_signatures => {
     for (let channel of ['release', 'beta', 'aurora', 'nightly']) {
       addon_related_signatures[channel]
+      .sort((obj1, obj2) => Math.max(...getAddons(obj2).map(elem => elem['support'])) - Math.max(...getAddons(obj1).map(elem => elem['support'])))
       .forEach(obj => addRow(channel, obj));
     }
   })
