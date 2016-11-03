@@ -98,9 +98,8 @@ function generateGraph(signature) {
         hierarchical: {
           direction: 'UD',
           sortMethod: 'directed',
-          //levelSeparation: 50,
           nodeSpacing: 1,
-          blockShifting: true,
+          blockShifting: false,
         },
       },
       edges: {
