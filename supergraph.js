@@ -43,23 +43,24 @@ function generateGraph(signature) {
 
     for (let proto_signature of data['facets']['proto_signature']) {
       let funcs = proto_signature['term'].split(' | ');
+      let stack_count = proto_signature['count'];
 
       for (let i = funcs.length - 1; i > 0; i--) {
         let func = cleanFunc(funcs[i]);
 
         if (!addedNodes.has(func)) {
-          addedNodes.set(func, 1);
+          addedNodes.set(func, stack_count);
         } else {
-          addedNodes.set(func, addedNodes.get(func) + 1);
+          addedNodes.set(func, addedNodes.get(func) + stack_count);
         }
 
         if (i != 0) {
           let edge = func + '|' + cleanFunc(funcs[i - 1]);
 
           if (!addedEdges.has(edge)) {
-            addedEdges.set(edge, 1);
+            addedEdges.set(edge, stack_count);
           } else {
-            addedEdges.set(edge, addedEdges.get(edge) + 1);
+            addedEdges.set(edge, addedEdges.get(edge) + stack_count);
           }
         }
       }
