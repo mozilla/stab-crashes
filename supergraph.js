@@ -38,19 +38,30 @@ function generateGraph(signature) {
   fetch(query.href)
   .then(response => response.json())
   .then(data => {
-    let addedNodes = new Set();
-    let addedEdges = new Set();
+    let addedNodes = new Map();
+    let addedEdges = new Map();
 
     for (let proto_signature of data['facets']['proto_signature']) {
       let funcs = proto_signature['term'].split(' | ');
+      let stack_count = proto_signature['count'];
 
       for (let i = funcs.length - 1; i > 0; i--) {
         let func = cleanFunc(funcs[i]);
 
-        addedNodes.add(func);
+        if (!addedNodes.has(func)) {
+          addedNodes.set(func, stack_count);
+        } else {
+          addedNodes.set(func, addedNodes.get(func) + stack_count);
+        }
 
         if (i != 0) {
-          addedEdges.add(func + '|' + cleanFunc(funcs[i - 1]))
+          let edge = func + '|' + cleanFunc(funcs[i - 1]);
+
+          if (!addedEdges.has(edge)) {
+            addedEdges.set(edge, stack_count);
+          } else {
+            addedEdges.set(edge, addedEdges.get(edge) + stack_count);
+          }
         }
       }
     }
@@ -58,17 +69,19 @@ function generateGraph(signature) {
     let nodes = [];
     for (let node of addedNodes) {
       nodes.push({
-        id: node,
-        label: node,
+        id: node[0],
+        label: node[0],
+        value: node[1],
       });
     }
 
     let edges = [];
     for (let edge of addedEdges) {
-      let from_to = edge.split('|');
+      let from_to = edge[0].split('|');
       edges.push({
         from: from_to[0],
         to: from_to[1],
+        value: edge[1]
       });
     }
 
@@ -85,9 +98,8 @@ function generateGraph(signature) {
         hierarchical: {
           direction: 'UD',
           sortMethod: 'directed',
-          //levelSeparation: 50,
           nodeSpacing: 1,
-          blockShifting: true,
+          blockShifting: false,
         },
       },
       edges: {
@@ -100,12 +112,20 @@ function generateGraph(signature) {
         font: {
           face: 'monospace',
         },
+        scaling: {
+          label: {
+            enabled: true,
+            min: 5,
+            max: 40,
+            maxVisible: 40,
+          },
+        },
       },
     };
 
     let network = new vis.Network(document.getElementById('graph'), data, opts);
 
-    network.on("stabilizationIterationsDone", function () {
+    network.on('stabilizationIterationsDone', function () {
       network.setOptions({
         physics: false,
       });
