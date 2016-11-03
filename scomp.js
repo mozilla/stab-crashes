@@ -4,7 +4,6 @@
 
 var gDebug, gLog;
 var gAnalysisPath = "../../";
-var gBzAPIPath = "https://bugzilla.mozilla.org/bzapi/";
 var gBzBasePath = "https://bugzilla.mozilla.org/";
 var gSocorroPath = "https://crash-stats.mozilla.com/";
 
