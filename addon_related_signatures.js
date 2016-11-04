@@ -46,7 +46,7 @@ function addRow(obj) {
   let signature_column = row.insertCell(0);
   let signature_link = document.createElement('a');
   signature_link.textContent = obj['signature'];
-  signature_link.href = 'correlations.html?product=Firefox&channel=' + channel + '&signature=' + obj['signature'];
+  signature_link.href = 'https://crash-stats.mozilla.org/signature/?signature=' + obj['signature'] + '&release_channel=' + getOption('channel') + '#correlations';
   signature_column.appendChild(signature_link);
 
   let addons_column = row.insertCell(1);
