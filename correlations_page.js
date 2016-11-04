@@ -42,6 +42,9 @@ function getCorrelations() {
   let channel = getOption('channel');
   let product = getOption('product');
 
+  let crashStatsLink = document.getElementById('crash_stats_link');
+  crashStatsLink.href = 'https://crash-stats.mozilla.org/signature/?signature=' + getOption('signature') + '#correlations';
+
   let preElem = document.getElementById('correlations_text');
   correlations.text(preElem, signature, channel, product);
 
