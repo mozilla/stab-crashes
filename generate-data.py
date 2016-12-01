@@ -301,7 +301,7 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--channels', action='store', nargs='+', default=['release', 'beta', 'aurora', 'nightly'], help='the channels')
     parser.add_argument('-d', '--date', action='store', default='yesterday', help='the end date')
     parser.add_argument('-D', '--duration', action='store', default=11, help='the duration')
-    parser.add_argument('-t', '--tclimit', action='store', default=100, help='number of top crashes to retrieve')
+    parser.add_argument('-t', '--tclimit', action='store', default=200, help='number of top crashes to retrieve')
 
     args = parser.parse_args()
 
