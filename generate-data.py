@@ -375,7 +375,7 @@ if __name__ == "__main__":
 
         for channel in ['release', 'beta', 'aurora', 'nightly']:
             # Check that the OOM | small correlations contain "moz_crash_reason" as a sanity check (mainly for https://issues.apache.org/jira/browse/SPARK-16664).
-            r = get_with_retries(base_url + channel + '/' + hashlib.sha1('OOM | small').hexdigest() + '.json.gz')
+            r = get_with_retries(base_url + channel + '/' + hashlib.sha1('OOM | small'.encode('utf-8')).hexdigest() + '.json.gz')
             if r.status_code != 200:
                 print('Failure downloading ' + product + ' ' + channel + 'correlations for "OOM | small".')
                 print(r.text)
