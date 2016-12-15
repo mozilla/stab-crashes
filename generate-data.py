@@ -11,6 +11,10 @@ import functools
 from datetime import (datetime, timedelta)
 import os
 import shutil
+import hashlib
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import libmozdata.socorro as socorro
 import libmozdata.utils as utils
 from libmozdata.redash import Redash
@@ -296,6 +300,15 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
     }
 
 
+def get_with_retries(url, params=None, headers=None):
+    retries = Retry(total=16, backoff_factor=1, status_forcelist=[429])
+
+    s = requests.Session()
+    s.mount('https://crash-stats.mozilla.com', HTTPAdapter(max_retries=retries))
+
+    return s.get(url, params=params, headers=headers)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Track')
     parser.add_argument('-c', '--channels', action='store', nargs='+', default=['release', 'beta', 'aurora', 'nightly'], help='the channels')
@@ -343,3 +356,32 @@ if __name__ == "__main__":
 
     for f in files:
         shutil.copyfile(f, 'dist/' + f)
+
+    for product in ['firefox', 'fennec']:
+        base_url = 'https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/' if product == 'firefox' else 'https://analysis-output.telemetry.mozilla.org/top-fennec-signatures-correlations/data/'
+
+        # Check that correlations were generated.
+        r = get_with_retries(base_url + 'all.json.gz')
+        if r.status_code != 200:
+            print(product + ' correlations weren\'t generated.')
+            print(r.text)
+            raise Exception(r)
+
+        generation_date = datetime.strptime(r.headers['last-modified'], '%a, %d %b %Y %H:%M:%S %Z').date()
+
+        if datetime.utcnow().date() - timedelta(1) > generation_date:
+            print(product + ' correlations weren\'t generated yesterday, they were last generated on ' + str(generation_date) + '.')
+            raise Exception(r)
+
+        for channel in ['release', 'beta', 'aurora', 'nightly']:
+            # Check that the OOM | small correlations contain "moz_crash_reason" as a sanity check (mainly for https://issues.apache.org/jira/browse/SPARK-16664).
+            r = get_with_retries(base_url + channel + '/' + hashlib.sha1('OOM | small').hexdigest() + '.json.gz')
+            if r.status_code != 200:
+                print('Failure downloading ' + product + ' ' + channel + 'correlations for "OOM | small".')
+                print(r.text)
+                raise Exception(r)
+
+            if not any(any(key in result['item'].keys() for key in ['CPU Info', 'reason', 'moz_crash_reason']) for result in r.json()['results']):
+                print(product + ' ' + channel + ' correlations failing "OOM | small" sanity check.')
+                print(r.json())
+                raise Exception(r)
