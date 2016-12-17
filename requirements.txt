@@ -1,4 +1,4 @@
 libmozdata>=0.1.8
 six>=1.10.0
-ghp-import>=0.4.1
+ghp-import==0.4.1
 requests[security]>=2.7.0
