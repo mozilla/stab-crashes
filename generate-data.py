@@ -381,7 +381,7 @@ if __name__ == "__main__":
                 print(r.text)
                 raise Exception(r)
 
-            if not any(any(key in result['item'].keys() for key in ['CPU Info', 'reason', 'moz_crash_reason']) for result in r.json()['results']):
+            if not any(any(key in result['item'].keys() for key in ['CPU Info', 'reason', 'moz_crash_reason', 'platform_version']) for result in r.json()['results']):
                 print(product + ' ' + channel + ' correlations failing "OOM | small" sanity check.')
                 print(r.json())
                 raise Exception(r)
