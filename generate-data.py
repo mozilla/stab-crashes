@@ -357,7 +357,7 @@ if __name__ == "__main__":
     for f in files:
         shutil.copyfile(f, 'dist/' + f)
 
-    for product in ['firefox', 'fennec']:
+    for product in ['firefox']:
         base_url = 'https://analysis-output.telemetry.mozilla.org/top-signatures-correlations/data/' if product == 'firefox' else 'https://analysis-output.telemetry.mozilla.org/top-fennec-signatures-correlations/data/'
 
         # Check that correlations were generated.
