@@ -233,6 +233,7 @@ function buildTable() {
           return bug;
         });
       })))
+      .then(bugs => bugs.filter(bug => bug['crashes_count'] > 0))
       .then(bugs => bugs.sort((a, b) => b['crashes_count'] - a['crashes_count']))
       .then(bugs => bugs.forEach(bug => addRow(bug, version)));
     });
