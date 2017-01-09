@@ -184,7 +184,7 @@ function addRow(bug, version) {
 }
 
 function buildTable() {
-  getVersion(getOption('channel'))
+  return getVersion(getOption('channel'))
   .then(version => {
     let versionEnd = version;
     if (getOption('channel') == 'aurora') {
@@ -236,9 +236,9 @@ function buildTable() {
         query += ',cf_status_firefox' + v;
     }
 
-    getFeaturedVersion()
+    return getFeaturedVersion()
     .then(featured_version => {
-      fetchWithRetry(query)
+      return fetchWithRetry(query)
       .then(response => response.json())
       .then(data => data['bugs'])
       .then(bugs => Promise.all(bugs.map(bug => {
@@ -268,16 +268,30 @@ function buildTable() {
   });
 }
 
+function startSpinner() {
+  document.getElementById('spin').style.display = '';
+  document.getElementById('table').style.display = 'none';
+}
+
+function stopSpinner() {
+  document.getElementById('spin').style.display = 'none';
+  document.getElementById('table').style.display = '';
+}
+
 function rebuildTable() {
-  while(table.rows.length > 1) {
+  startSpinner();
+
+  while (table.rows.length > 1) {
     table.deleteRow(table.rows.length - 1);
   }
 
-  buildTable();
+  buildTable()
+  .then(() => stopSpinner());
 }
 
 onLoad
-.then(function() {
+.then(() => startSpinner())
+.then(() => {
   Object.keys(options)
   .forEach(function(optionName) {
     let optionType = getOptionType(optionName);
@@ -309,9 +323,6 @@ onLoad
     }
   });
 })
-.then(function() {
-  buildTable();
-})
-.catch(function(err) {
-  console.error(err);
-});
+.then(() => buildTable())
+.then(() => stopSpinner())
+.catch(err => console.error(err));

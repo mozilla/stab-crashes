@@ -342,8 +342,8 @@ if __name__ == "__main__":
     files = [
         'index.html',
         'correlations.js',
-        'dashboard.html', 'dashboard.js', 'style.css', 'exclamation_mark.svg',
-        'question_mark.svg', 'rocket_fly.png',
+        'dashboard.html', 'dashboard.js', 'style.css',
+        'exclamation_mark.svg', 'question_mark.svg', 'rocket_fly.png', 'spin.svg',
         'correlations.html', 'correlations_page.js',
         'missing_uplifts.html', 'missing_uplifts.js', 'all_missing_uplifts.html', 'all_missing_uplifts.js',
         'compare-betas.html', 'compare-betas.js', 'scomp.html', 'scomp.css', 'scomp.js',
