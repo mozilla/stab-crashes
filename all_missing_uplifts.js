@@ -57,14 +57,42 @@ function prettyDate(date) {
   return agoString(today.getFullYear() - date.getFullYear(), 'year');
 }
 
+function fetchWithRetry(url, trials=0) {
+  return fetch(url)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Error while getting ' + url);
+    } else {
+      return response;
+    }
+  })
+  .catch(error => {
+    let timeout = Math.pow(2, trials) * 1000;
+
+    if (timeout > 32000) {
+      timeout = 32000;
+    }
+
+    if (trials > 64) {
+      throw error;
+    }
+
+    return new Promise(function(resolve, reject) {
+      setTimeout(() => {
+        fetchWithRetry(url, trials + 1).then(resolve, reject);
+      }, timeout);
+    });
+  });
+}
+
 function getFeaturedVersion() {
-  return fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&build_type=' + getOption('channel') + '&is_featured=true')
+  return fetchWithRetry('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&build_type=' + getOption('channel') + '&is_featured=true')
   .then(response => response.json())
   .then(data => data['hits'][0]['version']);
 }
 
 function getVersion(channel) {
-  return fetch('https://product-details.mozilla.org/1.0/firefox_versions.json')
+  return fetchWithRetry('https://product-details.mozilla.org/1.0/firefox_versions.json')
   .then(response => response.json())
   .then(data => {
     if (channel == 'aurora') {
@@ -210,7 +238,7 @@ function buildTable() {
 
     getFeaturedVersion()
     .then(featured_version => {
-      fetch(query)
+      fetchWithRetry(query)
       .then(response => response.json())
       .then(data => data['bugs'])
       .then(bugs => Promise.all(bugs.map(bug => {
@@ -220,7 +248,7 @@ function buildTable() {
 
         return Promise.all(
           signatures.map(signature =>
-            fetch('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + featured_version + '&signature=%3D' + encodeURIComponent(signature) + '&product=Firefox&_results_number=0&_facets_size=0')
+            fetchWithRetry('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + featured_version + '&signature=%3D' + encodeURIComponent(signature) + '&product=Firefox&_results_number=0&_facets_size=0')
             .then(response => response.json())
             .then(result => {
               count += result['total'];
