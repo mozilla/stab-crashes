@@ -57,14 +57,42 @@ function prettyDate(date) {
   return agoString(today.getFullYear() - date.getFullYear(), 'year');
 }
 
+function fetchWithRetry(url, trials=0) {
+  return fetch(url)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Error while getting ' + url);
+    } else {
+      return response;
+    }
+  })
+  .catch(error => {
+    let timeout = Math.pow(2, trials) * 1000;
+
+    if (timeout > 32000) {
+      timeout = 32000;
+    }
+
+    if (trials > 64) {
+      throw error;
+    }
+
+    return new Promise(function(resolve, reject) {
+      setTimeout(() => {
+        fetchWithRetry(url, trials + 1).then(resolve, reject);
+      }, timeout);
+    });
+  });
+}
+
 function getFeaturedVersion() {
-  return fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&build_type=' + getOption('channel') + '&is_featured=true')
+  return fetchWithRetry('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&build_type=' + getOption('channel') + '&is_featured=true')
   .then(response => response.json())
   .then(data => data['hits'][0]['version']);
 }
 
 function getVersion(channel) {
-  return fetch('https://product-details.mozilla.org/1.0/firefox_versions.json')
+  return fetchWithRetry('https://product-details.mozilla.org/1.0/firefox_versions.json')
   .then(response => response.json())
   .then(data => {
     if (channel == 'aurora') {
@@ -156,7 +184,7 @@ function addRow(bug, version) {
 }
 
 function buildTable() {
-  getVersion(getOption('channel'))
+  return getVersion(getOption('channel'))
   .then(version => {
     let versionEnd = version;
     if (getOption('channel') == 'aurora') {
@@ -208,9 +236,9 @@ function buildTable() {
         query += ',cf_status_firefox' + v;
     }
 
-    getFeaturedVersion()
+    return getFeaturedVersion()
     .then(featured_version => {
-      fetch(query)
+      return fetchWithRetry(query)
       .then(response => response.json())
       .then(data => data['bugs'])
       .then(bugs => Promise.all(bugs.map(bug => {
@@ -220,7 +248,7 @@ function buildTable() {
 
         return Promise.all(
           signatures.map(signature =>
-            fetch('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + featured_version + '&signature=%3D' + encodeURIComponent(signature) + '&product=Firefox&_results_number=0&_facets_size=0')
+            fetchWithRetry('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + featured_version + '&signature=%3D' + encodeURIComponent(signature) + '&product=Firefox&_results_number=0&_facets_size=0')
             .then(response => response.json())
             .then(result => {
               count += result['total'];
@@ -240,16 +268,30 @@ function buildTable() {
   });
 }
 
+function startSpinner() {
+  document.getElementById('spin').style.display = '';
+  document.getElementById('table').style.display = 'none';
+}
+
+function stopSpinner() {
+  document.getElementById('spin').style.display = 'none';
+  document.getElementById('table').style.display = '';
+}
+
 function rebuildTable() {
-  while(table.rows.length > 1) {
+  startSpinner();
+
+  while (table.rows.length > 1) {
     table.deleteRow(table.rows.length - 1);
   }
 
-  buildTable();
+  buildTable()
+  .then(() => stopSpinner());
 }
 
 onLoad
-.then(function() {
+.then(() => startSpinner())
+.then(() => {
   Object.keys(options)
   .forEach(function(optionName) {
     let optionType = getOptionType(optionName);
@@ -281,9 +323,6 @@ onLoad
     }
   });
 })
-.then(function() {
-  buildTable();
-})
-.catch(function(err) {
-  console.error(err);
-});
+.then(() => buildTable())
+.then(() => stopSpinner())
+.catch(err => console.error(err));
