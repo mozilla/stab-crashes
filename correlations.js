@@ -43,16 +43,21 @@ var correlations = (() => {
     return fetch(getDataURL(product) + 'all.json.gz')
     .then(response => response.json())
     .then(totals => {
-        correlationData[product] = {
-          'date': totals['date'],
-        };
+      correlationData[product] = {
+        'date': totals['date'],
+      };
 
-        for (let ch of ['release', 'beta', 'aurora', 'nightly']) {
-          correlationData[product][ch] = {
-            'total': totals[ch],
-            'signatures': {},
-          }
+      let channels = ['release', 'beta', 'aurora', 'nightly'];
+      if (product === 'Firefox') {
+        channels.push('esr');
+      }
+
+      for (let ch of channels) {
+        correlationData[product][ch] = {
+          'total': totals[ch],
+          'signatures': {},
         }
+      }
     });
   }
 
@@ -129,25 +134,219 @@ var correlations = (() => {
         return 1;
       }
 
-      let ciA = confidenceInterval(a.count_group, total_group, a.count_reference, total_reference);
-      let ciB = confidenceInterval(b.count_group, total_group, b.count_reference, total_reference);
+      // Then, sort by percentage difference between signature and
+      // overall (using the lower endpoint of the confidence interval
+      // of the difference).
+      let ciA = null;
+      if (a.prior) {
+        // If one of the two elements has a prior that alters a rule's
+        // distribution significantly, sort by the percentage of the rule
+        // given the prior.
+        ciA = confidenceInterval(a.prior.count_group, a.prior.total_group, a.prior.count_reference, a.prior.total_reference);
+      }
+      else {
+        ciA = confidenceInterval(a.count_group, total_group, a.count_reference, total_reference);
+      }
+
+      let ciB = null;
+      if (b.prior) {
+        ciB = confidenceInterval( b.prior.count_group, b.prior.total_group, b.prior.count_reference, b.prior.total_reference);
+      }
+      else {
+        ciB = confidenceInterval(b.count_group, total_group, b.count_reference, total_reference);
+      }
 
       return Math.min(Math.abs(ciB[0]), Math.abs(ciB[1])) - Math.min(Math.abs(ciA[0]), Math.abs(ciA[1]));
     });
   }
 
-  function text(textElem, signature, channel, product) {
+  function itemEqual(item1, item2) {
+    let keys1 = Object.keys(item1);
+    let keys2 = Object.keys(item2);
+
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+
+    for (let prop of keys1.concat(keys2)) {
+      let val1 = item1[prop];
+      let val2 = item2[prop];
+
+      if (typeof val1 === 'string') {
+        val1 = val1.toLowerCase();
+      }
+
+      if (typeof val2 === 'string') {
+        val2 = val2.toLowerCase();
+      }
+
+      if (item1[prop] !== item2[prop]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  let channelsData = {};
+
+  function loadChannelsDifferencesData(product) {
+    return fetch('https://analysis-output.telemetry.mozilla.org/channels-differences/data/differences.json.gz')
+    .then(response => response.json())
+    .then(data => channelsData = data);
+  }
+
+  function socorroToTelemetry(socorroKey, socorroValue) {
+    let valueMapping = {
+      'cpu_arch': {
+        values: {
+          'amd64': 'x86-64',
+        },
+      },
+      'os_arch': {
+        values: {
+          'amd64': 'x86-64',
+        },
+      },
+      'platform': {
+        key: 'os_name',
+        values: {
+          'Mac OS X': 'Darwin',
+          'Windows NT': 'Windows_NT',
+        }
+      },
+      'platform_version': {
+        key: 'os_version',
+      },
+      'platform_pretty_version': {
+        key: 'os_pretty_version',
+        values: {
+          'Windows 10': '10.0',
+          'Windows 8.1': '6.3',
+          'Windows 8': '6.2',
+          'Windows 7': '6.1',
+          'Windows Server 2003': '5.2',
+          'Windows XP': '5.1',
+          'Windows 2000': '5.0',
+          'Windows NT': '4.0',
+        }
+      },
+      'dom_ipc_enabled': {
+        key: 'e10s_enabled',
+        values: {
+          '1': true,
+        }
+      },
+      '"D2D1.1+" in app_notes': {
+        key: 'd2d_enabled',
+      },
+      '"D2D1.1-" in app_notes': {
+        key: 'd2d_enabled',
+      },
+      '"DWrite+" in app_notes': {
+        key: 'd_write_enabled',
+      },
+      '"DWrite-" in app_notes': {
+        key: 'd_write_enabled',
+      },
+      'adapter_vendor_id': {
+        values: {
+          'NVIDIA Corporation': '0x10de',
+          'Intel Corporation': '0x8086',
+        },
+      },
+      'CPU Info': {
+        key: 'cpu_info',
+      }
+    };
+
+    if (socorroKey in valueMapping) {
+      let mapping = valueMapping[socorroKey];
+      return [mapping['key'] || socorroKey, mapping['values'] && mapping['values'][socorroValue] ? mapping['values'][socorroValue] : socorroValue];
+    } else {
+      return [socorroKey, socorroValue];
+    }
+  }
+
+  function getChannelPercentage(channel, socorroItem) {
+    // console.log('socorro')
+    // console.log(socorroItem)
+
+    let translatedItem = {};
+    for (let prop of Object.keys(socorroItem)) {
+      let [telemetryProp, telemetryValue] = socorroToTelemetry(prop, socorroItem[prop]);
+      //console.log(telemetryProp + ' - ' + telemetryValue)
+      translatedItem[telemetryProp] = telemetryValue;
+    }
+
+    // console.log('translated')
+    // console.log(translatedItem)
+
+    let found = channelsData[channel].find(longitudinalElem => itemEqual(longitudinalElem.item, translatedItem));
+    if (!found) {
+      return 0;
+    }
+
+    // console.log('telemetry ' + channel)
+    // console.log(found)
+
+    /*console.log('cpu_info');
+    console.log(channelsData[channel].filter(longitudinalElem => Object.keys(longitudinalElem.item).indexOf('cpu_info') != -1));*/
+
+    return found.p;
+  }
+
+  function rerank(textElem, signature, channel, channel_target, product) {
+    textElem.textContent = '';
+
+    return loadChannelsDifferencesData(product)
+    .then(() => loadCorrelationData(signature, channel, product))
+    .then(data => {
+      if (!(product in data)) {
+        textElem.textContent = 'No correlation data was generated for the \'' + product + '\' product.';
+        return [];
+      }
+
+      if (!(signature in data[product][channel]['signatures']) || !data[product][channel]['signatures'][signature]['results']) {
+        textElem.textContent = 'No correlation data was generated for the signature "' + signature + '" on the ' + channel + ' channel, for the \'' + product + '\' product.';
+        return [];
+      }
+
+      let correlationData = data[product][channel]['signatures'][signature]['results'];
+
+      let total_reference = data[product][channel].total;
+      let total_group = data[product][channel]['signatures'][signature].total;
+
+      return correlationData
+      .filter(socorroElem => Object.keys(socorroElem.item).length == 1)
+      .filter(socorroElem => getChannelPercentage(channel, socorroElem.item) != 0)
+      .sort((a, b) => {
+        //return getChannelPercentage(channel_target, b.item) / getChannelPercentage(channel, b.item) - getChannelPercentage(channel_target, a.item) / getChannelPercentage(channel, a.item);
+        return b.count_group / total_group - a.count_group / total_group;
+      })
+      .map(elem => {
+        return {
+          property: itemToLabel(elem.item),
+          in_signature: toPercentage(elem.count_group / total_group),
+          in_channel_target: getChannelPercentage(channel_target, elem.item),
+          in_channel: getChannelPercentage(channel, elem.item),
+        };
+      });
+    });
+  }
+
+  function text(textElem, signature, channel, product, show_ci=false) {
     loadCorrelationData(signature, channel, product)
     .then(data => {
       textElem.textContent = '';
 
       if (!(product in data)) {
-        textElem.textContent = 'No correlation data was generated for the \'' + product + '\' product.'
+        textElem.textContent = 'No correlation data was generated for the \'' + product + '\' product.';
         return;
       }
 
       if (!(signature in data[product][channel]['signatures']) || !data[product][channel]['signatures'][signature]['results']) {
-        textElem.textContent = 'No correlation data was generated for the signature "' + signature + '" on the ' + channel + ' channel, for the \'' + product + '\' product.'
+        textElem.textContent = 'No correlation data was generated for the signature "' + signature + '" on the ' + channel + ' channel, for the \'' + product + '\' product.';
         return;
       }
 
@@ -157,9 +356,27 @@ var correlations = (() => {
       let total_group = data[product][channel]['signatures'][signature].total;
 
       textElem.textContent = sortCorrelationData(correlationData, total_reference, total_group)
-      .reduce((prev, cur) =>
-        prev + '(' + toPercentage(cur.count_group / total_group) + '% in signature vs ' + toPercentage(cur.count_reference / total_reference) + '% overall) ' + itemToLabel(cur.item) + '\n'
-      , '');
+      .reduce((prev, cur) => {
+        let support_group = toPercentage(cur.count_group / total_group);
+        let support_reference = toPercentage(cur.count_reference / total_reference);
+        let support_diff = toPercentage(Math.abs(cur.count_group / total_group - cur.count_reference / total_reference));
+
+        let ci = confidenceInterval(cur.count_group, total_group, cur.count_reference, total_reference);
+
+        let support_diff_incertezza = toPercentage(Math.abs(Math.abs(ci[0]) - Math.abs(cur.count_group / total_group - cur.count_reference / total_reference)));
+
+        let res = prev + '(' + support_group + '% in signature vs ' + support_reference + '% overall, difference ' + support_diff + '±' + support_diff_incertezza + '%) ' + itemToLabel(cur.item)
+
+        if (cur.prior) {
+          let support_group_given_prior = toPercentage(cur.prior.count_group / cur.prior.total_group);
+          let support_reference_given_prior = toPercentage(cur.prior.count_reference / cur.prior.total_reference);
+          res += ' [' + support_group_given_prior + '% vs ' + support_reference_given_prior + '% if ' + itemToLabel(cur.prior.item) + ']'
+        }
+
+        return res + '\n';
+      }, '');
+
+      textElem.textContent += '\n\nTop Words: ' + data[product][channel]['signatures'][signature]['top_words'].join(', ');
     });
   }
 
@@ -280,6 +497,8 @@ var correlations = (() => {
   return {
     getAnalysisDate: getAnalysisDate,
     text: text,
+    rerank: rerank,
+    toPercentage: toPercentage,
     graph: graph,
   };
 })();
