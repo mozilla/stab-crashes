@@ -45,7 +45,8 @@ function getCommonLandings() {
 
       return is_everywhere;
     })
-  });
+  })
+  .then(bugs => new Set(bugs));
 }
 
 onLoad
