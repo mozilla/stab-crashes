@@ -54,14 +54,21 @@ onLoad
     getCommonLandings()
     .then(bugs => {
       if (bugs.length === 0) {
-        return 'None';
+        document.getElementById('results').textContent = 'None';
       }
 
-      return bugs.join(', ');
-    })
-    .then(text => {
-      document.getElementById('results').textContent = text;
-    })
+      let ul = document.createElement('ul');
+      for (let bug of bugs) {
+        let li = document.createElement('li');
+        let a = document.createElement('a');
+        a.textContent = bug;
+        a.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug;
+        li.appendChild(a);
+        ul.appendChild(li);
+      }
+
+      document.getElementById('results').appendChild(ul);
+    });
   };
 });
 
