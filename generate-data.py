@@ -353,6 +353,7 @@ if __name__ == "__main__":
         'addon_related_signatures.html', 'addon_related_signatures.js',
         'supergraph.html', 'supergraph.js',
         'rerank.html', 'rerank.js',
+        'common_landings.html', 'common_landings.js',
     ] + ['images/' + image for image in os.listdir('images')]
 
     for f in files:
