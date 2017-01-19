@@ -165,12 +165,12 @@ function compareVersions(versionA, versionB) {
   if (!versionA.includes(' - ')) {
     minorA = Number(versionA.substring(versionA.indexOf('b') + 1))
   } else {
-    minorA = Number(versionA.substring(versionA.indexOf('b') + 1), versionA.indexOf(' '));
+    minorA = Number(versionA.substring(versionA.indexOf('b') + 1, versionA.indexOf(' ')));
   }
   if (!versionB.includes(' - ')) {
     minorB = Number(versionB.substring(versionB.indexOf('b') + 1))
   } else {
-    minorB = Number(versionB.substring(versionB.indexOf('b') + 1), versionB.indexOf(' '));
+    minorB = Number(versionB.substring(versionB.indexOf('b') + 1, versionB.indexOf(' ')));
   }
 
   if (minorA > minorB) {
