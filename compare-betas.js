@@ -197,7 +197,7 @@ onLoad
     .then(response => response.json())
     .then(data => {
       return data['facets']['build_id'].map(elem => rc + ' - ' + elem['term'])
-      .concat(versions);
+      .concat(versions.filter(version => !version.endsWith('b99')));
     });
   } else {
     return versions;
