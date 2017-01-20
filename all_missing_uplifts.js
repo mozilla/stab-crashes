@@ -278,45 +278,66 @@ function stopSpinner() {
   document.getElementById('table').style.display = '';
 }
 
-function rebuildTable() {
-  startSpinner();
-
-  while (table.rows.length > 1) {
-    table.deleteRow(table.rows.length - 1);
-  }
-
-  buildTable()
-  .then(() => stopSpinner());
+function reloadPage() {
+  let url = new URL(location.href);
+  url.search = '?channel=' + getOption('channel');
+  window.location = url;
 }
 
 onLoad
 .then(() => startSpinner())
 .then(() => {
+  let queryVars = new URL(location.href).search.substring(1).split('&');
+
   Object.keys(options)
   .forEach(function(optionName) {
     let optionType = getOptionType(optionName);
     let elem = document.getElementById(optionName);
 
+    for (let queryVar of queryVars) {
+      if (queryVar.startsWith(optionName + '=')) {
+        let option = queryVar.substring((optionName + '=').length).trim();
+        setOption(optionName, option);
+      }
+    }
+
     if (optionType === 'select') {
+      if (getOption(optionName)) {
+        elem.checked = getOption(optionName);
+      }
+
       setOption(optionName, elem.checked);
 
       elem.onchange = function() {
         setOption(optionName, elem.checked);
-        rebuildTable();
+        reloadPage();
       };
     } else if (optionType === 'option') {
+      if (getOption(optionName)) {
+        for (let i = 0; i < elem.options.length; i++) {
+          if (elem.options[i].value === getOption(optionName)) {
+            elem.selectedIndex = i;
+            break;
+          }
+        }
+      }
+
       setOption(optionName, elem.options[elem.selectedIndex].value);
 
       elem.onchange = function() {
         setOption(optionName, elem.options[elem.selectedIndex].value);
-        rebuildTable();
+        reloadPage();
       };
     } else if (optionType === 'button') {
+      if (getOption(optionName)) {
+        elem.value = getOption(optionName);
+      }
+
       setOption(optionName, elem.value);
 
       document.getElementById(optionName + 'Button').onclick = function() {
         setOption(optionName, elem.value);
-        rebuildTable();
+        reloadPage();
       };
     } else {
       throw new Error('Unexpected option type.');
