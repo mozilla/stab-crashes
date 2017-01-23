@@ -354,6 +354,7 @@ if __name__ == "__main__":
         'supergraph.html', 'supergraph.js',
         'rerank.html', 'rerank.js',
         'common_landings.html', 'common_landings.js',
+        'channels_diff.html', 'channels_diff.js',
     ] + ['images/' + image for image in os.listdir('images')]
 
     for f in files:
