@@ -359,6 +359,27 @@ var correlations = (() => {
     });
   }
 
+  function getChannelsProperties(product) {
+    return loadChannelsDifferencesData(product)
+    .then(() => ['release', 'beta', 'aurora', 'nightly'].map(channel => channelsData[channel].map(longitudinalElem => Object.keys(longitudinalElem.item)[0])))
+    .then(all_props_per_channel => [].concat.apply([], all_props_per_channel))
+    .then(all_props => new Set(all_props))
+    .then(props => Array.from(props));
+  }
+
+  function getChannelsValues(product, property) {
+    return loadChannelsDifferencesData(product)
+    .then(() => ['release', 'beta', 'aurora', 'nightly'].map(channel => channelsData[channel].filter(longitudinalElem => Object.keys(longitudinalElem.item).indexOf(property) != -1).map(longitudinalElem => longitudinalElem.item[property])))
+    .then(all_values_per_channel => [].concat.apply([], all_values_per_channel))
+    .then(all_values => new Set(all_values))
+    .then(values => Array.from(values));
+  }
+
+  function getChannelsPercentage(product, channel, property, value) {
+    return loadChannelsDifferencesData(product)
+    .then(() => channelsData[channel].find(longitudinalElem => Object.keys(longitudinalElem.item).indexOf(property) != -1 && longitudinalElem.item[property] == value));
+  }
+
   function text(textElem, signature, channel, product, show_ci=false) {
     loadCorrelationData(signature, channel, product)
     .then(data => {
@@ -522,6 +543,9 @@ var correlations = (() => {
     getAnalysisDate: getAnalysisDate,
     text: text,
     rerank: rerank,
+    getChannelsProperties: getChannelsProperties,
+    getChannelsValues: getChannelsValues,
+    getChannelsPercentage: getChannelsPercentage,
     toPercentage: toPercentage,
     graph: graph,
   };
