@@ -242,12 +242,14 @@ var correlations = (() => {
       },
       '"D2D1.1-" in app_notes': {
         key: 'd2d_enabled',
+        values: v => !v,
       },
       '"DWrite+" in app_notes': {
         key: 'd_write_enabled',
       },
       '"DWrite-" in app_notes': {
         key: 'd_write_enabled',
+        values: v => !v,
       },
       'adapter_vendor_id': {
         values: {
@@ -260,12 +262,28 @@ var correlations = (() => {
       }
     };
 
+    let key, value;
     if (socorroKey in valueMapping) {
       let mapping = valueMapping[socorroKey];
-      return [mapping['key'] || socorroKey, mapping['values'] && mapping['values'][socorroValue] ? mapping['values'][socorroValue] : socorroValue];
-    } else {
-      return [socorroKey, socorroValue];
+      key = mapping['key'] || socorroKey;
+      if (mapping['values']) {
+        if (typeof mapping['values'] === 'function') {
+          value = mapping['values'](socorroValue);
+        } else {
+          value = mapping['values'][socorroValue];
+        }
+      }
     }
+
+    if (typeof key === 'undefined') {
+      key = socorroKey;
+    }
+
+    if (typeof value === 'undefined') {
+      value = socorroValue;
+    }
+
+    return [key, value];
   }
 
   function getChannelPercentage(channel, socorroItem) {
