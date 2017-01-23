@@ -231,6 +231,12 @@ var correlations = (() => {
           'Windows NT': '4.0',
         }
       },
+      'e10s_enabled': {
+        key: 'e10s_enabled',
+        values: {
+          '1': true,
+        }
+      },
       'dom_ipc_enabled': {
         key: 'e10s_enabled',
         values: {
