@@ -123,8 +123,9 @@ onLoad
   document.getElementById('getCommonLandings').onclick = function() {
     getCommonLandings()
     .then(bugs => {
-      if (bugs.length === 0) {
+      if (bugs.size === 0) {
         document.getElementById('results').textContent = 'None';
+        return;
       }
 
       let ul = document.createElement('ul');
