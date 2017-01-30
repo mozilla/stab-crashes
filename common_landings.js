@@ -164,10 +164,19 @@ function getCommonLandings() {
 onLoad
 .then(function() {
   document.getElementById('getCommonLandings').onclick = function() {
+    // Clean old results.
+    let results = document.getElementById('results');
+
+    while (results.firstChild) {
+      results.removeChild(results.firstChild);
+    }
+
+    results.textContent = '';
+
     getCommonLandings()
     .then(bugs => {
       if (bugs.size === 0) {
-        document.getElementById('results').textContent = 'None';
+        results.textContent = 'None';
         return;
       }
 
@@ -185,7 +194,7 @@ onLoad
         });
       }
 
-      document.getElementById('results').appendChild(ul);
+      results.appendChild(ul);
     });
   };
 });
