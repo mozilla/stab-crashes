@@ -2,32 +2,137 @@ let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
-function getCommonLandings() {
-  let pushlog_links = [];
+function dropdownDateToHGMODate(val) {
+  if (val === 'one day') {
+    return '1+day+ago';
+  } else if (val === 'two days') {
+    return '2+days+ago';
+  } else if (val === 'three days') {
+    return '3+days+ago';
+  } else if (val === 'a week') {
+    return '1+week+ago';
+  }
 
-  for (let i = 1; i < 4; i++) {
-    let pushlog_link = document.getElementById('pushloglink' + i).value;
-    if (pushlog_link) {
-      pushlog_links.push(pushlog_link);
+  throw new Exception('Unknown value ' + val);
+}
+
+function dropdownBuildToVal(val) {
+  if (val === 'one build') {
+    return 1;
+  } else if (val === 'two builds') {
+    return 2;
+  } else if (val === 'three builds') {
+    return 3;
+  }
+
+  throw new Exception('Unknown value ' + val);
+}
+
+function betaBuildToTag(val) {
+  return 'FIREFOX_' + val.replace('.', '_') + '_RELEASE';
+}
+
+function subtractFromBetaBuild(version, val) {
+  let major = version.substring(0, version.indexOf('b'));
+  let betaBuild = version.substring(version.indexOf('b') + 1);
+  return major + 'b' + (Number(betaBuild) - val);
+}
+
+function checkIsBuildID(val) {
+  let isBuildID = true;
+
+  try {
+    let res = parseBuildID(val);
+    if (isNaN(res.year) || isNaN(res.month) || isNaN(res.day) || isNaN(res.hour) || isNaN(res.minute) || isNaN(res.second) || res.year < 2000 || res.month < 0 || res.month > 12 || res.day < 0 || res.day > 31 || res.hour < 0 || res.hour > 24) {
+      isBuildID = false;
     }
+  } catch (ex) {
+    isBuildID = false;
+  }
+
+  return isBuildID;
+}
+
+function getPushlogLink(channel) {
+  let base;
+  if (channel === 'nightly') {
+    base = 'https://hg.mozilla.org/mozilla-central';
+  } else if (channel === 'aurora') {
+    base = 'https://hg.mozilla.org/releases/mozilla-aurora';
+  }
+
+  let firstAffected = document.getElementById(channel + '_first_affected').value;
+  if (firstAffected) {
+    let isBuildID = checkIsBuildID(firstAffected);
+
+    let startDateElem = document.getElementById(channel + '_days');
+    let startDate = dropdownDateToHGMODate(startDateElem.options[startDateElem.selectedIndex].value);
+    let pushlogLinkElem = document.getElementById(channel + '_pushloglink');
+
+    return (new Promise(function(resolve, reject) {
+      if (!isBuildID) {
+        resolve(firstAffected);
+      } else {
+        fromBuildIDtoChangeset(firstAffected, channel)
+        .then(changesetURL => resolve(getRevFromChangeset(changesetURL, channel)));
+      }
+    }))
+    .then(changeset => {
+      let pushlogLink = base + '/pushloghtml?startdate=' + startDate + '&tochange=' + changeset;
+      pushlogLinkElem.textContent = pushlogLinkElem.href = pushlogLink;
+      return pushlogLink;
+    });
+  }
+
+  return null;
+}
+
+function getCommonLandings() {
+  let pushlog_link_promises = [];
+
+  // Nightly
+  let nightlyPushlogLink = getPushlogLink('nightly');
+  if (nightlyPushlogLink) {
+    pushlog_link_promises.push(nightlyPushlogLink);
+  }
+
+  // Aurora
+  let auroraFirstAffected = getPushlogLink('aurora');
+  if (auroraFirstAffected) {
+    pushlog_link_promises.push(auroraFirstAffected);
+  }
+
+  // Beta
+  let betaFirstAffected = document.getElementById('beta_first_affected').value;
+  if (betaFirstAffected) {
+    let betaStartBuildElem = document.getElementById('beta_builds');
+    let betaStartBuild = subtractFromBetaBuild(betaFirstAffected, dropdownBuildToVal(betaStartBuildElem.options[betaStartBuildElem.selectedIndex].value));
+    let betaPushlogLink = 'https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=' + betaBuildToTag(betaStartBuild) + '&tochange=' + betaBuildToTag(betaFirstAffected);
+
+    let betaPushlogLinkElem = document.getElementById('beta_pushloglink');
+    betaPushlogLinkElem.textContent = betaPushlogLinkElem.href = betaPushlogLink;
+    pushlog_link_promises.push(Promise.resolve(betaPushlogLink));
   }
 
   return Promise.all(
-    pushlog_links
-    .map(link => 
-      fetch(link)
-      .then(response => response.text())
-      .then(html => {
-        let bugs = [];
+    pushlog_link_promises
+    .map(link_promise =>
+      link_promise
+      .then(link =>
+        fetch(link)
+        .then(response => response.text())
+        .then(html => {
+          let bugs = [];
 
-        let result;
-        let re = /Bug ([0-9]+)/ig;
-        while ((result = re.exec(html)) !== null) {
-          bugs.push(result[1]);
-        }
+          let result;
+          let re = /Bug ([0-9]+)/ig;
+          while ((result = re.exec(html)) !== null) {
+            bugs.push(result[1]);
+          }
 
-        return bugs;
-      })
+          return bugs;
+        })
+      )
     )
   )
   .then(arrays => {
@@ -54,8 +159,9 @@ onLoad
   document.getElementById('getCommonLandings').onclick = function() {
     getCommonLandings()
     .then(bugs => {
-      if (bugs.length === 0) {
+      if (bugs.size === 0) {
         document.getElementById('results').textContent = 'None';
+        return;
       }
 
       let ul = document.createElement('ul');

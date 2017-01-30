@@ -3,16 +3,44 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Find common landings between channels</title>
+<script src="buildid_changeset.js" type="text/javascript"></script>
 </head>
 <body>
 <script src="common_landings.js" type="text/javascript"></script>
-<p>Insert one or more links like <code>https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=FIREFOX_51_0b13_RELEASE&tochange=FIREFOX_51_0b14_RELEASE</code></p>
-<input type="text" name="pushloglink1" id="pushloglink1" size="140" placeholder="First pushloghtml link...">
-<br>
-<input type="text" name="pushloglink2" id="pushloglink2" size="140" placeholder="Second pushloghtml link...">
-<br>
-<input type="text" name="pushloglink3" id="pushloglink3" size="140" placeholder="Third pushloghtml link...">
+<h2>Pushlog/regression range generator</h2>
 <br><br>
+<h3>Nightly</h3>
+<input type="text" name="nightly_first_affected" id="nightly_first_affected" placeholder="Build ID or changeset">
+<select name="nightly_days" id="nightly_days">
+  <option selected>one day</option>
+  <option>two days</option>
+  <option>three days</option>
+  <option>a week</option>
+</select>
+<br>
+<a id="nightly_pushloglink"></a>
+<br><br>
+<h3>Aurora</h3>
+<input type="text" name="aurora_first_affected" id="aurora_first_affected" placeholder="Build ID or changeset">
+<select name="aurora_days" id="aurora_days">
+  <option selected>one day</option>
+  <option>two days</option>
+  <option>three days</option>
+  <option>a week</option>
+</select>
+<br>
+<a id="aurora_pushloglink"></a>
+<br><br>
+<h3>Beta</h3>
+<input type="text" name="beta_first_affected" id="beta_first_affected" placeholder="Version number (e.g. 51.0b9)">
+<select name="beta_builds" id="beta_builds">
+  <option selected>one build</option>
+  <option>two builds</option>
+  <option>three builds</option>
+</select>
+<br>
+<a id="beta_pushloglink"></a>
+<br><br><br><br>
 <button id="getCommonLandings">Find common landings</button>
 <br><br>
 <div id="results"></div>
