@@ -109,8 +109,15 @@ function getRevFromChangeset(changeset, channel='nightly') {
   return result[1];
 }
 
-function getChangesetDate(changeset) {
-  return fetch('https://hg.mozilla.org/mozilla-central/json-rev/' + changeset)
+function getChangesetDate(changeset, channel='nightly') {
+  let baseURL;
+  if (channel === 'nightly') {
+    baseURL = 'https://hg.mozilla.org/mozilla-central';
+  } else if (channel === 'aurora') {
+    baseURL = 'https://hg.mozilla.org/releases/mozilla-aurora';
+  }
+
+  return fetch(baseURL + '/json-rev/' + changeset)
   .then(response => response.json())
   .then(json_rev => new Date(json_rev['pushdate'][0] * 1000))
 }

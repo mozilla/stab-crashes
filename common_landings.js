@@ -2,15 +2,15 @@ let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
-function dropdownDateToHGMODate(val) {
+function dropdownDateToDaysDiff(val) {
   if (val === 'one day') {
-    return '1+day+ago';
+    return 1;
   } else if (val === 'two days') {
-    return '2+days+ago';
+    return 2;
   } else if (val === 'three days') {
-    return '3+days+ago';
+    return 3;
   } else if (val === 'a week') {
-    return '1+week+ago';
+    return 7;
   }
 
   throw new Exception('Unknown value ' + val);
@@ -66,7 +66,7 @@ function getPushlogLink(channel) {
     let isBuildID = checkIsBuildID(firstAffected);
 
     let startDateElem = document.getElementById(channel + '_days');
-    let startDate = dropdownDateToHGMODate(startDateElem.options[startDateElem.selectedIndex].value);
+    let startDate = dropdownDateToDaysDiff(startDateElem.options[startDateElem.selectedIndex].value);
     let pushlogLinkElem = document.getElementById(channel + '_pushloglink');
 
     return (new Promise(function(resolve, reject) {
@@ -77,11 +77,18 @@ function getPushlogLink(channel) {
         .then(changesetURL => resolve(getRevFromChangeset(changesetURL, channel)));
       }
     }))
-    .then(changeset => {
-      let pushlogLink = base + '/pushloghtml?startdate=' + startDate + '&tochange=' + changeset;
-      pushlogLinkElem.textContent = pushlogLinkElem.href = pushlogLink;
-      return pushlogLink;
-    });
+    .then(changeset =>
+      getChangesetDate(changeset, channel)
+      .then(date => {
+        date.setDate(date.getDate() - startDate);
+        let year = date.getFullYear();
+        let month = toTwoDigits(date.getMonth() + 1);
+        let day = toTwoDigits(date.getDate());
+        let pushlogLink = base + '/pushloghtml?startdate=' + year + '-' + month + '-' + day + '&tochange=' + changeset;
+        pushlogLinkElem.textContent = pushlogLinkElem.href = pushlogLink;
+        return pushlogLink;
+      })
+    );
   }
 
   return null;
@@ -157,10 +164,19 @@ function getCommonLandings() {
 onLoad
 .then(function() {
   document.getElementById('getCommonLandings').onclick = function() {
+    // Clean old results.
+    let results = document.getElementById('results');
+
+    while (results.firstChild) {
+      results.removeChild(results.firstChild);
+    }
+
+    results.textContent = '';
+
     getCommonLandings()
     .then(bugs => {
       if (bugs.size === 0) {
-        document.getElementById('results').textContent = 'None';
+        results.textContent = 'None';
         return;
       }
 
@@ -178,7 +194,7 @@ onLoad
         });
       }
 
-      document.getElementById('results').appendChild(ul);
+      results.appendChild(ul);
     });
   };
 });
