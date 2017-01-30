@@ -2,15 +2,84 @@ let onLoad = new Promise(function(resolve, reject) {
   window.onload = resolve;
 });
 
+function dropdownDateToHGMODate(val) {
+  if (val === 'one day') {
+    return '1+day+ago';
+  } else if (val === 'two days') {
+    return '2+days+ago';
+  } else if (val === 'three days') {
+    return '3+days+ago';
+  } else if (val === 'a week') {
+    return '1+week+ago';
+  }
+
+  throw new Exception('Unknown value ' + val);
+}
+
+function dropdownBuildToVal(val) {
+  if (val === 'one build') {
+    return 1;
+  } else if (val === 'two builds') {
+    return 2;
+  } else if (val === 'three builds') {
+    return 3;
+  }
+
+  throw new Exception('Unknown value ' + val);
+}
+
+function betaBuildToTag(val) {
+  return 'FIREFOX_' + val.replace('.', '_') + '_RELEASE';
+}
+
+function subtractFromBetaBuild(version, val) {
+  let major = version.substring(0, version.indexOf('b'));
+  let betaBuild = version.substring(version.indexOf('b') + 1);
+  return major + 'b' + (Number(betaBuild) - val);
+}
+
 function getCommonLandings() {
   let pushlog_links = [];
 
-  for (let i = 1; i < 4; i++) {
-    let pushlog_link = document.getElementById('pushloglink' + i).value;
-    if (pushlog_link) {
-      pushlog_links.push(pushlog_link);
-    }
+
+  // Nightly
+  let nightlyFirstAffected = document.getElementById('nightly_first_affected').value;
+  if (nightlyFirstAffected) {
+    let nightlyStartDateElem = document.getElementById('nightly_days');
+    let nightlyStartDate = dropdownDateToHGMODate(nightlyStartDateElem.options[nightlyStartDateElem.selectedIndex].value);
+    let nightlyPushlogLink = 'https://hg.mozilla.org/mozilla-central/pushloghtml?startdate=' + nightlyStartDate + '&tochange=' + nightlyFirstAffected;
+
+    let nightlyPushlogLinkElem = document.getElementById('nightly_pushloglink');
+    nightlyPushlogLinkElem.textContent = nightlyPushlogLinkElem.href = nightlyPushlogLink;
+    pushlog_links.push(nightlyPushlogLink);
   }
+
+
+  // Aurora
+  let auroraFirstAffected = document.getElementById('aurora_first_affected').value;
+  if (auroraFirstAffected) {
+    let auroraStartDateElem = document.getElementById('aurora_days');
+    let auroraStartDate = dropdownDateToHGMODate(auroraStartDateElem.options[auroraStartDateElem.selectedIndex].value);
+    let auroraPushlogLink = 'https://hg.mozilla.org/releases/mozilla-aurora/pushloghtml?startdate=' + auroraStartDate + '&tochange=' + auroraFirstAffected;
+
+    let auroraPushlogLinkElem = document.getElementById('aurora_pushloglink');
+    auroraPushlogLinkElem.textContent = auroraPushlogLinkElem.href = auroraPushlogLink;
+    pushlog_links.push(auroraPushlogLink);
+  }
+
+
+  // Beta
+  let betaFirstAffected = document.getElementById('beta_first_affected').value;
+  if (betaFirstAffected) {
+    let betaStartBuildElem = document.getElementById('beta_builds');
+    let betaStartBuild = subtractFromBetaBuild(betaFirstAffected, dropdownBuildToVal(betaStartBuildElem.options[betaStartBuildElem.selectedIndex].value));
+    let betaPushlogLink = 'https://hg.mozilla.org/releases/mozilla-beta/pushloghtml?fromchange=' + betaBuildToTag(betaStartBuild) + '&tochange=' + betaBuildToTag(betaFirstAffected);
+
+    let betaPushlogLinkElem = document.getElementById('beta_pushloglink');
+    betaPushlogLinkElem.textContent = betaPushlogLinkElem.href = betaPushlogLink;
+    pushlog_links.push(betaPushlogLink);
+  }
+
 
   return Promise.all(
     pushlog_links
