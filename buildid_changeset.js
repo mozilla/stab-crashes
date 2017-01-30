@@ -60,19 +60,29 @@ function toTwoDigits(num) {
   return num;
 }
 
-function fromBuildIDtoChangeset(buildID) {
+function fromBuildIDtoChangeset(buildID, channel='nightly') {
   let buildObj = parseBuildID(buildID);
 
-  let directory = 'https://ftp.mozilla.org/pub/firefox/nightly/' + buildObj.year + '/' + toTwoDigits(buildObj.month) + '/' + buildObj.year + '-' + toTwoDigits(buildObj.month) + '-' + toTwoDigits(buildObj.day) + '-' + toTwoDigits(buildObj.hour) + '-' + toTwoDigits(buildObj.minute) + '-' + toTwoDigits(buildObj.second) + '-mozilla-central/';
+  let dirEnd;
+  if (channel === 'nightly') {
+    dirEnd = 'central';
+  } else if (channel === 'aurora') {
+    dirEnd = 'aurora';
+  }
+
+  let directory = 'https://ftp.mozilla.org/pub/firefox/nightly/' + buildObj.year + '/' + toTwoDigits(buildObj.month) + '/' + buildObj.year + '-' + toTwoDigits(buildObj.month) + '-' + toTwoDigits(buildObj.day) + '-' + toTwoDigits(buildObj.hour) + '-' + toTwoDigits(buildObj.minute) + '-' + toTwoDigits(buildObj.second) + '-mozilla-' + dirEnd + '/';
 
   return fetch(directory)
   .then(response => response.text())
   .then(data => {
-    let file = data.match(/firefox-\d+.0a1.en-US.win32.txt/);
-    if (file.length == 1) {
+    let file = data.match(/firefox-\d+.0a[12].en-US.win32.txt/);
+    if (!file) {
+      file = data.match(/firefox-\d+.0a[12].en-US.linux-x86_64.txt/)
+    }
+    if (file && file.length == 1) {
       return file[0];
     } else {
-      throw new Error('Couldn\'t find win32.txt file.');
+      throw new Error('Couldn\'t find *.win32.txt or *.linux-x86_64.txt file.');
     }
   })
   .then(file => fetch(directory + file))
@@ -88,8 +98,13 @@ function fromBuildIDtoChangeset(buildID) {
   });
 }
 
-function getRevFromChangeset(changeset) {
-  let re = /https:\/\/hg.mozilla.org\/mozilla-central\/rev\/([A-Za-z0-9]+)/;
+function getRevFromChangeset(changeset, channel='nightly') {
+  let re;
+  if (channel === 'nightly') {
+    re = /https:\/\/hg.mozilla.org\/mozilla-central\/rev\/([A-Za-z0-9]+)/;
+  } else if (channel === 'aurora') {
+    re = /https:\/\/hg.mozilla.org\/releases\/mozilla-aurora\/rev\/([A-Za-z0-9]+)/;
+  }
   let result = re.exec(changeset);
   return result[1];
 }
