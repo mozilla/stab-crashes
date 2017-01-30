@@ -341,7 +341,7 @@ if __name__ == "__main__":
 
     files = [
         'index.html',
-        'correlations.js',
+        'correlations.js', 'buildid_changeset.js',
         'dashboard.html', 'dashboard.js', 'style.css',
         'exclamation_mark.svg', 'question_mark.svg', 'rocket_fly.png', 'spin.svg',
         'correlations.html', 'correlations_page.js',
@@ -349,7 +349,7 @@ if __name__ == "__main__":
         'compare-betas.html', 'compare-betas.js', 'scomp.html', 'scomp.css', 'scomp.js',
         'beta-stability-pushlog.html', 'beta-stability-pushlog.js',
         'graphics_critical_errors.html', 'graphics_critical_errors.js',
-        'buildid_changeset.html', 'buildid_changeset.js',
+        'buildid_changeset.html', 'buildid_changeset_page.js',
         'addon_related_signatures.html', 'addon_related_signatures.js',
         'supergraph.html', 'supergraph.js',
         'rerank.html', 'rerank.js',
