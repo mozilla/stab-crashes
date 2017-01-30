@@ -38,35 +38,69 @@ function subtractFromBetaBuild(version, val) {
   return major + 'b' + (Number(betaBuild) - val);
 }
 
-function getCommonLandings() {
-  let pushlog_links = [];
+function checkIsBuildID(val) {
+  let isBuildID = true;
 
+  try {
+    let res = parseBuildID(val);
+    if (isNaN(res.year) || isNaN(res.month) || isNaN(res.day) || isNaN(res.hour) || isNaN(res.minute) || isNaN(res.second) || res.year < 2000 || res.month < 0 || res.month > 12 || res.day < 0 || res.day > 31 || res.hour < 0 || res.hour > 24) {
+      isBuildID = false;
+    }
+  } catch (ex) {
+    isBuildID = false;
+  }
+
+  return isBuildID;
+}
+
+function getPushlogLink(channel) {
+  let base;
+  if (channel === 'nightly') {
+    base = 'https://hg.mozilla.org/mozilla-central';
+  } else if (channel === 'aurora') {
+    base = 'https://hg.mozilla.org/releases/mozilla-aurora';
+  }
+
+  let firstAffected = document.getElementById(channel + '_first_affected').value;
+  if (firstAffected) {
+    let isBuildID = checkIsBuildID(firstAffected);
+
+    let startDateElem = document.getElementById(channel + '_days');
+    let startDate = dropdownDateToHGMODate(startDateElem.options[startDateElem.selectedIndex].value);
+    let pushlogLinkElem = document.getElementById(channel + '_pushloglink');
+
+    return (new Promise(function(resolve, reject) {
+      if (!isBuildID) {
+        resolve(firstAffected);
+      } else {
+        fromBuildIDtoChangeset(firstAffected, channel)
+        .then(changesetURL => resolve(getRevFromChangeset(changesetURL, channel)));
+      }
+    }))
+    .then(changeset => {
+      let pushlogLink = base + '/pushloghtml?startdate=' + startDate + '&tochange=' + changeset;
+      pushlogLinkElem.textContent = pushlogLinkElem.href = pushlogLink;
+      return pushlogLink;
+    });
+  }
+
+  return null;
+}
+
+function getCommonLandings() {
+  let pushlog_link_promises = [];
 
   // Nightly
-  let nightlyFirstAffected = document.getElementById('nightly_first_affected').value;
-  if (nightlyFirstAffected) {
-    let nightlyStartDateElem = document.getElementById('nightly_days');
-    let nightlyStartDate = dropdownDateToHGMODate(nightlyStartDateElem.options[nightlyStartDateElem.selectedIndex].value);
-    let nightlyPushlogLink = 'https://hg.mozilla.org/mozilla-central/pushloghtml?startdate=' + nightlyStartDate + '&tochange=' + nightlyFirstAffected;
-
-    let nightlyPushlogLinkElem = document.getElementById('nightly_pushloglink');
-    nightlyPushlogLinkElem.textContent = nightlyPushlogLinkElem.href = nightlyPushlogLink;
-    pushlog_links.push(nightlyPushlogLink);
+  let nightlyPushlogLink = getPushlogLink('nightly');
+  if (nightlyPushlogLink) {
+    pushlog_link_promises.push(nightlyPushlogLink);
   }
-
 
   // Aurora
-  let auroraFirstAffected = document.getElementById('aurora_first_affected').value;
+  let auroraFirstAffected = getPushlogLink('aurora');
   if (auroraFirstAffected) {
-    let auroraStartDateElem = document.getElementById('aurora_days');
-    let auroraStartDate = dropdownDateToHGMODate(auroraStartDateElem.options[auroraStartDateElem.selectedIndex].value);
-    let auroraPushlogLink = 'https://hg.mozilla.org/releases/mozilla-aurora/pushloghtml?startdate=' + auroraStartDate + '&tochange=' + auroraFirstAffected;
-
-    let auroraPushlogLinkElem = document.getElementById('aurora_pushloglink');
-    auroraPushlogLinkElem.textContent = auroraPushlogLinkElem.href = auroraPushlogLink;
-    pushlog_links.push(auroraPushlogLink);
+    pushlog_link_promises.push(auroraFirstAffected);
   }
-
 
   // Beta
   let betaFirstAffected = document.getElementById('beta_first_affected').value;
@@ -77,26 +111,28 @@ function getCommonLandings() {
 
     let betaPushlogLinkElem = document.getElementById('beta_pushloglink');
     betaPushlogLinkElem.textContent = betaPushlogLinkElem.href = betaPushlogLink;
-    pushlog_links.push(betaPushlogLink);
+    pushlog_link_promises.push(Promise.resolve(betaPushlogLink));
   }
 
-
   return Promise.all(
-    pushlog_links
-    .map(link => 
-      fetch(link)
-      .then(response => response.text())
-      .then(html => {
-        let bugs = [];
+    pushlog_link_promises
+    .map(link_promise =>
+      link_promise
+      .then(link =>
+        fetch(link)
+        .then(response => response.text())
+        .then(html => {
+          let bugs = [];
 
-        let result;
-        let re = /Bug ([0-9]+)/ig;
-        while ((result = re.exec(html)) !== null) {
-          bugs.push(result[1]);
-        }
+          let result;
+          let re = /Bug ([0-9]+)/ig;
+          while ((result = re.exec(html)) !== null) {
+            bugs.push(result[1]);
+          }
 
-        return bugs;
-      })
+          return bugs;
+        })
+      )
     )
   )
   .then(arrays => {
