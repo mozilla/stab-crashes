@@ -187,7 +187,7 @@ onLoad
         .then(bugData => {
           let li = document.createElement('li');
           let a = document.createElement('a');
-          a.textContent = bug + ' - ' + (('bugs' in bugData) ? bugData['bugs'][0]['summary'] : 'Unaccessible');
+          a.textContent = bug + ' - ' + (('bugs' in bugData) ? bugData['bugs'][0]['summary'] : 'Inaccessible');
           a.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug;
           li.appendChild(a);
           ul.appendChild(li);
