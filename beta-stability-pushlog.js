@@ -151,7 +151,9 @@ function getComparison() {
           aElem.textContent = bug;
           bugElem.appendChild(aElem);
 
-          let evolution = row.insertCell(1);
+          let signaturesCell = row.insertCell(1);
+
+          let evolution = row.insertCell(2);
 
           let result = document.createElement('span');
 
@@ -167,6 +169,14 @@ function getComparison() {
             signatures = signatures.replace(']', '');
 
             signatures = signatures.split('\\');
+
+            for (let signature of signatures) {
+              let signatureElem = document.createElement('a');
+              signatureElem.href = 'https://crash-stats.mozilla.com/signature/?signature=' + signature;
+              signatureElem.textContent = signature;
+              signaturesCell.appendChild(signatureElem);
+              signaturesCell.appendChild(document.createElement('br'));
+            }
 
             let query1 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta1') + '&date=>%3D' + dateToStr(date1) + '&date=<%3D' + dateToStr(endDate1) + '&signature=%3D' + signatures.join('&signature=%3D'))
             .then(response => response.json());
