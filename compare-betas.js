@@ -99,7 +99,13 @@ function getComparison() {
     url.search = '?product=' + getOption('product') + '&beta1=' + getOption('beta1') + '&beta2=' + getOption('beta2');
     history.replaceState({}, document.title, url.href);
 
-    document.getElementById('frame').src = 'scomp.html?common=product%3D' + getOption('product') + '&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '%26date%3D%3E' + date1 + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '') + '%26date%3D%3E' + date2;
+    let signatureNumberElem = document.getElementById('signatureNumber');
+    let signatureNumber = Number(signatureNumberElem.value);
+    if (!signatureNumber || isNaN(signatureNumber)) {
+      signatureNumber = 20;
+    }
+
+    document.getElementById('frame').src = 'scomp.html?limit=' + signatureNumber + '&common=product%3D' + getOption('product') + '&p1=version%3D' + version1 + ((build_id1) ? '%26build_id=' + build_id1 : '') + '%26date%3D%3E' + date1 + '&p2=version%3D' + version2 + ((build_id2) ? '%26build_id=' + build_id2 : '') + '%26date%3D%3E' + date2;
 
     let total1, total2;
     Promise.all([
