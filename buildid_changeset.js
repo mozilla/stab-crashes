@@ -129,7 +129,7 @@ function findFirstBuildIDInSet(buildIDs, date, i=0) {
     if (buildDate >= date) {
       return buildIDs[i];
     } else {
-      return matchBuildID(buildIDs, date, i + 1);
+      return findFirstBuildIDInSet(buildIDs, date, i + 1);
     }
   });
 }
