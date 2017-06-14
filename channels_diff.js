@@ -48,7 +48,7 @@ function populateTable() {
     return;
   }
 
-  let channels = ['nightly', 'aurora', 'beta', 'release'];
+  let channels = ['nightly', 'beta', 'release'];
 
   let results = {};
 

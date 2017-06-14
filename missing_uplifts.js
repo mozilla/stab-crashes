@@ -78,9 +78,7 @@ function getFixedIn(bug) {
   }
 
   let versionEnd = version;
-  if (getOption('channel') == 'aurora') {
-    versionEnd += 1;
-  } else if (getOption('channel') == 'beta') {
+  if (getOption('channel') == 'beta') {
     versionEnd += 2;
   } else if (getOption('channel') == 'release') {
     versionEnd += 3;

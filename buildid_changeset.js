@@ -66,8 +66,6 @@ function fromBuildIDtoChangeset(buildID, channel='nightly') {
   let dirEnd;
   if (channel === 'nightly') {
     dirEnd = 'central';
-  } else if (channel === 'aurora') {
-    dirEnd = 'aurora';
   }
 
   let directory = 'https://ftp.mozilla.org/pub/firefox/nightly/' + buildObj.year + '/' + toTwoDigits(buildObj.month) + '/' + buildObj.year + '-' + toTwoDigits(buildObj.month) + '-' + toTwoDigits(buildObj.day) + '-' + toTwoDigits(buildObj.hour) + '-' + toTwoDigits(buildObj.minute) + '-' + toTwoDigits(buildObj.second) + '-mozilla-' + dirEnd + '/';
@@ -102,8 +100,6 @@ function getRevFromChangeset(changeset, channel='nightly') {
   let re;
   if (channel === 'nightly') {
     re = /https:\/\/hg.mozilla.org\/mozilla-central\/rev\/([A-Za-z0-9]+)/;
-  } else if (channel === 'aurora') {
-    re = /https:\/\/hg.mozilla.org\/releases\/mozilla-aurora\/rev\/([A-Za-z0-9]+)/;
   }
   let result = re.exec(changeset);
   return result[1];
@@ -113,8 +109,6 @@ function getChangesetDate(changeset, channel='nightly') {
   let baseURL;
   if (channel === 'nightly') {
     baseURL = 'https://hg.mozilla.org/mozilla-central';
-  } else if (channel === 'aurora') {
-    baseURL = 'https://hg.mozilla.org/releases/mozilla-aurora';
   }
 
   return fetch(baseURL + '/json-rev/' + changeset)

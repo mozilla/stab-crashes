@@ -171,9 +171,7 @@ function getFixedIn(bug) {
   }
 
   let versionEnd = version;
-  if (getOption('version') == 'aurora') {
-    versionEnd += 1;
-  } else if (getOption('version') == 'beta') {
+  if (getOption('version') == 'beta') {
     versionEnd += 2;
   } else if (getOption('version') == 'release') {
     versionEnd += 3;

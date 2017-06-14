@@ -95,10 +95,6 @@ function getVersion(channel) {
   return fetchWithRetry('https://product-details.mozilla.org/1.0/firefox_versions.json')
   .then(response => response.json())
   .then(data => {
-    if (channel == 'aurora') {
-      return data['FIREFOX_AURORA'];
-    }
-
     if (channel == 'beta') {
       return data['LATEST_FIREFOX_DEVEL_VERSION'];
     }
@@ -121,9 +117,7 @@ function getFixedIn(bug, version) {
   }
 
   let versionEnd = version;
-  if (getOption('channel') == 'aurora') {
-    versionEnd += 1;
-  } else if (getOption('channel') == 'beta') {
+  if (getOption('channel') == 'beta') {
     versionEnd += 2;
   } else if (getOption('channel') == 'release') {
     versionEnd += 3;
@@ -187,9 +181,7 @@ function buildTable() {
   return getVersion(getOption('channel'))
   .then(version => {
     let versionEnd = version;
-    if (getOption('channel') == 'aurora') {
-      versionEnd += 1;
-    } else if (getOption('channel') == 'beta') {
+    if (getOption('channel') == 'beta') {
       versionEnd += 2;
     } else if (getOption('channel') == 'release') {
       versionEnd += 3;

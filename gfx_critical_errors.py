@@ -41,7 +41,7 @@ def analyze_gfx_critical_errors(signature='', product='Firefox', channel=['all']
         product = 'Firefox'
 
     if channel == [] or channel[0].lower() == 'all':
-        channel = ['release', 'beta', 'aurora', 'nightly']
+        channel = ['release', 'beta', 'nightly']
         if product == 'Firefox':
             channel.append('esr')
     else:

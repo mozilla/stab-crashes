@@ -57,8 +57,6 @@ function getPushlogLink(channel) {
   let base;
   if (channel === 'nightly') {
     base = 'https://hg.mozilla.org/mozilla-central';
-  } else if (channel === 'aurora') {
-    base = 'https://hg.mozilla.org/releases/mozilla-aurora';
   }
 
   let firstAffected = document.getElementById(channel + '_first_affected').value;
@@ -101,12 +99,6 @@ function getCommonLandings() {
   let nightlyPushlogLink = getPushlogLink('nightly');
   if (nightlyPushlogLink) {
     pushlog_link_promises.push(nightlyPushlogLink);
-  }
-
-  // Aurora
-  let auroraFirstAffected = getPushlogLink('aurora');
-  if (auroraFirstAffected) {
-    pushlog_link_promises.push(auroraFirstAffected);
   }
 
   // Beta
