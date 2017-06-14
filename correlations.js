@@ -47,7 +47,7 @@ var correlations = (() => {
         'date': totals['date'],
       };
 
-      let channels = ['release', 'beta', 'aurora', 'nightly'];
+      let channels = ['release', 'beta', 'nightly'];
       if (product === 'Firefox') {
         channels.push('esr');
       }
@@ -361,7 +361,7 @@ var correlations = (() => {
 
   function getChannelsProperties(product) {
     return loadChannelsDifferencesData(product)
-    .then(() => ['release', 'beta', 'aurora', 'nightly'].map(channel => channelsData[channel].map(longitudinalElem => Object.keys(longitudinalElem.item)[0])))
+    .then(() => ['release', 'beta', 'nightly'].map(channel => channelsData[channel].map(longitudinalElem => Object.keys(longitudinalElem.item)[0])))
     .then(all_props_per_channel => [].concat.apply([], all_props_per_channel))
     .then(all_props => new Set(all_props))
     .then(props => Array.from(props));
@@ -369,7 +369,7 @@ var correlations = (() => {
 
   function getChannelsValues(product, property) {
     return loadChannelsDifferencesData(product)
-    .then(() => ['release', 'beta', 'aurora', 'nightly'].map(channel => channelsData[channel].filter(longitudinalElem => Object.keys(longitudinalElem.item).indexOf(property) != -1).map(longitudinalElem => longitudinalElem.item[property])))
+    .then(() => ['release', 'beta', 'nightly'].map(channel => channelsData[channel].filter(longitudinalElem => Object.keys(longitudinalElem.item).indexOf(property) != -1).map(longitudinalElem => longitudinalElem.item[property])))
     .then(all_values_per_channel => [].concat.apply([], all_values_per_channel))
     .then(all_values => new Set(all_values))
     .then(values => Array.from(values));
