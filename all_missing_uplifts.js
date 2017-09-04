@@ -182,9 +182,9 @@ function buildTable() {
   .then(version => {
     let versionEnd = version;
     if (getOption('channel') == 'beta') {
-      versionEnd += 2;
+      versionEnd += 1;
     } else if (getOption('channel') == 'release') {
-      versionEnd += 3;
+      versionEnd += 2;
     }
 
     let query = 'https://bugzilla.mozilla.org/rest/bug?f1=cf_crash_signature&o1=isnotempty&';
