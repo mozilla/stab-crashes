@@ -239,9 +239,9 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
 
     _signatures = {}
     # order self.signatures by crash count
-    l = sorted(signatures.items(), key=lambda x: x[1][0][0], reverse=True)
+    sorted_signatures = sorted(signatures.items(), key=lambda x: x[1][0][0], reverse=True)
     i = 1
-    for s in l:
+    for s in sorted_signatures:
         _signatures[s[0]] = i  # top crash rank
         i += 1
 
@@ -320,7 +320,7 @@ if __name__ == "__main__":
 
     try:
         shutil.rmtree('dist')
-    except:
+    except OSError:
         pass
     os.mkdir('dist')
     os.mkdir('dist/images')
