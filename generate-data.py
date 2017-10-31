@@ -45,6 +45,7 @@ def __trend_handler(default_trend, json, data):
 
 
 def __bug_handler(json, data):
+    print('Got bugs.')
     for bug in json['bugs']:
         print('Got bug %d.' % int(bug['id']))
         data.append(bug)
