@@ -78,33 +78,10 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
     if crash_type and isinstance(crash_type, six.string_types):
         crash_type = [crash_type]
 
-    throttle = set(map(lambda p: p[1], versions_info.values()))
-    if len(throttle) == 1:
-        throttle = throttle.pop()
-    else:
-        return
-
     _date = utils.get_date_ymd(date)
     start_date = utils.get_date_str(_date - timedelta(duration - 1))
     end_date = utils.get_date_str(_date)
 
-    # First, we get the ADI
-    sys.stdout.write('Getting ADI from Socorro...')
-    sys.stdout.flush()
-    adi = socorro.ADI.get(version=versions, product=product, end_date=end_date, duration=duration, platforms=platforms)
-    adi = [adi[key] for key in sorted(adi.keys(), reverse=True)]
-    sys.stdout.write(' ✔\n')
-    sys.stdout.flush()
-
-    # get the khours
-    sys.stdout.write('Getting khours from Re:dash...')
-    sys.stdout.flush()
-    khours = Redash.get_khours(utils.get_date_ymd(start_date), utils.get_date_ymd(end_date), channel, versions, product)
-    khours = [khours[key] for key in sorted(khours.keys(), reverse=True)]
-    sys.stdout.write(' ✔\n')
-    sys.stdout.flush()
-
-    overall_crashes_by_day = []
     signatures = {}
 
     def signature_handler(json):
@@ -131,9 +108,6 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
                         break
 
             signatures[signature['term']][5] = signature['facets']['cardinality_install_time']['value']
-
-        for facets in json['facets']['histogram_date']:
-            overall_crashes_by_day.insert(0, facets['count'])
 
     params = {
         'product': product,
@@ -287,18 +261,10 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
                             'crash_count': stats[0][0],
                             'estimated_user_count': stats[0][5],
                             'startup_percent': startup_percent,
-                            'crash_by_day': stats[1],
                             'bugs': bugs[sgn]}
 
     return {
-        'start_date': start_date,
-        'end_date': end_date,
-        'versions': list(versions),
-        'adi': adi,
-        'khours': khours,
-        'crash_by_day': overall_crashes_by_day,
         'signatures': _signatures,
-        'throttle': float(throttle)
     }
 
 
@@ -344,7 +310,7 @@ if __name__ == "__main__":
     files = [
         'index.html',
         'correlations.js', 'buildid_changeset.js',
-        'dashboard.html', 'dashboard.js', 'style.css',
+        'style.css',
         'exclamation_mark.svg', 'question_mark.svg', 'rocket_fly.png', 'spin.svg',
         'correlations.html', 'correlations_page.js',
         'missing_uplifts.html', 'missing_uplifts.js', 'all_missing_uplifts.html', 'all_missing_uplifts.js',
