@@ -113,11 +113,7 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
     }
 
     if startup:
-        # XXX: Remove this when all versions will have the StartupCrash annotation.
-        if version >= 51:
-            params['startup_crash'] = True
-        else:
-            params['uptime'] = '<=60'
+        params['startup_crash'] = True
 
     sys.stdout.write('Getting top signatures from Socorro...')
     sys.stdout.flush()
