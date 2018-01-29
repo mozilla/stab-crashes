@@ -110,9 +110,6 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
         '_aggs.signature': ['platform', '_cardinality.install_time', 'startup_crash'],
         '_results_number': 0,
         '_facets_size': tc_limit,
-        '_histogram.date': ['product'],
-        '_histogram_interval': 1,
-        '_histogram_interval.uptime': 60,
     }
 
     if startup:
