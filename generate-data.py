@@ -17,7 +17,6 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 import libmozdata.socorro as socorro
 import libmozdata.utils as utils
-from libmozdata.redash import Redash
 from libmozdata.connection import (Connection, Query)
 from libmozdata.bugzilla import Bugzilla
 import libmozdata.versions
@@ -71,7 +70,6 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
     sys.stdout.flush()
     versions_info = socorro.ProductVersions.get_version_info(version, channel=channel, product=product)
     versions = versions_info.keys()
-    platforms = socorro.Platforms.get_cached_all()
     sys.stdout.write(' ✔\n')
     sys.stdout.flush()
 
