@@ -96,16 +96,9 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
                 elif platform['term'] == 'Mac OS X':
                     signatures[signature['term']][2] = platform['count']
 
-            # XXX: Remove this when all versions will have the StartupCrash annotation.
-            if version >= 51:
-                for startup_crash in signature['facets']['startup_crash']:
-                    if startup_crash['term'] in ['1', 'T']:
-                        signatures[signature['term']][4] += startup_crash['count']
-            else:
-                for uptime in signature['facets']['histogram_uptime']:
-                    if uptime['term'] == 0:
-                        signatures[signature['term']][4] = uptime['count']
-                        break
+            for startup_crash in signature['facets']['startup_crash']:
+                if startup_crash['term'] in ['1', 'T']:
+                    signatures[signature['term']][4] += startup_crash['count']
 
             signatures[signature['term']][5] = signature['facets']['cardinality_install_time']['value']
 
@@ -114,7 +107,7 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
         'version': versions,
         'date': socorro.SuperSearch.get_search_date(start_date, end_date),
         'release_channel': channel,
-        '_aggs.signature': ['platform', '_histogram.uptime', '_cardinality.install_time', 'startup_crash'],
+        '_aggs.signature': ['platform', '_cardinality.install_time', 'startup_crash'],
         '_results_number': 0,
         '_facets_size': tc_limit,
         '_histogram.date': ['product'],
