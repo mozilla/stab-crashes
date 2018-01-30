@@ -4,7 +4,6 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import sys
-import argparse
 import json
 import six
 import functools
@@ -265,13 +264,9 @@ def get_with_retries(url, params=None, headers=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Track')
-    parser.add_argument('-c', '--channels', action='store', nargs='+', default=['release', 'beta', 'nightly', 'esr'], help='the channels')
-    parser.add_argument('-d', '--date', action='store', default='yesterday', help='the end date')
-    parser.add_argument('-D', '--duration', action='store', default=11, help='the duration')
-    parser.add_argument('-t', '--tclimit', action='store', default=200, help='number of top crashes to retrieve')
-
-    args = parser.parse_args()
+    DATE = 'yesterday'
+    DURATION = 11
+    TC_LIMIT = 200
 
     try:
         shutil.rmtree('dist')
@@ -280,11 +275,11 @@ if __name__ == "__main__":
     os.mkdir('dist')
     os.mkdir('dist/images')
 
-    for channel in args.channels:
+    for channel in ['release', 'beta']:
         for startup in [False, True]:
-            print('Getting top-' + str(args.tclimit) + (' startup ' if startup else ' ') + 'crashes for the \'' + channel + '\' channel')
+            print('Getting top-' + str(TC_LIMIT) + (' startup ' if startup else ' ') + 'crashes for the \'' + channel + '\' channel')
 
-            stats = get(channel, args.date, duration=int(args.duration), tc_limit=int(args.tclimit), startup=startup)
+            stats = get(channel, DATE, duration=int(DURATION), tc_limit=int(TC_LIMIT), startup=startup)
 
             print('\n\n')
 
