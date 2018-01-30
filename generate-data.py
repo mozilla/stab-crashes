@@ -248,6 +248,9 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
                             'bugs': bugs[sgn]}
 
     return {
+        'start_date': start_date,
+        'end_date': end_date,
+        'versions': list(versions),
         'signatures': _signatures,
     }
 
