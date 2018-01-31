@@ -7,6 +7,7 @@ import sys
 import json
 import six
 import functools
+from concurrent.futures import TimeoutError
 from datetime import (datetime, timedelta)
 import os
 import shutil
@@ -43,9 +44,7 @@ def __trend_handler(default_trend, json, data):
 
 
 def __bug_handler(json, data):
-    print('Got bugs.')
     for bug in json['bugs']:
-        print('Got bug %d.' % int(bug['id']))
         data.append(bug)
 
 
@@ -206,7 +205,14 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
 
     sys.stdout.write('Getting bugs linked to the top signatures from Bugzilla...')
     sys.stdout.flush()
-    res_bugs.wait()
+    while True:
+        try:
+            for r in res_bugs.results:
+                r.result(timeout=2)
+            break
+        except TimeoutError:
+            sys.stdout.write('.')
+            sys.stdout.flush()
     sys.stdout.write(' ✔\n')
     sys.stdout.flush()
 
