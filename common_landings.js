@@ -174,7 +174,7 @@ onLoad
 
       let a = document.createElement('a');
       a.textContent = 'List of common landings on Bugzilla';
-      a.href = 'https://bugzilla.mozilla.org/buglist.cgi?quicksearch=';
+      a.href = 'https://bugzilla.mozilla.org/buglist.cgi?bug_id=';
       a.id = 'buglist';
       results.appendChild(a);	  
 
