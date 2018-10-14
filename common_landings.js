@@ -172,21 +172,16 @@ onLoad
         return;
       }
 
-      let ul = document.createElement('ul');
-      for (let bug of bugs) {
-        fetch('https://bugzilla.mozilla.org/rest/bug/' + bug + '?include_fields=summary')
-        .then(response => response.json())
-        .then(bugData => {
-          let li = document.createElement('li');
-          let a = document.createElement('a');
-          a.textContent = bug + ' - ' + (('bugs' in bugData) ? bugData['bugs'][0]['summary'] : 'Inaccessible');
-          a.href = 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug;
-          li.appendChild(a);
-          ul.appendChild(li);
-        });
-      }
+      let a = document.createElement('a');
+      a.textContent = 'List of common landings on Bugzilla';
+      a.href = 'https://bugzilla.mozilla.org/buglist.cgi?bug_id=';
+      a.id = 'buglist';
+      results.appendChild(a);	  
 
-      results.appendChild(ul);
+      for (let bug of bugs) {
+        let a = document.getElementById('buglist');
+	    a.href += bug +","; 
+      }
     });
   };
 });
