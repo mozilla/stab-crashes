@@ -1,1 +1,1 @@
-{"end_date": "2018-10-23", "versions": ["64.0b3"], "signatures": {}, "start_date": "2018-10-13"}
+{"start_date": "2018-10-14", "end_date": "2018-10-24", "signatures": {"mozilla::AddonManagerStartup::RegisterChrome": {"bugs": [], "crash_count": 1, "estimated_user_count": 1, "tc_rank": 1, "startup_percent": 1.0}, "mozilla::dom::NotificationWorkerHolder::~NotificationWorkerHolder": {"bugs": [], "crash_count": 1, "estimated_user_count": 1, "tc_rank": 2, "startup_percent": 1.0}}, "versions": ["64.0b3"]}
