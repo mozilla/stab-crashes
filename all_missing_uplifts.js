@@ -236,6 +236,7 @@ function buildTable() {
     .then(data => data['bugs'])
     .then(bugs => Promise.all(bugs.map(bug => {
       let signatures = bug['cf_crash_signature'].split(/\s*]\s*/).map(signature => signature.substring(2).trim());
+      signatures = signatures.filter(signature => signature != '');
 
       let count = 0;
 
