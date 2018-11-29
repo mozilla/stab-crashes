@@ -85,12 +85,6 @@ function fetchWithRetry(url, trials=0) {
   });
 }
 
-function getFeaturedVersion() {
-  return fetchWithRetry('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&build_type=' + getOption('channel') + '&is_featured=true')
-  .then(response => response.json())
-  .then(data => data['hits'][0]['version']);
-}
-
 async function getVersion(channel) {
   let response = await fetchWithRetry('https://product-details.mozilla.org/1.0/firefox_versions.json');
   let data = await response.json();
