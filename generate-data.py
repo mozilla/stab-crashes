@@ -21,6 +21,7 @@ from libmozdata.connection import (Connection, Query)
 from libmozdata.bugzilla import Bugzilla
 import libmozdata.versions
 import gfx_critical_errors
+import versions
 
 v = libmozdata.versions.get(base=True)
 
@@ -66,8 +67,7 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
     version = v[channel]
     sys.stdout.write('Getting version information from Socorro...')
     sys.stdout.flush()
-    versions_info = socorro.ProductVersions.get_version_info(version, channel=channel, product=product)
-    versions = versions_info.keys()
+    versions = versions.get_channel_versions(channel, product)
     sys.stdout.write(' ✔\n')
     sys.stdout.flush()
 
