@@ -19,11 +19,10 @@ import libmozdata.socorro as socorro
 import libmozdata.utils as utils
 from libmozdata.connection import (Connection, Query)
 from libmozdata.bugzilla import Bugzilla
-import libmozdata.versions
 import gfx_critical_errors
-import versions
+import versions_util
 
-v = libmozdata.versions.get(base=True)
+v = versions_util.get(base=True)
 
 # http://bugs.python.org/issue7980
 datetime.strptime('', '')
@@ -67,7 +66,7 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
     version = v[channel]
     sys.stdout.write('Getting version information from Socorro...')
     sys.stdout.flush()
-    versions = versions.get_channel_versions(channel, product)
+    versions = versions_util.get_channel_versions(channel, product)
     sys.stdout.write(' ✔\n')
     sys.stdout.flush()
 
