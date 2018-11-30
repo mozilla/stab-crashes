@@ -36,7 +36,7 @@ def get_critical_errors():
     return set([error for error in errors if error != ', '])
 
 
-def analyze_gfx_critical_errors(signature='', product='Firefox', channel=['all'], versions=[], start_date=''):
+def analyze_gfx_critical_errors(signature='', product='Firefox', channel=['all'], start_date=''):
     if product.lower() == 'firefox':
         product = 'Firefox'
 
@@ -46,14 +46,6 @@ def analyze_gfx_critical_errors(signature='', product='Firefox', channel=['all']
             channel.append('esr')
     else:
         channel = [c.lower() for c in channel]
-
-    if not versions:
-        base_versions = libmozdata.versions.get(base=True)
-        versions_by_channel = socorro.ProductVersions.get_info_from_major(base_versions, product=product)
-        versions = []
-        for v1 in versions_by_channel.values():
-            for v2 in v1:
-                versions.append(v2['version'])
 
     if not start_date:
         start_date = utils.get_date('today', 7)
@@ -68,7 +60,6 @@ def analyze_gfx_critical_errors(signature='', product='Firefox', channel=['all']
     base_params = {
         'product': product,
         'release_channel': channel,
-        'version': versions,
         'date': '>=' + start_date,
         '_results_number': 0,
         '_facets_size': 0,
