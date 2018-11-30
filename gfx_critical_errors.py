@@ -6,7 +6,6 @@
 import re
 import requests
 import libmozdata.utils as utils
-import libmozdata.versions
 import libmozdata.socorro as socorro
 from libmozdata.connection import Query
 
