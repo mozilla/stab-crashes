@@ -85,25 +85,21 @@ function fetchWithRetry(url, trials=0) {
   });
 }
 
-function getFeaturedVersion() {
-  return fetchWithRetry('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&build_type=' + getOption('channel') + '&is_featured=true')
-  .then(response => response.json())
-  .then(data => data['hits'][0]['version']);
+async function getVersion(channel) {
+  let response = await fetchWithRetry('https://product-details.mozilla.org/1.0/firefox_versions.json');
+  let data = await response.json();
+
+  if (channel == 'beta') {
+    return data['LATEST_FIREFOX_DEVEL_VERSION'];
+  } else if (channel == 'release') {
+    return data['LATEST_FIREFOX_VERSION'];
+  }
+
+  throw new Error('Unknown channel!');
 }
 
-function getVersion(channel) {
-  return fetchWithRetry('https://product-details.mozilla.org/1.0/firefox_versions.json')
-  .then(response => response.json())
-  .then(data => {
-    if (channel == 'beta') {
-      return data['LATEST_FIREFOX_DEVEL_VERSION'];
-    }
-
-    if (channel == 'release') {
-      return data['LATEST_FIREFOX_VERSION'];
-    }
-  })
-  .then(full_version => Number(full_version.substring(0, full_version.indexOf('.'))))
+function getMajor(version) {
+  return Number(version.substring(0, version.indexOf('.')));
 }
 
 function getFixedIn(bug, version) {
@@ -179,7 +175,8 @@ function addRow(bug, version) {
 
 function buildTable() {
   return getVersion(getOption('channel'))
-  .then(version => {
+  .then(full_version => {
+    let version = getMajor(full_version);
     let versionEnd = version;
     if (getOption('channel') == 'beta') {
       versionEnd += 1;
@@ -228,35 +225,33 @@ function buildTable() {
         query += ',cf_status_firefox' + v;
     }
 
-    return getFeaturedVersion()
-    .then(featured_version => {
-      return fetchWithRetry(query)
-      .then(response => response.json())
-      .then(data => data['bugs'])
-      .then(bugs => Promise.all(bugs.map(bug => {
-        let signatures = bug['cf_crash_signature'].split(/\s*]\s*/).map(signature => signature.substring(2).trim());
+    return fetchWithRetry(query)
+    .then(response => response.json())
+    .then(data => data['bugs'])
+    .then(bugs => Promise.all(bugs.map(bug => {
+      let signatures = bug['cf_crash_signature'].split(/\s*]\s*/).map(signature => signature.substring(2).trim());
+      signatures = signatures.filter(signature => signature != '');
 
-        let count = 0;
+      let count = 0;
 
-        return Promise.all(
-          signatures.map(signature =>
-            fetchWithRetry('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + featured_version + '&signature=%3D' + encodeURIComponent(signature) + '&product=Firefox&_results_number=0&_facets_size=0')
-            .then(response => response.json())
-            .then(result => {
-              count += result['total'];
-            })
-          )
+      return Promise.all(
+        signatures.map(signature =>
+          fetchWithRetry('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + full_version + '&signature=%3D' + encodeURIComponent(signature) + '&product=Firefox&_results_number=0&_facets_size=0')
+          .then(response => response.json())
+          .then(result => {
+            count += result['total'];
+          })
         )
-        .then(() => {
-          bug['signatures'] = signatures;
-          bug['crashes_count'] = count;
-          return bug;
-        });
-      })))
-      .then(bugs => bugs.filter(bug => bug['crashes_count'] > 0))
-      .then(bugs => bugs.sort((a, b) => b['crashes_count'] - a['crashes_count']))
-      .then(bugs => bugs.forEach(bug => addRow(bug, version)));
-    });
+      )
+      .then(() => {
+        bug['signatures'] = signatures;
+        bug['crashes_count'] = count;
+        return bug;
+      });
+    })))
+    .then(bugs => bugs.filter(bug => bug['crashes_count'] > 0))
+    .then(bugs => bugs.sort((a, b) => b['crashes_count'] - a['crashes_count']))
+    .then(bugs => bugs.forEach(bug => addRow(bug, version)));
   });
 }
 

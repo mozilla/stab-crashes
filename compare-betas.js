@@ -192,10 +192,10 @@ function compareVersions(versionA, versionB) {
 }
 
 onLoad
-.then(() => fetch('https://crash-stats.mozilla.com/api/ProductVersions/?product=Firefox&build_type=beta'))
+.then(() => fetch('https://product-details.mozilla.org/1.0/firefox_history_development_releases.json'))
 .then(response => response.json())
 .then(data => {
-  let versions = data['hits'].map(hit => hit['version']).filter(version => !isNaN(version[version.length - 1]));
+  let versions = Object.keys(data);
 
   let rc = versions.find(version => version.endsWith('b99'));
   if (rc) {
