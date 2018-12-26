@@ -1,6 +1,7 @@
 language: python
 python:
 - 3.5
+sudo: required
 before_install:
 - openssl aes-256-cbc -K $encrypted_8f1589bc8b8c_key -iv $encrypted_8f1589bc8b8c_iv -in secrets.tar.enc -out secrets.tar -d
 - tar xvf secrets.tar
