@@ -1,1 +1,1 @@
-{"versions": ["70.0b3"], "start_date": "2019-08-23", "signatures": {}, "end_date": "2019-09-02"}
+{"signatures": {"CoreGraphics@0x1a4162": {"bugs": [{"cf_tracking_firefox70": "blocking", "last_change_time": "2019-08-21T22:09:44Z", "cf_status_firefox70": "fixed", "cf_status_firefox71": "---", "resolution": "WORKSFORME", "id": 1570451}], "tc_rank": 1, "startup_percent": 1.0, "crash_count": 2, "estimated_user_count": 1}}, "versions": ["70.0b3"], "end_date": "2019-09-04", "start_date": "2019-08-25"}
