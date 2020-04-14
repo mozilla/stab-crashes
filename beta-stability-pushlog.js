@@ -172,15 +172,15 @@ function getComparison() {
 
             for (let signature of signatures) {
               let signatureElem = document.createElement('a');
-              signatureElem.href = 'https://crash-stats.mozilla.com/signature/?signature=' + signature;
+              signatureElem.href = 'https://crash-stats.mozilla.org/signature/?signature=' + signature;
               signatureElem.textContent = signature;
               signaturesCell.appendChild(signatureElem);
               signaturesCell.appendChild(document.createElement('br'));
             }
 
-            let query1 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta1') + '&date=>%3D' + dateToStr(date1) + '&date=<%3D' + dateToStr(endDate1) + '&signature=%3D' + signatures.join('&signature=%3D'))
+            let query1 = fetch('https://crash-stats.mozilla.org/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta1') + '&date=>%3D' + dateToStr(date1) + '&date=<%3D' + dateToStr(endDate1) + '&signature=%3D' + signatures.join('&signature=%3D'))
             .then(response => response.json());
-            let query2 = fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta2') + '&date=>%3D' + dateToStr(date2) + '&date=<%3D' + dateToStr(endDate2) + '&signature=%3D' + signatures.join('&signature=%3D'))
+            let query2 = fetch('https://crash-stats.mozilla.org/api/SuperSearch/?product=' + getOption('product') + '&_results_number=0&_facets_size=0&version=' + getOption('beta2') + '&date=>%3D' + dateToStr(date2) + '&date=<%3D' + dateToStr(endDate2) + '&signature=%3D' + signatures.join('&signature=%3D'))
             .then(response => response.json());
 
             Promise.all([ query1, query2 ])

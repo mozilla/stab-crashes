@@ -163,7 +163,7 @@ function addRow(bug, version) {
   bug['signatures'].forEach(signature => {
     let signature_link = document.createElement('a');
     signature_link.appendChild(document.createTextNode(signature));
-    signature_link.href = 'https://crash-stats.mozilla.com/signature/?signature=' + encodeURIComponent(signature);
+    signature_link.href = 'https://crash-stats.mozilla.org/signature/?signature=' + encodeURIComponent(signature);
     signatures_elem.appendChild(signature_link);
     signatures_elem.appendChild(document.createElement('br'));
   });
@@ -236,7 +236,7 @@ function buildTable() {
 
       return Promise.all(
         signatures.map(signature =>
-          fetchWithRetry('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + full_version + '&signature=%3D' + encodeURIComponent(signature) + '&product=Firefox&_results_number=0&_facets_size=0')
+          fetchWithRetry('https://crash-stats.mozilla.org/api/SuperSearch/?version=' + full_version + '&signature=%3D' + encodeURIComponent(signature) + '&product=Firefox&_results_number=0&_facets_size=0')
           .then(response => response.json())
           .then(result => {
             count += result['total'];

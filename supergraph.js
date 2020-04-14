@@ -19,9 +19,9 @@ function generateGraph(signature) {
 
   let query;
 
-  if (signature.startsWith('https://crash-stats.mozilla.com/')) {
-    if (signature.startsWith('https://crash-stats.mozilla.com/search/')) {
-      signature = 'https://crash-stats.mozilla.com/api/SuperSearch/' + signature.substring('https://crash-stats.mozilla.com/search/'.length);
+  if (signature.startsWith('https://crash-stats.mozilla.org/')) {
+    if (signature.startsWith('https://crash-stats.mozilla.org/search/')) {
+      signature = 'https://crash-stats.mozilla.org/api/SuperSearch/' + signature.substring('https://crash-stats.mozilla.org/search/'.length);
     }
 
     query = new URL(signature);
@@ -30,7 +30,7 @@ function generateGraph(signature) {
     query.searchParams.set('_facets_size', 50);
     query.searchParams.set('_results_number', 0);
   } else {
-    query = new URL('https://crash-stats.mozilla.com/api/SuperSearch/?signature=%3D' + signature + '&_results_number=0&_facets=proto_signature&_facets_size=50');
+    query = new URL('https://crash-stats.mozilla.org/api/SuperSearch/?signature=%3D' + signature + '&_results_number=0&_facets=proto_signature&_facets_size=50');
   }
 
   console.log(query.href)
