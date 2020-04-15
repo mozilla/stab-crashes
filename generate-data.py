@@ -70,6 +70,8 @@ def get(channel, date, product='Firefox', duration=11, tc_limit=50, crash_type='
     sys.stdout.write(' ✔\n')
     sys.stdout.flush()
 
+    Bugzilla.TOKEN = os.environ["BUGZILLA_TOKEN"]
+
     if crash_type and isinstance(crash_type, six.string_types):
         crash_type = [crash_type]
 
