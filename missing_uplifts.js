@@ -118,7 +118,7 @@ function addRow(signature, obj) {
 
   let signatureLink = document.createElement('a');
   signatureLink.appendChild(document.createTextNode(signature));
-  signatureLink.href = 'https://crash-stats.mozilla.com/signature/?date=<%3D' + crashes.end_date + '&date=>%3D' + crashes.start_date + '&product=Firefox&' + crashes.versions.map(version => 'version=' + version).join('&') + '&signature=' + signature;
+  signatureLink.href = 'https://crash-stats.mozilla.org/signature/?date=<%3D' + crashes.end_date + '&date=>%3D' + crashes.start_date + '&product=Firefox&' + crashes.versions.map(version => 'version=' + version).join('&') + '&signature=' + signature;
   signatureDiv.appendChild(signatureLink);
 
   key.appendChild(signatureDiv);

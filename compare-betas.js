@@ -109,10 +109,10 @@ function getComparison() {
 
     let total1, total2;
     Promise.all([
-      fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version1 + ((build_id1) ? '&build_id=' + build_id1 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + date1)
+      fetch('https://crash-stats.mozilla.org/api/SuperSearch/?product=' + getOption('product') + '&version=' + version1 + ((build_id1) ? '&build_id=' + build_id1 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + date1)
       .then(response => response.json())
       .then(results => total1 = results['total'] || 0),
-      fetch('https://crash-stats.mozilla.com/api/SuperSearch/?product=' + getOption('product') + '&version=' + version2 + ((build_id2) ? '&build_id=' + build_id2 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + date2)
+      fetch('https://crash-stats.mozilla.org/api/SuperSearch/?product=' + getOption('product') + '&version=' + version2 + ((build_id2) ? '&build_id=' + build_id2 : '') + '&_results_number=0&_facets_size=0' + '&date=>%3D' + date2)
       .then(response => response.json())
       .then(results => total2 = results['total'] || 0),
     ])
@@ -199,7 +199,7 @@ onLoad
 
   let rc = versions.find(version => version.endsWith('b99'));
   if (rc) {
-    return fetch('https://crash-stats.mozilla.com/api/SuperSearch/?version=' + rc + '&product=Firefox&_facets=build_id&_results_number=0')
+    return fetch('https://crash-stats.mozilla.org/api/SuperSearch/?version=' + rc + '&product=Firefox&_facets=build_id&_results_number=0')
     .then(response => response.json())
     .then(data => {
       return data['facets']['build_id'].map(elem => rc + ' - ' + elem['term'])

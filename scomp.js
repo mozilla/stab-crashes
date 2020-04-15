@@ -5,7 +5,7 @@
 var gDebug, gLog;
 var gAnalysisPath = "../../";
 var gBzBasePath = "https://bugzilla.mozilla.org/";
-var gSocorroPath = "https://crash-stats.mozilla.com/";
+var gSocorroPath = "https://crash-stats.mozilla.org/";
 
 var gSearchBase, gSearch1, gSearch2, gLimit = 20, gFetchLimit = 300;
 var gSigData = {}, gSocorroAPIToken, gBugInfo = {};
