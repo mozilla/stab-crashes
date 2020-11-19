@@ -1,1 +1,1 @@
-{"signatures": {}, "end_date": "2020-11-17", "start_date": "2020-11-07", "versions": ["84.0b2", "84.0b1"]}
+{"start_date": "2020-11-08", "versions": ["84.0b2", "84.0b1"], "end_date": "2020-11-18", "signatures": {"QueryRegValue": {"startup_percent": 1.0, "bugs": [], "crash_count": 1, "estimated_user_count": 1, "tc_rank": 1}}}
