@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "description": "",
+    "name": "stab-crashes run",
+    "owner": "mcastelluccio@mozilla.com"
+  },
+  "task": {
+    "created": {
+      "$fromNow": "0 seconds"
+    },
+    "deadline": {
+      "$fromNow": "2 hours"
+    },
+    "expires": {
+      "$fromNow": "1 month"
+    },
+    "extra": {},
+    "metadata": {
+      "description": "",
+      "name": "stab-crashes run",
+      "owner": "mcastelluccio@mozilla.com",
+      "source": "https://github.com/mozilla/stab-crashes"
+    },
+    "payload": {
+      "artifacts": {},
+      "cache": {},
+      "capabilities": {},
+      "env": {},
+      "features": {
+        "taskclusterProxy": true
+      },
+      "command": [
+        "bugbug-classify-commit",
+        "regressor",
+        "/cache/mozilla-central",
+        "--phabricator-deployment=${payload['PHABRICATOR_DEPLOYMENT']}",
+        "--diff-id=${payload['DIFF_ID']}",
+        "--git_repo_dir=/gecko-dev",
+        "--method_defect_predictor_dir=/MethodDefectPredictor"
+      ],
+      "image": "python",
+      "maxRunTime": 7200
+    },
+    "priority": "normal",
+    "provisionerId": "proj-bugbug",
+    "retries": 5,
+    "routes": [
+      "notify.email.mcastelluccio@mozilla.com.on-failed",
+      "notify.email.gsvelto@mozilla.com.on-failed"
+    ],
+    "schedulerId": "-",
+    "scopes": ["assume:hook-id:project-relman/stab-crashes"],
+    "tags": {},
+    "workerType": "batch"
+  },
+  "triggerSchema": {
+    "additionalProperties": false,
+    "type": "object"
+  }
+}

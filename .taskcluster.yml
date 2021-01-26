@@ -1,0 +1,83 @@
+version: 1
+policy:
+  pullRequests: public
+tasks:
+  $let:
+    user: ${event.sender.login}
+
+    head_branch:
+      $if: 'tasks_for == "github-pull-request"'
+      then: ${event.pull_request.head.ref}
+      else:
+        $if: 'tasks_for == "github-push"'
+        then: ${event.ref}
+        else: ${event.release.target_commitish}
+
+    head_rev:
+      $if: 'tasks_for == "github-pull-request"'
+      then: ${event.pull_request.head.sha}
+      else:
+        $if: 'tasks_for == "github-push"'
+        then: ${event.after}
+        else: ${event.release.tag_name}
+
+    repository:
+      $if: 'tasks_for == "github-pull-request"'
+      then: ${event.pull_request.head.repo.html_url}
+      else: ${event.repository.html_url}
+
+    taskboot_image: "mozilla/taskboot:0.3.2"
+  in:
+    $if: 'tasks_for == "github-push" || (tasks_for == "github-pull-request" && event["action"] in ["opened", "reopened", "synchronize"])'
+    then:
+      - taskId: { $eval: as_slugid("lint_task") }
+        created: { $fromNow: "" }
+        deadline: { $fromNow: "1 hour" }
+        provisionerId: proj-relman
+        workerType: ci
+        payload:
+          maxRunTime: 3600
+          image: python:3.7
+          command:
+            - "/bin/bash"
+            - "-lcx"
+            - "git clone --quiet ${repository} &&
+              cd stab-crashes &&
+              git -c advice.detachedHead=false checkout ${head_rev} &&
+              pip install --quiet -r test-requirements.txt &&
+              pre-commit run -a --show-diff-on-failure"
+        metadata:
+          name: stab-crashes lint
+          description: stab-crashes lint
+          owner: mcastelluccio@mozilla.com
+          source: ${repository}/raw/${head_rev}/.taskcluster.yml
+
+      - $if: 'tasks_for == "github-push" && head_branch[:10] == "refs/tags/"'
+        then:
+          dependencies:
+            - { $eval: as_slugid("lint_task") }
+          scopes:
+            - hooks:modify-hook:project-relman/stab-crashes
+            - assume:hook-id:project-relman/stab-crashes
+            - secrets:get:project/relman/stab-crashes/deploy
+          created: { $fromNow: "" }
+          deadline: { $fromNow: "1 hour" }
+          provisionerId: proj-relman
+          workerType: ci
+          payload:
+            features:
+              taskclusterProxy: true
+            maxRunTime: 3600
+            image: "${taskboot_image}"
+            command:
+              - "/bin/sh"
+              - "-lcxe"
+              - "git clone --quiet ${repository} &&
+                cd stab-crashes &&
+                git -c advice.detachedHead=false checkout ${head_rev} &&
+                taskboot --target . build-hook taskcluster-hook.json project-relman stab-crashes"
+          metadata:
+            name: stab-crashes update hook
+            description: stab-crashes update hook
+            owner: mcastelluccio@mozilla.com
+            source: ${repository}/raw/${head_rev}/.taskcluster.yml
