@@ -39,7 +39,7 @@
       "maxRunTime": 7200
     },
     "priority": "normal",
-    "provisionerId": "proj-bugbug",
+    "provisionerId": "proj-relman",
     "retries": 5,
     "routes": [
       "notify.email.mcastelluccio@mozilla.com.on-failed",
@@ -51,7 +51,7 @@
       "secrets:get:project/relman/rust-code-analysis/production"
     ],
     "tags": {},
-    "workerType": "batch"
+    "workerType": "ci"
   },
   "triggerSchema": {
     "additionalProperties": false,
