@@ -1,4 +1,5 @@
 {
+  "schedule": ["0 0 0 * * *"],
   "metadata": {
     "description": "",
     "name": "stab-crashes run",
@@ -30,13 +31,9 @@
         "taskclusterProxy": true
       },
       "command": [
-        "bugbug-classify-commit",
-        "regressor",
-        "/cache/mozilla-central",
-        "--phabricator-deployment=${payload['PHABRICATOR_DEPLOYMENT']}",
-        "--diff-id=${payload['DIFF_ID']}",
-        "--git_repo_dir=/gecko-dev",
-        "--method_defect_predictor_dir=/MethodDefectPredictor"
+        "/bin/sh",
+        "-lcxe",
+        "git clone --quiet https://github.com/mozilla/stab-crashes.git && cd stab-crashes && ./run.sh"
       ],
       "image": "python",
       "maxRunTime": 7200
@@ -49,7 +46,10 @@
       "notify.email.gsvelto@mozilla.com.on-failed"
     ],
     "schedulerId": "-",
-    "scopes": ["assume:hook-id:project-relman/stab-crashes"],
+    "scopes": [
+      "assume:hook-id:project-relman/stab-crashes",
+      "secrets:get:project/relman/rust-code-analysis/production"
+    ],
     "tags": {},
     "workerType": "batch"
   },
