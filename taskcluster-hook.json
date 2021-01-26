@@ -48,7 +48,7 @@
     "schedulerId": "-",
     "scopes": [
       "assume:hook-id:project-relman/stab-crashes",
-      "secrets:get:project/relman/rust-code-analysis/production"
+      "secrets:get:project/relman/stab-crashes/production"
     ],
     "tags": {},
     "workerType": "ci"
