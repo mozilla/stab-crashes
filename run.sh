@@ -1,5 +1,7 @@
 #!/bin/sh
 
+mkdir ~/.ssh
+
 echo "Host github.com" >> ~/.ssh/config
 echo "HostName github.com" >> ~/.ssh/config
 echo "IdentityFile ~/.ssh/deploy-key" >> ~/.ssh/config
