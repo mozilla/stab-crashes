@@ -4,19 +4,19 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import re
-import requests
-import libmozdata.utils as utils
+
 import libmozdata.socorro as socorro
+import libmozdata.utils as utils
+import requests
 from libmozdata.connection import Query
 
 
 def query_dxr(q):
-    r = requests.get('https://dxr.mozilla.org/mozilla-central/search', params={
-        'q': q,
-        'limit': 1000
-    }, headers={
-        'Accept': 'application/json'
-    })
+    r = requests.get(
+        "https://dxr.mozilla.org/mozilla-central/search",
+        params={"q": q, "limit": 1000},
+        headers={"Accept": "application/json"},
+    )
 
     if r.status_code != 200:
         print(r.text)
@@ -26,52 +26,69 @@ def query_dxr(q):
 
 
 def get_critical_errors():
-    results = query_dxr('gfxCriticalError(')['results'] + query_dxr('gfxCriticalNote <<')['results'] + query_dxr('gfxCriticalErrorOnce(')['results']
+    results = (
+        query_dxr("gfxCriticalError(")["results"]
+        + query_dxr("gfxCriticalNote <<")["results"]
+        + query_dxr("gfxCriticalErrorOnce(")["results"]
+    )
 
-    matches = [re.search(r'"(.*?)"', line['line']) for result in results for line in result['lines']]
+    matches = [
+        re.search(r'"(.*?)"', line["line"])
+        for result in results
+        for line in result["lines"]
+    ]
 
     errors = [match.group(1) for match in matches if match is not None]
 
-    return set([error for error in errors if error != ', '])
+    return set([error for error in errors if error != ", "])
 
 
-def analyze_gfx_critical_errors(signature='', product='Firefox', channel=['all'], start_date=''):
-    if product.lower() == 'firefox':
-        product = 'Firefox'
+def analyze_gfx_critical_errors(
+    signature="", product="Firefox", channel=["all"], start_date=""
+):
+    if product.lower() == "firefox":
+        product = "Firefox"
 
-    if channel == [] or channel[0].lower() == 'all':
-        channel = ['release', 'beta', 'nightly']
-        if product == 'Firefox':
-            channel.append('esr')
+    if channel == [] or channel[0].lower() == "all":
+        channel = ["release", "beta", "nightly"]
+        if product == "Firefox":
+            channel.append("esr")
     else:
         channel = [c.lower() for c in channel]
 
     if not start_date:
-        start_date = utils.get_date('today', 7)
+        start_date = utils.get_date("today", 7)
 
     gfx_critical_errors = get_critical_errors()
 
     count = {}
 
     def handler(json, gfx_critical_error):
-        count[gfx_critical_error] = json['total']
+        count[gfx_critical_error] = json["total"]
 
     base_params = {
-        'product': product,
-        'release_channel': channel,
-        'date': '>=' + start_date,
-        '_results_number': 0,
-        '_facets_size': 0,
+        "product": product,
+        "release_channel": channel,
+        "date": ">=" + start_date,
+        "_results_number": 0,
+        "_facets_size": 0,
     }
 
     if signature:
-        base_params['signature'] = signature
+        base_params["signature"] = signature
 
     queries = []
     for gfx_critical_error in gfx_critical_errors:
         params = base_params.copy()
-        params['graphics_critical_error'] = '~' + gfx_critical_error
-        queries.append(Query(socorro.SuperSearch.URL, params=params, handler=handler, handlerdata=gfx_critical_error))
+        params["graphics_critical_error"] = "~" + gfx_critical_error
+        queries.append(
+            Query(
+                socorro.SuperSearch.URL,
+                params=params,
+                handler=handler,
+                handlerdata=gfx_critical_error,
+            )
+        )
 
     socorro.SuperSearch(queries=queries).wait()
 

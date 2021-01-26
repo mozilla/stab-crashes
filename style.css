@@ -2,7 +2,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   padding: 8px;
   padding-top: 40px;
   padding-bottom: 40px;
@@ -43,23 +44,23 @@ text {
 }
 
 .tooltip {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .tooltip .tooltip-dialog {
-    visibility: hidden;
-    width: 1220px;
-    border: 1px solid black;
-    text-align: center;
-    background-color: white;
-    border-radius: 6px;
-    padding: 10px 0;
-    position: absolute;
-    z-index: 1;
-    top: 100%;
+  visibility: hidden;
+  width: 1220px;
+  border: 1px solid black;
+  text-align: center;
+  background-color: white;
+  border-radius: 6px;
+  padding: 10px 0;
+  position: absolute;
+  z-index: 1;
+  top: 100%;
 }
 
 .tooltip:hover .tooltip-dialog {
-    visibility: visible;
+  visibility: visible;
 }

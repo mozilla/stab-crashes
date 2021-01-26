@@ -1,4 +1,4 @@
-libmozdata>=0.1.34
-six>=1.10.0
 ghp-import>=0.5.2
+libmozdata>=0.1.34
 requests[security]>=2.7.0
+six>=1.10.0

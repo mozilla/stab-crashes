@@ -1,9 +1,9 @@
-let onLoad = new Promise(function(resolve, reject) {
+let onLoad = new Promise(function (resolve, reject) {
   window.onload = resolve;
 });
 
 function addRow(error) {
-  let table = document.getElementById('table');
+  let table = document.getElementById("table");
 
   let row = table.insertRow(table.rows.length);
 
@@ -15,22 +15,22 @@ function addRow(error) {
 }
 
 function buildTable() {
-  fetch('graphics_critical_errors.json')
-  .then(response => response.json())
-  .then(graphics_critical_errors => {
-    Object.entries(graphics_critical_errors)
-    .sort((error1, error2) => error2[1] - error1[1])
-    .forEach(addRow);
-  })
-  .catch(function(err) {
-    console.error(err);
-  });
+  fetch("graphics_critical_errors.json")
+    .then((response) => response.json())
+    .then((graphics_critical_errors) => {
+      Object.entries(graphics_critical_errors)
+        .sort((error1, error2) => error2[1] - error1[1])
+        .forEach(addRow);
+    })
+    .catch(function (err) {
+      console.error(err);
+    });
 }
 
 onLoad
-.then(function() {
-  buildTable();
-})
-.catch(function(err) {
-  console.error(err);
-});
+  .then(function () {
+    buildTable();
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
