@@ -16,6 +16,7 @@ import libmozdata.socorro as socorro
 import libmozdata.utils as utils
 import requests
 import six
+import taskcluster
 from libmozdata.bugzilla import Bugzilla
 from libmozdata.connection import Connection, Query
 from requests.adapters import HTTPAdapter
@@ -79,8 +80,6 @@ def get(
     versions = versions_util.get_channel_versions(channel, product)
     sys.stdout.write(" ✔\n")
     sys.stdout.flush()
-
-    Bugzilla.TOKEN = os.environ["BUGZILLA_TOKEN"]
 
     if crash_type and isinstance(crash_type, six.string_types):
         crash_type = [crash_type]
@@ -325,10 +324,37 @@ def get_with_retries(url, params=None, headers=None):
     return s.get(url, params=params, headers=headers)
 
 
+def get_taskcluster_options() -> dict:
+    """
+    Helper to get the Taskcluster setup options
+    according to current environment (local or Taskcluster)
+    """
+    options = taskcluster.optionsFromEnvironment()
+    proxy_url = os.environ.get("TASKCLUSTER_PROXY_URL")
+
+    if proxy_url is not None:
+        # Always use proxy url when available
+        options["rootUrl"] = proxy_url
+
+    if "rootUrl" not in options:
+        # Always have a value in root url
+        options["rootUrl"] = "https://community-tc.services.mozilla.com"
+
+    return options
+
+
 if __name__ == "__main__":
     DATE = "yesterday"
     DURATION = 11
     TC_LIMIT = 200
+
+    secrets = taskcluster.Secrets(get_taskcluster_options())
+    secrets_dict = secrets.get("project/relman/stab-crashes/production")["secret"]
+
+    Bugzilla.TOKEN = secrets_dict["BUGZILLA_TOKEN"]
+
+    with open(os.path.expanduser("~/.ssh/deploy-key"), "w") as f:
+        f.write(secrets_dict["ssh_key"])
 
     try:
         shutil.rmtree("dist")
