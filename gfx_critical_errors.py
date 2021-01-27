@@ -11,9 +11,9 @@ import requests
 from libmozdata.connection import Query
 
 
-def query_dxr(q):
+def query_searchfox(q):
     r = requests.get(
-        "https://dxr.mozilla.org/mozilla-central/search",
+        "https://searchfox.org/mozilla-central/search",
         params={"q": q, "limit": 1000},
         headers={"Accept": "application/json"},
     )
@@ -22,14 +22,14 @@ def query_dxr(q):
         print(r.text)
         raise Exception(r)
 
-    return r.json()
+    return sum((result for result in r.json()["normal"].values()), [])
 
 
 def get_critical_errors():
     results = (
-        query_dxr("gfxCriticalError(")["results"]
-        + query_dxr("gfxCriticalNote <<")["results"]
-        + query_dxr("gfxCriticalErrorOnce(")["results"]
+        query_searchfox("gfxCriticalError(")
+        + query_searchfox("gfxCriticalNote <<")
+        + query_searchfox("gfxCriticalErrorOnce(")
     )
 
     matches = [
