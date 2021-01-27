@@ -33,7 +33,7 @@
       "command": [
         "/bin/sh",
         "-lcxe",
-        "git clone --quiet https://github.com/mozilla/stab-crashes.git && cd stab-crashes && ./run.sh"
+        "git clone --quiet https://github.com/mozilla/stab-crashes.git && cd stab-crashes && /bin/sh -lcxe run.sh"
       ],
       "image": "python",
       "maxRunTime": 7200
