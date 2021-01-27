@@ -12,6 +12,9 @@ echo "User git" >> /root/.ssh/config
 python taskcluster_get_secret.py ssh_key > /root/.ssh/deploy-key
 chmod u=rw,og= /root/.ssh/deploy-key
 
+python taskcluster_get_secret.py github_ssh_host  > /root/.ssh/known_hosts
+
+git remote set-url origin git@github.com:mozilla/stab-crashes.git
 git fetch origin -f gh-pages:gh-pages
 
 export BUGZILLA_TOKEN=$(python taskcluster_get_secret.py BUGZILLA_TOKEN)
