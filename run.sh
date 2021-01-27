@@ -2,7 +2,7 @@
 
 pip install -r requirements.txt
 
-mkdir ~/.ssh
+mkdir /root/.ssh
 
 echo "Host github.com" >> /root/.ssh/config
 echo "HostName github.com" >> /root/.ssh/config
