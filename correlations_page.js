@@ -1,16 +1,16 @@
 let options = {
-  'product': {
+  product: {
     value: null,
-    type: 'option',
+    type: "option",
   },
-  'channel': {
+  channel: {
     value: null,
-    type: 'option',
+    type: "option",
   },
-  'signature': {
+  signature: {
     value: null,
-    type: 'button',
-  }
+    type: "button",
+  },
 };
 
 function getOption(name) {
@@ -22,105 +22,118 @@ function getOptionType(name) {
 }
 
 function setOption(name, value) {
-  return options[name].value = value;
+  return (options[name].value = value);
 }
 
-let onLoad = new Promise(function(resolve, reject) {
+let onLoad = new Promise(function (resolve, reject) {
   window.onload = resolve;
 });
 
 function getCorrelations() {
-  if (!getOption('channel') || !getOption('signature')) {
+  if (!getOption("channel") || !getOption("signature")) {
     return;
   }
 
   let url = new URL(location.href);
-  url.search = '?product=' + getOption('product') + '&channel=' + getOption('channel') + '&signature=' + getOption('signature');
+  url.search =
+    "?product=" +
+    getOption("product") +
+    "&channel=" +
+    getOption("channel") +
+    "&signature=" +
+    getOption("signature");
   history.replaceState({}, document.title, url.href);
 
-  let signature = decodeURIComponent(getOption('signature'));
-  let channel = getOption('channel');
-  let product = getOption('product');
+  let signature = decodeURIComponent(getOption("signature"));
+  let channel = getOption("channel");
+  let product = getOption("product");
 
-  let crashStatsLink = document.getElementById('crash_stats_link');
-  crashStatsLink.href = 'https://crash-stats.mozilla.org/signature/?signature=' + getOption('signature') + '&release_channel=' + getOption('channel') + '&product=' + getOption('product') + '#correlations';
+  let crashStatsLink = document.getElementById("crash_stats_link");
+  crashStatsLink.href =
+    "https://crash-stats.mozilla.org/signature/?signature=" +
+    getOption("signature") +
+    "&release_channel=" +
+    getOption("channel") +
+    "&product=" +
+    getOption("product") +
+    "#correlations";
 
-  let preElem = document.getElementById('correlations_text');
+  let preElem = document.getElementById("correlations_text");
   correlations.text(preElem, signature, channel, product);
 
-  let svgElem = document.getElementById('correlations_image');
+  let svgElem = document.getElementById("correlations_image");
   correlations.graph(svgElem, signature, channel, product);
 }
 
 function updateAnalysisDate() {
-  correlations.getAnalysisDate(getOption('product'))
-  .then(date => document.getElementById('date').textContent = date)
+  correlations
+    .getAnalysisDate(getOption("product"))
+    .then((date) => (document.getElementById("date").textContent = date));
 }
 
 onLoad
-.then(function() {
-  let queryVars = new URL(location.href).search.substring(1).split('&');
+  .then(function () {
+    let queryVars = new URL(location.href).search.substring(1).split("&");
 
-  Object.keys(options)
-  .forEach(function(optionName) {
-    let optionType = getOptionType(optionName);
-    let elem = document.getElementById(optionName);
+    Object.keys(options).forEach(function (optionName) {
+      let optionType = getOptionType(optionName);
+      let elem = document.getElementById(optionName);
 
-    for (let queryVar of queryVars) {
-      if (queryVar.startsWith(optionName + '=')) {
-        let option = queryVar.substring((optionName + '=').length).trim();
-        setOption(optionName, option);
-      }
-    }
-
-    if (optionType === 'select') {
-      if (getOption(optionName)) {
-        elem.checked = getOption(optionName);
-      }
-
-      setOption(optionName, elem.checked);
-
-      elem.onchange = function() {
-        setOption(optionName, elem.checked);
-        getCorrelations();
-      };
-    } else if (optionType === 'option') {
-      if (getOption(optionName)) {
-        for (let i = 0; i < elem.options.length; i++) {
-          if (elem.options[i].value === getOption(optionName)) {
-            elem.selectedIndex = i;
-            break;
-          }
+      for (let queryVar of queryVars) {
+        if (queryVar.startsWith(optionName + "=")) {
+          let option = queryVar.substring((optionName + "=").length).trim();
+          setOption(optionName, option);
         }
       }
 
-      setOption(optionName, elem.options[elem.selectedIndex].value);
+      if (optionType === "select") {
+        if (getOption(optionName)) {
+          elem.checked = getOption(optionName);
+        }
 
-      elem.onchange = function() {
+        setOption(optionName, elem.checked);
+
+        elem.onchange = function () {
+          setOption(optionName, elem.checked);
+          getCorrelations();
+        };
+      } else if (optionType === "option") {
+        if (getOption(optionName)) {
+          for (let i = 0; i < elem.options.length; i++) {
+            if (elem.options[i].value === getOption(optionName)) {
+              elem.selectedIndex = i;
+              break;
+            }
+          }
+        }
+
         setOption(optionName, elem.options[elem.selectedIndex].value);
-        updateAnalysisDate();
-        getCorrelations();
-      };
-    } else if (optionType === 'button') {
-      if (getOption(optionName)) {
-        elem.value = getOption(optionName);
-      }
 
-      setOption(optionName, elem.value.trim());
+        elem.onchange = function () {
+          setOption(optionName, elem.options[elem.selectedIndex].value);
+          updateAnalysisDate();
+          getCorrelations();
+        };
+      } else if (optionType === "button") {
+        if (getOption(optionName)) {
+          elem.value = getOption(optionName);
+        }
 
-      document.getElementById(optionName + 'Button').onclick = function() {
         setOption(optionName, elem.value.trim());
-        getCorrelations();
-      };
-    } else {
-      throw new Error('Unexpected option type.');
-    }
+
+        document.getElementById(optionName + "Button").onclick = function () {
+          setOption(optionName, elem.value.trim());
+          getCorrelations();
+        };
+      } else {
+        throw new Error("Unexpected option type.");
+      }
+    });
+  })
+  .then(function () {
+    updateAnalysisDate();
+    getCorrelations();
+  })
+  .catch(function (err) {
+    console.error(err);
   });
-})
-.then(function() {
-  updateAnalysisDate();
-  getCorrelations();
-})
-.catch(function(err) {
-  console.error(err);
-});
