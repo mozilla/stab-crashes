@@ -1,1 +1,1 @@
-{"start_date": "2021-01-16", "end_date": "2021-01-26", "versions": ["86.0b1", "86.0b2"], "signatures": {}}
+{"start_date": "2021-01-17", "end_date": "2021-01-27", "versions": ["86.0b1", "86.0b2"], "signatures": {"CBaseProxyBuffer::Connect": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "strset": {"tc_rank": 2, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
