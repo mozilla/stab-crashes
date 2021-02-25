@@ -1,1 +1,1 @@
-{"start_date": "2021-02-13", "end_date": "2021-02-23", "versions": ["87.0b1"], "signatures": {}}
+{"start_date": "2021-02-14", "end_date": "2021-02-24", "versions": ["87.0b1", "87.0b2"], "signatures": {"ScaleRectsAndCreateRegion": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
