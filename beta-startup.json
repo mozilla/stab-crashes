@@ -1,1 +1,1 @@
-{"start_date": "2021-07-03", "end_date": "2021-07-13", "versions": ["91.0b1"], "signatures": {}}
+{"start_date": "2021-07-04", "end_date": "2021-07-14", "versions": ["91.0b1", "91.0b2"], "signatures": {"mozilla::URLPreloader::ReadCache": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "mozilla::ipc::MessageChannel::Clear | mozilla::ipc::MessageChannel::~MessageChannel | mozilla::PProcessHangMonitorChild::~PProcessHangMonitorChild": {"tc_rank": 2, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
