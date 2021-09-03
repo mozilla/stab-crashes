@@ -133,6 +133,8 @@ def get(
         "id",
         "last_change_time",
         "cf_tracking_firefox" + str(version),
+        "product",
+        "component",
     ]
     for i in range(int(version), int(v["nightly"]) + 1):
         bug_flags.append("cf_status_firefox" + str(i))
