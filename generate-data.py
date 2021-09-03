@@ -339,7 +339,7 @@ if __name__ == "__main__":
     os.mkdir("dist")
     os.mkdir("dist/images")
 
-    for channel in ["release", "beta"]:
+    for channel in ["release", "beta", "nightly"]:
         for startup in [False, True]:
             print(
                 "Getting top-"
