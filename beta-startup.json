@@ -1,1 +1,1 @@
-{"start_date": "2021-09-25", "end_date": "2021-10-05", "versions": ["94.0b1"], "signatures": {}}
+{"start_date": "2021-09-26", "end_date": "2021-10-06", "versions": ["94.0b1", "94.0b2"], "signatures": {"mozilla::ScriptPreloader::InitCacheInternal": {"tc_rank": 1, "crash_count": 8, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
