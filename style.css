@@ -1,7 +1,22 @@
 table {
   border-collapse: collapse;
+  background-color: black;
+}
+a{
+  color: rgb(255, 255, 255);   
+  text-decoration: none;
+  font-size: 17px;
+   
+}  
+td{
+  transform-style: preserve-3d; 
+  transform:translate3d(0,0,90deg);  
 }
 
+img{
+  border-radius: 10px;   
+}    
+ 
 th,
 td {
   padding: 8px;
