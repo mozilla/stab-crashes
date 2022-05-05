@@ -1,1 +1,1 @@
-{"start_date": "2022-04-23", "end_date": "2022-05-03", "versions": ["102.0a1"], "signatures": {}}
+{"start_date": "2022-04-24", "end_date": "2022-05-04", "versions": ["102.0a1"], "signatures": {"js::frontend::ParserAtomsTable::internChar16": {"tc_rank": 1, "crash_count": 7, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "enum$<T>::decode_to_utf16_raw": {"tc_rank": 2, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}

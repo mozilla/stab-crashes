@@ -1,1 +1,1 @@
-{"start_date": "2022-04-23", "end_date": "2022-05-03", "versions": ["101.0b1"], "signatures": {}}
+{"start_date": "2022-04-24", "end_date": "2022-05-04", "versions": ["101.0b1", "101.0b2"], "signatures": {"NS_CreateNativeAppSupport": {"tc_rank": 1, "crash_count": 4, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "style::properties::longhands::text_align::parse_declared": {"tc_rank": 2, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
