@@ -1,1 +1,1 @@
-{"start_date": "2022-06-18", "end_date": "2022-06-28", "versions": ["103.0b1"], "signatures": {}}
+{"start_date": "2022-06-19", "end_date": "2022-06-29", "versions": ["103.0b1", "103.0b2"], "signatures": {"getenv": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": [{"component": "Graphics: WebRender", "id": 1653960, "cf_status_firefox103": "---", "product": "Core", "cf_tracking_firefox103": "---", "resolution": "WORKSFORME", "cf_status_firefox104": "---", "last_change_time": "2021-03-30T20:55:19Z"}]}}}
