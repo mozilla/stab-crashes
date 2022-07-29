@@ -1,1 +1,1 @@
-{"start_date": "2022-07-17", "end_date": "2022-07-27", "versions": ["105.0a1"], "signatures": {}}
+{"start_date": "2022-07-18", "end_date": "2022-07-28", "versions": ["105.0a1"], "signatures": {"mozilla::URLPreloader::ReadCache": {"tc_rank": 1, "crash_count": 3, "estimated_user_count": 3, "startup_percent": 1.0, "bugs": [{"last_change_time": "2022-07-13T15:41:41Z", "cf_status_firefox105": "---", "resolution": "", "id": 1724336, "component": "XPConnect", "cf_tracking_firefox105": "---", "product": "Core"}]}}}
