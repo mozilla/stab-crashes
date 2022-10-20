@@ -1,1 +1,1 @@
-{"start_date": "2022-10-08", "end_date": "2022-10-18", "versions": ["107.0b1"], "signatures": {}}
+{"start_date": "2022-10-09", "end_date": "2022-10-19", "versions": ["107.0b1", "107.0b2"], "signatures": {"JS_SetGCParameter": {"tc_rank": 1, "crash_count": 5, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "@0x9efff402": {"tc_rank": 2, "crash_count": 3, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "JSString::hasLatin1Chars": {"tc_rank": 3, "crash_count": 3, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
