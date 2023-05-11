@@ -1,1 +1,1 @@
-{"start_date": "2023-04-29", "end_date": "2023-05-09", "versions": ["114.0b1"], "signatures": {}}
+{"start_date": "2023-04-30", "end_date": "2023-05-10", "versions": ["114.0b1", "114.0b2"], "signatures": {"_glNamedBufferAttachMemoryNV": {"tc_rank": 1, "crash_count": 2, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
