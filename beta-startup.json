@@ -1,1 +1,1 @@
-{"start_date": "2023-07-22", "end_date": "2023-08-01", "versions": ["117.0b1"], "signatures": {}}
+{"start_date": "2023-07-23", "end_date": "2023-08-02", "versions": ["117.0b1", "117.0b2"], "signatures": {"mozilla::widget::GfxInfo::GetDeviceInfo": {"tc_rank": 1, "crash_count": 5, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": [{"id": 1837824, "product": "Core", "cf_tracking_firefox117": "---", "cf_status_firefox118": "---", "last_change_time": "2023-07-29T20:16:49Z", "resolution": "", "cf_status_firefox117": "---", "component": "Widget: Cocoa"}]}}}
