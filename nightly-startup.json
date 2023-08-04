@@ -1,1 +1,1 @@
-{"start_date": "2023-07-23", "end_date": "2023-08-02", "versions": ["118.0a1"], "signatures": {}}
+{"start_date": "2023-07-24", "end_date": "2023-08-03", "versions": ["118.0a1"], "signatures": {"shutdownhang | NtAlpcSendWaitReceivePort": {"tc_rank": 1, "crash_count": 2, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": [{"product": "Core", "cf_status_firefox118": "---", "resolution": "", "id": 1551856, "last_change_time": "2023-05-08T15:30:29Z", "cf_tracking_firefox118": "---", "component": "Widget: Win32"}]}}}
