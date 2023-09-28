@@ -1,1 +1,1 @@
-{"start_date": "2023-09-16", "end_date": "2023-09-26", "versions": ["120.0a1"], "signatures": {}}
+{"start_date": "2023-09-17", "end_date": "2023-09-27", "versions": ["120.0a1"], "signatures": {"@0x0 | winnsi.dll | iphlpapi.dll | nsNotifyAddrListener::Run": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "mozilla::AppWindow::MoveResize": {"tc_rank": 2, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
