@@ -1,1 +1,1 @@
-{"start_date": "2024-06-01", "end_date": "2024-06-11", "versions": ["129.0a1"], "signatures": {}}
+{"start_date": "2024-06-02", "end_date": "2024-06-12", "versions": ["129.0a1"], "signatures": {"LiftParserScopeData": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
