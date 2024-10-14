@@ -17,6 +17,9 @@ python taskcluster_get_secret.py github_ssh_host  > /root/.ssh/known_hosts
 git remote set-url origin git@github.com:mozilla/stab-crashes.git
 git fetch origin -f gh-pages:gh-pages
 
+echo "[User-Agent]" >> mozdata.ini
+echo "name=stab-crashes" >> mozdata.ini
+
 export BUGZILLA_TOKEN=$(python taskcluster_get_secret.py BUGZILLA_TOKEN)
 python generate-data.py
 
