@@ -35,7 +35,7 @@
         "-lcxe",
         "git clone --quiet https://github.com/mozilla/stab-crashes.git && cd stab-crashes && /bin/sh -lcxe run.sh"
       ],
-      "image": "python",
+      "image": "python:3.9",
       "maxRunTime": 7200
     },
     "priority": "normal",
