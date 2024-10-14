@@ -44,7 +44,6 @@ repos:
       - id: mypy
         additional_dependencies:
           - types-requests==0.1.11
-          - types-six==1.16.21.20241009
   - repo: meta
     hooks:
       - id: check-useless-excludes

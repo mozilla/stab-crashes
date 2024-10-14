@@ -15,7 +15,6 @@ from datetime import datetime, timedelta
 import libmozdata.socorro as socorro
 import libmozdata.utils as utils
 import requests
-import six
 from libmozdata.bugzilla import Bugzilla
 from libmozdata.connection import Connection, Query
 from requests.adapters import HTTPAdapter
@@ -80,7 +79,7 @@ def get(
     sys.stdout.write(" ✔\n")
     sys.stdout.flush()
 
-    if crash_type and isinstance(crash_type, six.string_types):
+    if crash_type and isinstance(crash_type, str):
         crash_type = [crash_type]
 
     _date = utils.get_date_ymd(date)
