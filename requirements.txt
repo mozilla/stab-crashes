@@ -1,4 +1,4 @@
 ghp-import==2.1.0
 libmozdata==0.2.9
 requests[security]==2.32.3
-taskcluster==74.0.0
+taskcluster==75.0.0
