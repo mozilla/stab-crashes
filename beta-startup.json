@@ -1,1 +1,1 @@
-{"start_date": "2025-01-26", "end_date": "2025-02-05", "versions": ["136.0b1", "136.0b2"], "signatures": {}}
+{"start_date": "2025-01-27", "end_date": "2025-02-06", "versions": ["136.0b1", "136.0b2"], "signatures": {"js::frontend::ParserAtomsTable::getParserAtom": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
