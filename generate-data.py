@@ -31,7 +31,7 @@ datetime.strptime("", "")
 
 def __trend_handler(default_trend, json, data):
     for facets in json["facets"]["histogram_date"]:
-        d = utils.as_utc(datetime.strptime(facets["term"], "%Y-%m-%dT00:00:00+00:00"))
+        d = utils.as_utc(datetime.strptime(facets["term"], "%Y-%m-%dT00:00:00Z"))
         s = facets["facets"]["signature"]
         for signature in s:
             count = signature["count"]
