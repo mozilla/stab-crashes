@@ -1,1 +1,1 @@
-{"start_date": "2025-02-21", "end_date": "2025-03-03", "versions": ["138.0a1"], "signatures": {}}
+{"start_date": "2025-02-22", "end_date": "2025-03-04", "versions": ["138.0a1"], "signatures": {"zlib_rs::deflate::State::d_code": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 0.0, "bugs": [{"resolution": "", "product": "Core", "cf_tracking_firefox138": "---", "last_change_time": "2025-03-04T19:43:50Z", "component": "General", "id": 1950764, "cf_status_firefox138": "---"}]}}}
