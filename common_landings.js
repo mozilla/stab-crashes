@@ -73,8 +73,9 @@ function getPushlogLink(channel) {
     base = "https://hg.mozilla.org/mozilla-central";
   }
 
-  let firstAffected = document.getElementById(channel + "_first_affected")
-    .value;
+  let firstAffected = document.getElementById(
+    channel + "_first_affected"
+  ).value;
   if (firstAffected) {
     let isBuildID = checkIsBuildID(firstAffected);
 
@@ -143,7 +144,8 @@ function getCommonLandings() {
       betaBuildToTag(betaFirstAffected);
 
     let betaPushlogLinkElem = document.getElementById("beta_pushloglink");
-    betaPushlogLinkElem.textContent = betaPushlogLinkElem.href = betaPushlogLink;
+    betaPushlogLinkElem.textContent = betaPushlogLinkElem.href =
+      betaPushlogLink;
     pushlog_link_promises.push(Promise.resolve(betaPushlogLink));
   }
 
