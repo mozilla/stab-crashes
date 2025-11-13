@@ -1,1 +1,1 @@
-{"start_date": "2025-11-01", "end_date": "2025-11-11", "versions": ["147.0a1"], "signatures": {}}
+{"start_date": "2025-11-02", "end_date": "2025-11-12", "versions": ["147.0a1"], "signatures": {"guess_category_value": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": [{"component": "Widget: Gtk", "last_change_time": "2025-11-04T16:10:34Z", "product": "Core", "resolution": "", "id": 1993100, "cf_tracking_firefox147": "---", "cf_status_firefox147": "---"}]}}}
