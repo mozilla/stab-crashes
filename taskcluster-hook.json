@@ -38,7 +38,7 @@
       "image": "python:3.12",
       "maxRunTime": 7200
     },
-    "priority": "normal",
+    "priority": "lowest",
     "provisionerId": "proj-relman",
     "retries": 5,
     "routes": [
