@@ -1,1 +1,1 @@
-{"start_date": "2026-08-22", "end_date": "2026-09-01", "versions": ["156.0b1"], "signatures": {}}
+{"start_date": "2026-08-23", "end_date": "2026-09-02", "versions": ["156.0b1", "156.0b2"], "signatures": {"mozWritePoison": {"tc_rank": 1, "crash_count": 3, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "RtlFreeHeap | CoTaskMemFreeDeleter::operator()": {"tc_rank": 2, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
