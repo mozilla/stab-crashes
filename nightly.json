@@ -1,1 +1,1 @@
-{"start_date": "2026-09-14", "end_date": "2026-09-24", "versions": ["159.0a1"], "signatures": {}}
+{"start_date": "2026-09-15", "end_date": "2026-09-25", "versions": ["159.0a1"], "signatures": {"mozilla::net::Http2Session::VerifyStream": {"tc_rank": 1, "crash_count": 2, "estimated_user_count": 1, "startup_percent": 0.0, "bugs": [{"component": "Networking: HTTP", "id": 1992303, "resolution": "", "cf_status_firefox159": "---", "last_change_time": "2025-11-18T09:42:07Z", "cf_tracking_firefox159": "---", "product": "Core"}]}}}
