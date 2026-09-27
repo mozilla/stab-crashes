@@ -1,1 +1,1 @@
-{"start_date": "2026-09-15", "end_date": "2026-09-25", "versions": ["159.0a1"], "signatures": {}}
+{"start_date": "2026-09-16", "end_date": "2026-09-26", "versions": ["159.0a1"], "signatures": {"mozilla::net::DocumentLoadListener::~DocumentLoadListener": {"tc_rank": 1, "crash_count": 20, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}, "hb_nonnull_ptr_t<T>::get": {"tc_rank": 2, "crash_count": 2, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
