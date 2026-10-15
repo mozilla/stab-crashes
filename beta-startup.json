@@ -1,1 +1,1 @@
-{"start_date": "2026-10-03", "end_date": "2026-10-13", "versions": ["159.0b1"], "signatures": {}}
+{"start_date": "2026-10-04", "end_date": "2026-10-14", "versions": ["159.0b1", "159.0b2"], "signatures": {"shutdownhang | __CFRunLoopServiceMachPort": {"tc_rank": 1, "crash_count": 1, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": [{"cf_status_firefox160": "---", "resolution": "", "product": "Core", "last_change_time": "2026-10-13T07:56:16Z", "cf_tracking_firefox159": "---", "component": "General", "cf_status_firefox159": "---", "id": 1610213}]}}}
