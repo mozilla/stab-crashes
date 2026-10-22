@@ -1,0 +1,132 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+body {
+  font-family: sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+h1 {
+  margin: 0;
+}
+
+#dataLine {
+  margin-top: 0;
+}
+
+.help {
+  color: #808080;
+  font-style: italic;
+  font-size: 75%;
+}
+
+.hidden {
+  display: none;
+}
+
+#scompParams {
+  margin: 1em 0;
+  width: 100%;
+}
+
+.paramInput {
+  width: calc(100% - 16px);
+  margin: 0;
+  padding: 0;
+}
+
+.paramSubmit {
+  text-align: right;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0 0;
+  border-color: black;
+}
+
+th,
+td {
+  padding: 1px 3px;
+  border-color: black;
+}
+
+th {
+  text-align: left;
+}
+
+.rank {
+  text-align: right;
+  vertical-align: middle;
+}
+
+.sig {
+  font-size: small;
+  text-align: left;
+  /*  vertical-align: top;*/
+}
+
+.pct {
+  text-align: right;
+  vertical-align: middle;
+}
+
+.pct.zero {
+  color: lightgray;
+}
+
+.bugs {
+  font-size: small;
+}
+
+.bugs > a[data-status="RESOLVED"],
+.bugs > a[data-status="VERIFIED"] {
+  text-decoration: line-through;
+}
+
+.bugs > a[data-status="RESOLVED"]:not([data-resolution="FIXED"]):not(:hover),
+.bugs > a[data-status="VERIFIED"]:not([data-resolution="FIXED"]):not(:hover) {
+  opacity: 0.5;
+}
+
+.pctcmp {
+  text-align: right;
+  vertical-align: middle;
+  color: gray;
+}
+
+.pctcmp.plus {
+  color: red;
+}
+
+.pctcmp.minus {
+  color: green;
+}
+
+#debugLog {
+  display: none;
+}
+
+/* common footer */
+
+#footer {
+  margin-top: 2em;
+  border-top: 1px solid #cccccc;
+  font-size: 0.75em;
+  color: #8080cc;
+}
+
+html.fullpage > body > #footer {
+  margin-top: 0.5em;
+}
+
+#footer a:link,
+#footer a:visited {
+  color: #aa99cc;
+}
+#footer a:hover,
+#footer a:active {
+  color: #663399;
+}
