@@ -1,1 +1,1 @@
-{"start_date": "2026-10-17", "end_date": "2026-10-27", "versions": ["160.0b1"], "signatures": {}}
+{"start_date": "2026-10-18", "end_date": "2026-10-28", "versions": ["160.0b1", "160.0b2"], "signatures": {"mozilla::dom::AnimationPlaybackEvent::AddRef": {"tc_rank": 1, "crash_count": 2, "estimated_user_count": 1, "startup_percent": 1.0, "bugs": []}}}
